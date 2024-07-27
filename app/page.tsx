@@ -1,10 +1,12 @@
 'use client'
 
-import {useState, useEffect, useRef, useMemo} from 'react'
+import {useState, useEffect, useRef} from 'react'
 import Link from 'next/link'
 import Clock from '@/app/ui/clock'
 import StartWorkingButton from '@/app/ui/start-working-button'
 import EndWorkingButton from '@/app/ui/end-working-button'
+import StartBreakButton from '@/app/ui/start-break-button'
+import EndBreakButton from '@/app/ui/end-break-button'
 import { v4 as uuidv4 } from 'uuid'
 
 const returnStatus = (record: any) => {
@@ -143,6 +145,42 @@ export default function Home() {
     }
   }
 
+  const handleStartBreak = async () => {
+    const newBreak = {
+      id: uuidv4(),
+      date: recordRef.current.date,
+      start_time: new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit',hour12: false}),
+      end_time: ''
+    }
+    await fetch(
+      `http://localhost:3000/records/${recordRef.current.id}`,
+      {
+        method: "PATCH",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({breaks: [...recordRef.current.breaks, newBreak]})
+      }
+    )
+    setStatus('IN-BREAK')
+  }
+
+  const handleEndBreak = async () => {
+    const breakRecord = recordRef.current.breaks.find((b: any) => b["end_time"] === "")
+    if (!breakRecord) return
+    await fetch(
+      `http://localhost:3000/records/${recordRef.current.id}`,
+      {
+        method: "PATCH",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({breaks: recordRef.current.breaks.map((b: any) => b.id === breakRecord.id ? ({...breakRecord, end_time: new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit',hour12: false})}) : b)})
+      }
+    )
+    setStatus('IN-WORK')
+  }
+
   return (
     <div className="flex">
       <div>
@@ -164,6 +202,8 @@ export default function Home() {
         <p>{status}</p>
         <div>
           <StartWorkingButton handleStartWorking={handleStartWorking} disabled={status !== 'BEFORE-WORK'} />
+          <StartBreakButton handleStartBreak={handleStartBreak} disabled={status !== 'IN-WORK'} />
+          <EndBreakButton handleEndBreak={handleEndBreak} disabled={status !== 'IN-BREAK'} />
           <EndWorkingButton handleEndWorking={handleEndWorking} disabled={status !== 'IN-WORK'} />
         </div>
         {status === 'AFTER-WORK' && (
