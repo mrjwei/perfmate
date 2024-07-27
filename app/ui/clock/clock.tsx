@@ -2,8 +2,8 @@
 
 import {useState, useEffect} from 'react'
 
-export default function Clock() {
-  const [time, setTime] = useState<Date | null>(null)
+export default function Clock({initialTime = null}: {initialTime?: Date | null}) {
+  const [time, setTime] = useState<Date | typeof initialTime>(initialTime)
   useEffect(() => {
 		const interval = setInterval(() => {
 			setTime(new Date())
