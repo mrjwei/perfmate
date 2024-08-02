@@ -2,8 +2,8 @@
 
 import {useState, useEffect, useRef} from 'react'
 import Link from 'next/link'
-import Clock from '@/app/ui/clock'
-import StartWorkingButton from '@/app/ui/start-working-button'
+import Clock from '@/app/ui/clock/clock'
+import StartWorkingButton from '@/app/ui/start-working-button/start-working-button'
 import EndWorkingButton from '@/app/ui/end-working-button'
 import StartBreakButton from '@/app/ui/start-break-button'
 import EndBreakButton from '@/app/ui/end-break-button'
@@ -89,6 +89,7 @@ export default function Home() {
   }, [status])
 
   const handleStartWorking = async () => {
+    let res
     if (recordRef.current === null) {
       const newRecord = {
         id: uuidv4(),
@@ -98,7 +99,7 @@ export default function Home() {
         breaks: [],
         total_hours: '00:00'
       }
-      await fetch(
+      res = await fetch(
         `http://localhost:3000/records`,
         {
           method: "POST",
@@ -109,7 +110,7 @@ export default function Home() {
         }
       )
     } else {
-      await fetch(
+      res = await fetch(
         `http://localhost:3000/records/${recordRef.current.id}`,
         {
           method: "PATCH",
@@ -120,7 +121,9 @@ export default function Home() {
         }
       )
     }
-    setStatus('IN-WORK')
+    if (res.ok) {
+      setStatus('IN-WORK')
+    }
   }
 
   const handleEndWorking = async () => {
@@ -199,20 +202,22 @@ export default function Home() {
       </div>
       <main>
         <Clock />
-        <p>{status}</p>
+        <p data-testid="status">{status}</p>
         <div>
           <StartWorkingButton handleStartWorking={handleStartWorking} disabled={status !== 'BEFORE-WORK'} />
           <StartBreakButton handleStartBreak={handleStartBreak} disabled={status !== 'IN-WORK'} />
           <EndBreakButton handleEndBreak={handleEndBreak} disabled={status !== 'IN-BREAK'} />
           <EndWorkingButton handleEndWorking={handleEndWorking} disabled={status !== 'IN-WORK'} />
         </div>
-        {status === 'AFTER-WORK' && (
-          <ul>
-            <li>Start: {recordRef.current.start_time}</li>
-            <li>End: {recordRef.current.end_time}</li>
-            <li>Work hours: {recordRef.current.total_hours}</li>
-          </ul>
-        )}
+        {recordRef.current?.start_time && (<p>Started work at: {recordRef.current.start_time}</p>)}
+        {recordRef.current?.breaks.map((b: any, i: number) => (
+          <>
+            <p>Break {i + 1}:</p>
+            <p>Begin: {b.start_time}</p>
+            <p>End: {b.end_time}</p>
+          </>
+        ))}
+        {recordRef.current?.end_time && (<p>Finished work at: {recordRef.current.end_time}</p>)}
       </main>
     </div>
   )
