@@ -1,10 +1,18 @@
+import clsx from 'clsx'
+
 interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
+  className?: string
 }
 
-export default function Button({children, ...rest}: IButtonProps) {
+export default function Button({children, className, ...rest}: IButtonProps) {
   return (
-    <button {...rest}>
+    <button className={
+      clsx(
+        'px-4 py-2 font-medium rounded-lg disabled:bg-slate-300 text-white whitespace-nowrap',
+        className
+      )
+    } {...rest}>
       {children}
     </button>
   )

@@ -1,63 +1,30 @@
 'use client'
 
 import {useState, useEffect, useRef} from 'react'
-import Link from 'next/link'
 import Clock from '@/app/ui/clock/clock'
 import StartWorkingButton from '@/app/ui/start-working-button/start-working-button'
-import EndWorkingButton from '@/app/ui/end-working-button'
-import StartBreakButton from '@/app/ui/start-break-button'
-import EndBreakButton from '@/app/ui/end-break-button'
+import EndWorkingButton from '@/app/ui/end-working-button/end-working-button'
+import StartBreakButton from '@/app/ui/start-break-button/start-break-button'
+import EndBreakButton from '@/app/ui/end-break-button/end-break-button'
 import { v4 as uuidv4 } from 'uuid'
-
-const returnStatus = (record: any) => {
-  if (record['start_time']) {
-    if (record['end_time']) {
-      return 'AFTER-WORK'
-    } else {
-      if (record['breaks'].length > 0) {
-        if (record['breaks'].some((b: any) => !b['end_time'])) {
-          return 'IN-BREAK'
-        } else {
-          return 'IN-WORK'
-        }
-      } else {
-        return 'IN-WORK'
-      }
-    }
-  } else {
-    return 'BEFORE-WORK'
-  }
-}
-
-const formatDate = (date: Date) => {
-  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-}
-
-const getFormattedTimeDiffernece = (startTime: string, endTime: string) => {
-  const [startHours, startMins] = startTime.split(':').map(Number)
-  const [endHours, endMins] = endTime.split(':').map(Number)
-
-  const startTotalMins = startHours * 60 + startMins;
-  const endTotalMins = endHours * 60 + endMins;
-
-  let diffInMins = endTotalMins - startTotalMins
-
-  if (diffInMins < 0) {
-    diffInMins += 24 * 60
-  }
-
-  const hours = Math.floor(diffInMins / 60)
-  const mins = diffInMins % 60
-
-  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
-}
+import Sidebar from '@/app/ui/sidebar/sidebar'
+import Tag from '@/app/ui/tag/tag'
+import BreakUnit from "@/app/ui/break-unit/break-unit"
+import TimeStamp from "./ui/time-stamp/time-stamp"
+import {TStatus} from '@/app/lib/types'
+import {
+  returnStatus,
+  getFormattedDateString,
+  getTimeDifferneceInMins,
+  getFormattedTimeString
+} from '@/app/lib/helpers'
 
 export default function Home() {
-  const [status, setStatus] = useState<'BEFORE-WORK' | 'IN-WORK' | 'IN-BREAK' | 'AFTER-WORK' | null>(null)
+  const [status, setStatus] = useState<TStatus | null>(null)
   const recordRef = useRef<any>(null)
 
   const fetchRecordByDate = async (date: Date) => {
-    const dateStr = formatDate(date)
+    const dateStr = getFormattedDateString(date)
     const res = await fetch(`http://localhost:3000/records?date=${dateStr}`)
     const records = await res.json()
     return records.length > 0 ? records[0] : null
@@ -93,11 +60,11 @@ export default function Home() {
     if (recordRef.current === null) {
       const newRecord = {
         id: uuidv4(),
-        date: formatDate(new Date()),
+        date: getFormattedDateString(new Date()),
         start_time: new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit',hour12: false}),
         end_time: '',
         breaks: [],
-        total_hours: '00:00'
+        total_hours: ''
       }
       res = await fetch(
         `http://localhost:3000/records`,
@@ -141,7 +108,7 @@ export default function Home() {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({end_time, total_hours: getFormattedTimeDiffernece(recordRef.current.start_time, end_time)})
+          body: JSON.stringify({end_time, total_hours: getFormattedTimeString(getTimeDifferneceInMins(recordRef.current.start_time, end_time))})
         }
       )
       setStatus('AFTER-WORK')
@@ -185,39 +152,45 @@ export default function Home() {
   }
 
   return (
-    <div className="flex">
-      <div>
-        <h1>Logo</h1>
-        <ul>
-          <li>
-            <Link href="/">Home</Link>
-          </li>
-          <li>
-            <Link href="">Records</Link>
-          </li>
-          <li>
-            <Link href="">Settings</Link>
-          </li>
-        </ul>
-      </div>
-      <main>
+    <div className="flex h-full">
+      <Sidebar />
+      <main className="mx-auto py-12 w-2/3 xl:w-3/5 2xl:w-2/5">
         <Clock />
-        <p data-testid="status">{status}</p>
-        <div>
-          <StartWorkingButton handleStartWorking={handleStartWorking} disabled={status !== 'BEFORE-WORK'} />
-          <StartBreakButton handleStartBreak={handleStartBreak} disabled={status !== 'IN-WORK'} />
-          <EndBreakButton handleEndBreak={handleEndBreak} disabled={status !== 'IN-BREAK'} />
-          <EndWorkingButton handleEndWorking={handleEndWorking} disabled={status !== 'IN-WORK'} />
+        <div className="w-full flex justify-between items-center py-8">
+          <Tag testid="status" className="mr-4">{status}</Tag>
+          <div className="flex justify-between">
+            <StartWorkingButton handleStartWorking={handleStartWorking} disabled={status !== 'BEFORE-WORK'} />
+            <StartBreakButton handleStartBreak={handleStartBreak} disabled={status !== 'IN-WORK'} />
+            <EndBreakButton handleEndBreak={handleEndBreak} disabled={status !== 'IN-BREAK'} />
+            <EndWorkingButton handleEndWorking={handleEndWorking} disabled={status !== 'IN-WORK'} />
+          </div>
         </div>
-        {recordRef.current?.start_time && (<p>Started work at: {recordRef.current.start_time}</p>)}
-        {recordRef.current?.breaks.map((b: any, i: number) => (
-          <>
-            <p>Break {i + 1}:</p>
-            <p>Begin: {b.start_time}</p>
-            <p>End: {b.end_time}</p>
-          </>
-        ))}
-        {recordRef.current?.end_time && (<p>Finished work at: {recordRef.current.end_time}</p>)}
+        <ul className="pl-4">
+          {recordRef.current?.start_time && (
+            <li className="border-t-2 py-4">
+              <TimeStamp heading='Started work at' timeStamp={recordRef.current.start_time} />
+            </li>
+          )}
+          <li>
+            <ul className="pl-4">
+              {recordRef.current?.breaks.map((b: any, i: number) => (
+                <li className="border-t-2 py-2" key={`${b.start_time}-${i}`}>
+                  <BreakUnit index={i + 1} startTime={b.start_time} endTime={b.end_time} />
+                </li>
+              ))}
+            </ul>
+          </li>
+          {recordRef.current?.end_time && (
+            <li className="border-t-2 py-4">
+              <TimeStamp heading='Finished work at' timeStamp={recordRef.current.end_time} />
+            </li>
+          )}
+          {recordRef.current?.total_hours && (
+            <li className="border-t-2 py-4">
+              <TimeStamp heading='Total hours' timeStamp={recordRef.current.total_hours} />
+            </li>
+          )}
+        </ul>
       </main>
     </div>
   )
