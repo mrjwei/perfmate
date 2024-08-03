@@ -1,40 +1,22 @@
 'use client'
+
 import {useState, useEffect} from 'react'
-
-const calculateDiffInMinutes = (startTime: string, endTime: string) => {
-  const [startHours, startMins] = startTime.split(':').map(Number)
-  const [endHours, endMins] = endTime.split(':').map(Number)
-
-  const startTotalMinutes = startHours * 60 + startMins;
-  const endTotalMinutes = endHours * 60 + endMins;
-
-  let durationMinutes = endTotalMinutes - startTotalMinutes;
-
-  if (durationMinutes < 0) {
-    durationMinutes += 24 * 60;
-  }
-
-  return durationMinutes
-}
-
-const formatMinutesToTimeString = (minutes: number) => {
-  const durationHours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-
-  const formattedHours = String(durationHours).padStart(2, '0');
-  const formattedMinutes = String(remainingMinutes).padStart(2, '0');
-
-  return `${formattedHours}:${formattedMinutes}`
-}
+import {IRecord} from '@/app/lib/types'
+import {
+  getFormattedTimeString,
+  getTimeDifferneceInMins,
+  calculateTotalBreakMins
+} from '@/app/lib/helpers'
 
 export default function Records() {
-  const [records, setRecords] = useState([])
+  const [records, setRecords] = useState<IRecord[]>([])
 
   const fetchRecords = async () => {
     const res = await fetch('http://localhost:3000/records')
     const data = await res.json()
     setRecords(data)
   }
+
   useEffect(() => {
     fetchRecords()
   }, [])
@@ -51,11 +33,13 @@ export default function Records() {
         </tr>
       </thead>
       <tbody>
-        {records.map((record: any) => {
-          const {id, date, start_time: startTime, end_time: endTime, breaks, total_hours: totalWorkHours} = record
+        {records.map((record: IRecord) => {
+          const {id, date, startTime, endTime, breaks, totalHours} = record
 
-          const totalBreakMins = breaks.reduce((mins: number, b: any) => calculateDiffInMinutes(b['start_time'], b['end_time']) + mins, 0)
-          const totalBreakHours = formatMinutesToTimeString(totalBreakMins)
+          const totalWorkHoursInMins = getTimeDifferneceInMins(record.startTime, record.endTime)
+          const totalBreakMins = calculateTotalBreakMins(record)
+          const formattedTotalBreakHours = getFormattedTimeString(totalBreakMins)
+          const formattedTotalWorkHours = getFormattedTimeString(totalWorkHoursInMins - totalBreakMins)
 
           return (
             <tr key={id}>
@@ -69,10 +53,10 @@ export default function Records() {
                 {endTime}
               </td>
               <td>
-                {totalBreakHours}
+                {formattedTotalBreakHours}
               </td>
               <td>
-                {totalWorkHours}
+                {formattedTotalWorkHours}
               </td>
             </tr>
           )

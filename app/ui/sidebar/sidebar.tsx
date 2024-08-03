@@ -2,7 +2,7 @@ import LinkItem from '@/app/ui/link-item/link-item'
 
 const LINKS = [
   {href: '/', children: 'Home'},
-  {href: '/', children: 'Recordings'},
+  {href: '/records', children: 'Records'},
   {href: '/', children: 'Setting'},
 ]
 

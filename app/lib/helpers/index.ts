@@ -1,4 +1,4 @@
-import {TStatus, IRecord} from '@/app/lib/types'
+import {TStatus, IRecord, IBreak} from '@/app/lib/types'
 
 export const returnStatus = (record: IRecord) => {
   if (record['startTime']) {
@@ -60,4 +60,8 @@ export const getFormattedTimeString = (minutes: number) => {
   const mins = minutes % 60
 
   return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
+}
+
+export const calculateTotalBreakMins = (record: IRecord) => {
+  return record.breaks.reduce((acc: number, curr: IBreak) => acc + getTimeDifferneceInMins(curr.startTime, curr.endTime), 0)
 }
