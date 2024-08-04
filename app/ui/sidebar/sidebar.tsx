@@ -14,7 +14,7 @@ export default function Sidebar() {
         {LINKS.map((l: any) => {
           const {href, children } = l
           return (
-            <li>
+            <li key={href}>
               <LinkItem href={href}>{children}</LinkItem>
             </li>
           )
