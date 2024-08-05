@@ -10,14 +10,14 @@ import { v4 as uuidv4 } from "uuid"
 import Tag from "@/app/ui/tag/tag"
 import BreakUnit from "@/app/ui/break-unit/break-unit"
 import TimeStamp from "./ui/time-stamp/time-stamp"
-import { TStatus } from "@/app/lib/types"
+import { TStatus } from '@/app/lib/types'
 import {
   returnStatus,
   getFormattedDateString,
   getTimeDifferneceInMins,
   getFormattedTimeString,
   calculateTotalBreakMins,
-} from "@/app/lib/helpers"
+} from '@/app/lib/helpers'
 
 export default function Home() {
   const [status, setStatus] = useState<TStatus | null>(null)
@@ -56,7 +56,7 @@ export default function Home() {
   }, [status])
 
   const totalWorkHours = useMemo(() => {
-    if (!recordRef.current?.endTime) return
+    if (status !== 'AFTER-WORK') return
 
     const totalWorkHoursInMins = getTimeDifferneceInMins(
       recordRef.current?.startTime,
@@ -78,8 +78,7 @@ export default function Home() {
           hour12: false,
         }),
         endTime: "",
-        breaks: [],
-        totalHours: "",
+        breaks: []
       }
       res = await fetch(`http://localhost:3000/records`, {
         method: "POST",
@@ -129,10 +128,7 @@ export default function Home() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          endTime,
-          totalHours: getFormattedTimeString(
-            getTimeDifferneceInMins(recordRef.current.startTime, endTime)
-          ),
+          endTime
         }),
       })
       setStatus("AFTER-WORK")
@@ -244,7 +240,7 @@ export default function Home() {
             />
           </li>
         )}
-        {recordRef.current?.totalHours && (
+        {totalWorkHours && (
           <li className="border-t-2 py-4">
             <TimeStamp
               heading="Total hours"

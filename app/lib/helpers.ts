@@ -36,7 +36,7 @@ export const mapStatusToHumanReadableString = (status: TStatus | null) => {
 }
 
 export const getFormattedDateString = (date: Date) => {
-  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 
 export const getTimeDifferneceInMins = (startTime: string, endTime: string) => {
@@ -63,5 +63,15 @@ export const getFormattedTimeString = (minutes: number) => {
 }
 
 export const calculateTotalBreakMins = (record: IRecord) => {
-  return record.breaks.reduce((acc: number, curr: IBreak) => acc + getTimeDifferneceInMins(curr.startTime, curr.endTime), 0)
+  return record.breaks.reduce((acc: number, curr: IBreak) => {
+    if (!curr.endTime) {
+      return acc
+    }
+    return acc + getTimeDifferneceInMins(curr.startTime, curr.endTime)
+  }, 0)
+}
+
+export const zip = (fillna: any, ...arrays: any) => {
+  const length = Math.max(...arrays.map((arr: any) => arr.length))
+  return Array.from({length}, (_, i) => arrays.map((arr: any) => arr[i] ? arr[i] : fillna))
 }

@@ -6,7 +6,6 @@ export interface IRecord {
   startTime: string
   endTime: string
   breaks: IBreak[]
-  totalHours: string
 }
 
 export interface IBreak {
@@ -14,4 +13,15 @@ export interface IBreak {
   date: string
   startTime: string
   endTime: string
+}
+
+export type TActionState = {
+  message?: string | null
+  errors?: {
+    id?: string[]
+    date?: string[]
+    startTime?: string[]
+    breaks?: string[]
+    endTime?: string[]
+  }
 }
