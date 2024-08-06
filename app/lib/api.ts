@@ -1,15 +1,125 @@
 import {unstable_noStore as noStore} from 'next/cache'
+import {sql} from '@vercel/postgres'
+import { getFormattedDateString, getFormattedTimeString } from "./helpers"
+
+export const fetchRecordById = async (id: string) => {
+  noStore()
+  try {
+    const data = await sql`
+      SELECT * FROM records WHERE id = ${id};
+    `
+    const record = data.rows[0]
+    const breaks = await fetchBreaksByRecordId(record.id)
+
+    return {
+      id: record.id,
+      date: getFormattedDateString(record.date),
+      starttime: getFormattedTimeString(record.starttime),
+      breaks: breaks.map(b => ({
+        id: b.id,
+        starttime: getFormattedTimeString(b.starttime),
+        endtime: getFormattedTimeString(b.endtime),
+      })),
+      endtime: getFormattedTimeString(record.endtime)
+    }
+  } catch (error) {
+    console.error(`Database error: ${error}`);
+    throw new Error('Failed to fetch record.');
+  }
+}
+
+export const fetchRecordByDate = async (date: string) => {
+  noStore()
+  try {
+    const data = await sql`
+      SELECT * FROM records WHERE date = DATE(${date});
+    `
+    const record = data.rows[0]
+    const breaks = await fetchBreaksByRecordId(record.id)
+
+    return {
+      id: record.id,
+      date: getFormattedDateString(record.date),
+      starttime: getFormattedTimeString(record.starttime),
+      breaks: breaks.map(b => ({
+        id: b.id,
+        starttime: getFormattedTimeString(b.starttime),
+        endtime: getFormattedTimeString(b.endtime),
+      })),
+      endtime: getFormattedTimeString(record.endtime)
+    }
+  } catch (error) {
+    console.error(`Database error: ${error}`);
+    throw new Error('Failed to fetch record.');
+  }
+}
 
 export const fetchRecords = async () => {
   noStore()
-  const res = await fetch(`http://localhost:3000/records`)
-  const records = await res.json()
-  return records
+  try {
+    const data = await sql`
+      SELECT * FROM records
+      ORDER BY date DESC;
+    `
+    const recordsWithBreaks = await Promise.all(data.rows.map(async r => {
+      const breaks = await fetchBreaksByRecordId(r.id)
+      return {
+        id: r.id,
+        date: getFormattedDateString(r.date),
+        starttime: getFormattedTimeString(r.starttime),
+        breaks: breaks.map(b => ({
+          id: b.id,
+          starttime: getFormattedTimeString(b.starttime),
+          endtime: getFormattedTimeString(b.endtime),
+        })),
+        endtime: getFormattedTimeString(r.endtime)
+      }
+    }))
+    return recordsWithBreaks
+  } catch (error) {
+    console.error(`Database error: ${error}`);
+    throw new Error('Failed to fetch records.');
+  }
 }
 
-export const fetchOneRecord = async (id: string) => {
+export const fetchBreaksByRecordId = async (recordId: string) => {
   noStore()
-  const res = await fetch(`http://localhost:3000/records/${id}`)
-  const record = await res.json()
-  return record
+  try {
+    const data = await sql`
+      SELECT * FROM breaks
+      WHERE breaks.recordId = ${recordId};
+    `
+    return data.rows
+  } catch (error) {
+    console.error(`Database error: ${error}`);
+    throw new Error('Failed to fetch breaks by recordId.');
+  }
+}
+
+export const fetchLastRecord = async () => {
+  noStore()
+  try {
+    const data = await sql`
+      SELECT * FROM records
+      ORDER BY date DESC
+      LIMIT 1;
+    `
+    const record = data.rows[0]
+    const breaks = await fetchBreaksByRecordId(record.id)
+
+    return {
+      id: record.id,
+      date: getFormattedDateString(record.date),
+      starttime: getFormattedTimeString(record.starttime),
+      breaks: breaks.map(b => ({
+        id: b.id,
+        starttime: getFormattedTimeString(b.starttime),
+        endtime: getFormattedTimeString(b.endtime),
+      })),
+      endtime: getFormattedTimeString(record.endtime)
+    }
+  } catch (error) {
+    console.error(`Database error: ${error}`);
+    throw new Error('Failed to fetch last record.');
+  }
 }

@@ -3,16 +3,15 @@ export type TStatus = 'BEFORE-WORK' | 'IN-WORK' | 'IN-BREAK' | 'AFTER-WORK'
 export interface IRecord {
   id: string
   date: string
-  startTime: string
-  endTime: string
+  starttime: string
   breaks: IBreak[]
+  endtime: string
 }
 
 export interface IBreak {
   id: string
-  date: string
-  startTime: string
-  endTime: string
+  starttime: string
+  endtime: string
 }
 
 export type TActionState = {
@@ -20,8 +19,8 @@ export type TActionState = {
   errors?: {
     id?: string[]
     date?: string[]
-    startTime?: string[]
+    starttime?: string[]
     breaks?: string[]
-    endTime?: string[]
+    endtime?: string[]
   }
 }

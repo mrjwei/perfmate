@@ -1,3 +1,4 @@
+import React from 'react'
 import LinkItem from '@/app/ui/link-item/link-item'
 
 const LINKS = [

@@ -1,17 +1,13 @@
-import {describe, it, beforeEach, afterEach, vi, expect, Mock} from 'vitest'
+import React from 'react'
+import {describe, it, afterEach, vi, expect, Mock} from 'vitest'
 import {render, screen, fireEvent, act, waitFor, cleanup} from '@testing-library/react'
 import StartWorkingButton from './start-working-button'
-import HomePage from '@/app/page'
 
 describe('Start working button', () => {
   let handleStartWorkingMock: () => Mock
 
   const renderEl = (fn: () => void, disabled: boolean) => {
     render(<StartWorkingButton handleStartWorking={fn} disabled={disabled} />)
-  }
-
-  const renderPage = () => {
-    render(<HomePage />)
   }
 
   let button: HTMLElement

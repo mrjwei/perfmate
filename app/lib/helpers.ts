@@ -1,12 +1,13 @@
 import {TStatus, IRecord, IBreak} from '@/app/lib/types'
 
 export const returnStatus = (record: IRecord) => {
-  if (record['startTime']) {
-    if (record['endTime']) {
+  if (areSameDay(new Date(), new Date(record.date))) {
+    // If today's record exists.
+    if (record.endtime) {
       return 'AFTER-WORK'
     } else {
-      if (record['breaks'].length > 0) {
-        if (record['breaks'].some((b: any) => !b['endTime'])) {
+      if (record.breaks.length > 0) {
+        if (record.breaks.some((b: any) => !b.endtime)) {
           return 'IN-BREAK'
         } else {
           return 'IN-WORK'
@@ -16,6 +17,7 @@ export const returnStatus = (record: IRecord) => {
       }
     }
   } else {
+    // If today's record does not exist.
     return 'BEFORE-WORK'
   }
 }
@@ -36,12 +38,16 @@ export const mapStatusToHumanReadableString = (status: TStatus | null) => {
 }
 
 export const getFormattedDateString = (date: Date) => {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
 }
 
-export const getTimeDifferneceInMins = (startTime: string, endTime: string) => {
-  const [startHours, startMins] = startTime.split(':').map(Number)
-  const [endHours, endMins] = endTime.split(':').map(Number)
+export const getTimeDifferneceInMins = (starttime: string, endtime: string) => {
+  const [startHours, startMins] = starttime.split(':').map(Number)
+  const [endHours, endMins] = endtime.split(':').map(Number)
 
   const startTotalMins = startHours * 60 + startMins;
   const endTotalMins = endHours * 60 + endMins;
@@ -55,23 +61,40 @@ export const getTimeDifferneceInMins = (startTime: string, endTime: string) => {
   return diffInMins
 }
 
-export const getFormattedTimeString = (minutes: number) => {
-  const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
+export const getFormattedTimeString = (input: Date | number | string) => {
+  if (typeof input === 'string') {
+    return input.split(':').slice(0, 2).join(':')
+  }
+  else if (typeof input === 'number') {
+    const hours = Math.floor(input / 60)
+    const mins = input % 60
 
-  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
+    return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
+  } else if (input instanceof Date) {
+    return input.toLocaleTimeString('en-US', { hour12: false })
+  } else {
+    throw new Error('Invalid input type. Can only accept Date or number.')
+  }
 }
 
 export const calculateTotalBreakMins = (record: IRecord) => {
   return record.breaks.reduce((acc: number, curr: IBreak) => {
-    if (!curr.endTime) {
+    if (!curr.endtime) {
       return acc
     }
-    return acc + getTimeDifferneceInMins(curr.startTime, curr.endTime)
+    return acc + getTimeDifferneceInMins(curr.starttime, curr.endtime)
   }, 0)
 }
 
 export const zip = (fillna: any, ...arrays: any) => {
   const length = Math.max(...arrays.map((arr: any) => arr.length))
   return Array.from({length}, (_, i) => arrays.map((arr: any) => arr[i] ? arr[i] : fillna))
+}
+
+export const areSameDay = (d1: Date, d2: Date) => {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  )
 }
