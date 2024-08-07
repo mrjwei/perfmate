@@ -24,7 +24,7 @@ export default function RecordEditForm({record}: {record: IRecord}) {
           <label htmlFor="">Break {i + 1}</label>
           <div>
             <FormControl className="hidden" label="Break Id" htmlFor={`breakBeginTime${i + 1}`}>
-              <input type="text" id={b.id} name="breakId" value={b.id} aria-hidden />
+              <input type="text" id={b.id} name="breakId" defaultValue={b.id} aria-hidden />
             </FormControl>
             <FormControl label="Begin" htmlFor={`breakBeginTime${i + 1}`}>
               <input type="time" id={`breakBeginTime${i + 1}`} name="breakBeginTime" defaultValue={b.starttime} />

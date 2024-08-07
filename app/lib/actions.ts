@@ -46,7 +46,7 @@ export async function updateRecord(id: string, formData: FormData) {
   try {
     await sql`
       UPDATE records
-      SET date=${date}, starttime=${starttime}, endtime=${endtime}
+      SET date=${date}, starttime=${starttime}, endtime=${endtime ? endtime : null}
       WHERE id=${id};
     `
     await Promise.all(breakTimes.map(data => sql`
