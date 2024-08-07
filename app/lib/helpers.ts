@@ -79,7 +79,7 @@ export const getFormattedTimeString = (input: Date | number | string) => {
 
 export const calculateTotalBreakMins = (record: IRecord) => {
   return record.breaks.reduce((acc: number, curr: IBreak) => {
-    if (!curr.endtime) {
+    if (!curr.endtime || curr.endtime === '--:--') {
       return acc
     }
     return acc + getTimeDifferneceInMins(curr.starttime, curr.endtime)

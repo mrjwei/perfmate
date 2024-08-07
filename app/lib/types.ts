@@ -5,22 +5,11 @@ export interface IRecord {
   date: string
   starttime: string
   breaks: IBreak[]
-  endtime: string
+  endtime: string | null
 }
 
 export interface IBreak {
   id: string
   starttime: string
-  endtime: string
-}
-
-export type TActionState = {
-  message?: string | null
-  errors?: {
-    id?: string[]
-    date?: string[]
-    starttime?: string[]
-    breaks?: string[]
-    endtime?: string[]
-  }
+  endtime: string | null
 }

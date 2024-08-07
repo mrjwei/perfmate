@@ -4,7 +4,7 @@ import LinkItem from '@/app/ui/link-item/link-item'
 const LINKS = [
   {href: '/', children: 'Home'},
   {href: '/records', children: 'Records'},
-  {href: '/', children: 'Setting'},
+  {href: '/setting', children: 'Setting'},
 ]
 
 export default function Sidebar() {

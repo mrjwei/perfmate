@@ -15,7 +15,6 @@ import {
   calculateTotalBreakMins,
 } from '@/app/lib/helpers'
 import { fetchLastRecord } from "@/app/lib/api"
-import {createRecord} from '@/app/lib/actions'
 
 export default async function Home() {
   const record = await fetchLastRecord()
@@ -27,7 +26,7 @@ export default async function Home() {
   if (status === 'AFTER-WORK') {
     const totalWorkHoursInMins = getTimeDifferneceInMins(
       record.starttime,
-      record.endtime
+      record.endtime!
     )
     const totalBreakHoursInMins = calculateTotalBreakMins(record)
     totalWorkHours = getFormattedTimeString(totalWorkHoursInMins - totalBreakHoursInMins)
@@ -42,21 +41,20 @@ export default async function Home() {
         </Tag>
         <div className="flex justify-between">
           <StartWorkingButton
-            handleStartWorking={createRecord}
             disabled={status !== "BEFORE-WORK"}
           />
-          {/* <StartBreakButton
-            handleStartBreak={handleStartBreak}
+          <StartBreakButton
+            record={record}
             disabled={status !== "IN-WORK"}
           />
           <EndBreakButton
-            handleEndBreak={handleEndBreak}
+            record={record}
             disabled={status !== "IN-BREAK"}
           />
           <EndWorkingButton
-            handleEndWorking={handleEndWorking}
+            record={record}
             disabled={status !== "IN-WORK"}
-          /> */}
+          />
         </div>
       </div>
       <ul className={`pl-4 ${status === 'BEFORE-WORK' && 'hidden'}`}>
@@ -93,7 +91,7 @@ export default async function Home() {
           <li className="border-t-2 py-4">
             <TimeStamp
               heading="Total hours"
-              timeStamp={totalWorkHours as string}
+              timeStamp={totalWorkHours ? totalWorkHours : '--:--'}
             />
           </li>
         )}

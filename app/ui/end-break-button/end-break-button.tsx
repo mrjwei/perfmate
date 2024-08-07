@@ -1,12 +1,30 @@
-'use client'
+"use client"
 
-import React from 'react'
-import Button from '@/app/ui/button/button'
+import React from "react"
+import Button from "@/app/ui/button/button"
+import { updateBreakEndTime } from "@/app/lib/actions"
+import { IRecord } from "@/app/lib/types"
 
-export default function EndBreakButton({handleEndBreak, disabled}: {handleEndBreak: () => void, disabled: boolean}) {
+export default function EndBreakButton({
+  record,
+  disabled,
+  ...props
+}: {
+  record: IRecord
+  disabled: boolean
+}) {
+  const updateBreakEndTimeWithId = updateBreakEndTime.bind(null, record.id)
   return (
-    <Button type="button" onClick={handleEndBreak} disabled={disabled} className="text-white bg-purple-500 mr-4">
-      End Break
-    </Button>
+    <form action={updateBreakEndTimeWithId}>
+      <Button
+        type="submit"
+        disabled={disabled}
+        name="endBreak"
+        className="text-white bg-purple-500 mr-4"
+        {...props}
+      >
+        End Break
+      </Button>
+    </form>
   )
 }

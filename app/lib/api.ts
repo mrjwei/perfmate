@@ -18,9 +18,9 @@ export const fetchRecordById = async (id: string) => {
       breaks: breaks.map(b => ({
         id: b.id,
         starttime: getFormattedTimeString(b.starttime),
-        endtime: getFormattedTimeString(b.endtime),
+        endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
       })),
-      endtime: getFormattedTimeString(record.endtime)
+      endtime: record.endtime ? getFormattedTimeString(record.endtime) : null
     }
   } catch (error) {
     console.error(`Database error: ${error}`);
@@ -44,9 +44,9 @@ export const fetchRecordByDate = async (date: string) => {
       breaks: breaks.map(b => ({
         id: b.id,
         starttime: getFormattedTimeString(b.starttime),
-        endtime: getFormattedTimeString(b.endtime),
+        endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
       })),
-      endtime: getFormattedTimeString(record.endtime)
+      endtime: record.endtime ? getFormattedTimeString(record.endtime) : null
     }
   } catch (error) {
     console.error(`Database error: ${error}`);
@@ -70,9 +70,9 @@ export const fetchRecords = async () => {
         breaks: breaks.map(b => ({
           id: b.id,
           starttime: getFormattedTimeString(b.starttime),
-          endtime: getFormattedTimeString(b.endtime),
+          endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
         })),
-        endtime: getFormattedTimeString(r.endtime)
+        endtime: r.endtime ? getFormattedTimeString(r.endtime) : null
       }
     }))
     return recordsWithBreaks
@@ -87,7 +87,8 @@ export const fetchBreaksByRecordId = async (recordId: string) => {
   try {
     const data = await sql`
       SELECT * FROM breaks
-      WHERE breaks.recordId = ${recordId};
+      WHERE breaks.recordId = ${recordId}
+      ORDER BY starttime ASC;
     `
     return data.rows
   } catch (error) {
@@ -114,9 +115,9 @@ export const fetchLastRecord = async () => {
       breaks: breaks.map(b => ({
         id: b.id,
         starttime: getFormattedTimeString(b.starttime),
-        endtime: getFormattedTimeString(b.endtime),
+        endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
       })),
-      endtime: getFormattedTimeString(record.endtime)
+      endtime: record.endtime ? getFormattedTimeString(record.endtime) : null
     }
   } catch (error) {
     console.error(`Database error: ${error}`);

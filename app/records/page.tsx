@@ -5,21 +5,13 @@ import {
   getTimeDifferneceInMins,
   calculateTotalBreakMins
 } from '@/app/lib/helpers'
-import RecordEditForm from "@/app/ui/form/record-edit-form"
-import {fetchRecordById, fetchRecords} from '@/app/lib/api'
+import {fetchRecords} from '@/app/lib/api'
 
-export default async function Records({searchParams}: {searchParams: {id: string}}) {
-  const recordId = searchParams?.id ?? ''
+export default async function Records() {
   const records = await fetchRecords()
 
   if (!records || records.length === 0) {
-    return <p>No record</p>
-  }
-
-  let record
-
-  if (recordId) {
-    record = await fetchRecordById(recordId)
+    return (<p>No record</p>)
   }
 
   return (
@@ -36,17 +28,17 @@ export default async function Records({searchParams}: {searchParams: {id: string
         </thead>
         <tbody>
           {records.map((record) => {
-            const {id, date, starttime} = record
+            const {id, date, starttime, endtime} = record
 
-            let {endtime} = record
             let formattedTotalWorkHours = '--:--'
+            let formattedTotalBreakHours = '--:--'
 
             const totalBreakMins = calculateTotalBreakMins(record)
-            const formattedTotalBreakHours = getFormattedTimeString(totalBreakMins)
+            if (totalBreakMins > 0) {
+              formattedTotalBreakHours = getFormattedTimeString(totalBreakMins)
+            }
 
-            if (!endtime) {
-              endtime = '--:--'
-            } else {
+            if (endtime) {
               const totalWorkHoursInMins = getTimeDifferneceInMins(starttime, endtime)
               formattedTotalWorkHours = getFormattedTimeString(totalWorkHoursInMins - totalBreakMins)
             }
@@ -60,7 +52,7 @@ export default async function Records({searchParams}: {searchParams: {id: string
                   {starttime}
                 </td>
                 <td className="py-4">
-                  {endtime}
+                  {endtime ? endtime : '--:--'}
                 </td>
                 <td className="py-4">
                   {formattedTotalBreakHours}
@@ -69,7 +61,7 @@ export default async function Records({searchParams}: {searchParams: {id: string
                   {formattedTotalWorkHours}
                 </td>
                 <td className="py-4 text-right">
-                  <Link className="text-sky-500" href={`/records?id=${id}`}>
+                  <Link className="text-sky-500" href={`/records/${id}/edit`}>
                     Edit
                   </Link>
                 </td>
@@ -78,11 +70,6 @@ export default async function Records({searchParams}: {searchParams: {id: string
           })}
         </tbody>
       </table>
-      {record && (
-        <div className="absolute left-1/2 top-1/2 bg-white p-4">
-          <RecordEditForm record={record} />
-        </div>
-      )}
     </>
   )
 }
