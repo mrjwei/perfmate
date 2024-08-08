@@ -4,6 +4,9 @@ import React from "react"
 import Button from "@/app/ui/button/button"
 import { updateBreakEndTime } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
+import {
+  getFormattedTimeString
+} from '@/app/lib/helpers'
 
 export default function EndBreakButton({
   record,
@@ -13,7 +16,8 @@ export default function EndBreakButton({
   record: IRecord
   disabled: boolean
 }) {
-  const updateBreakEndTimeWithId = updateBreakEndTime.bind(null, record.id)
+  const endtime = getFormattedTimeString(new Date())
+  const updateBreakEndTimeWithId = updateBreakEndTime.bind(null, endtime, record.id)
   return (
     <form action={updateBreakEndTimeWithId}>
       <Button
