@@ -1,5 +1,6 @@
 import React from 'react'
-import Clock from "@/app/ui/clock/clock"
+import dynamic from 'next/dynamic'
+import Clock from '@/app/ui/clock/clock'
 import StartWorkingButton from "@/app/ui/start-working-button/start-working-button"
 import EndWorkingButton from "@/app/ui/end-working-button/end-working-button"
 import StartBreakButton from "@/app/ui/start-break-button/start-break-button"
@@ -34,7 +35,7 @@ export default async function Home() {
 
   return (
     <>
-      <Clock />
+      <Clock suppressHydrationWarning />
       <div className="w-full flex justify-between items-center py-8">
         <Tag testid="status" className="mr-4">
           {status}

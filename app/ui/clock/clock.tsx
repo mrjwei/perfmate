@@ -1,21 +1,13 @@
 'use client'
 
 import React, {useState, useEffect, useMemo} from 'react'
+import {
+  extractDateParts
+} from '@/app/lib/helpers'
 
-const formatter = new Intl.DateTimeFormat('en-US', {
-  weekday: 'short',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-})
+export default function Clock({suppressHydrationWarning}: {suppressHydrationWarning?: boolean}) {
+  const [time, setTime] = useState<Date>(new Date())
 
-const extractDateParts = (date: Date) => {
-  const [{value: weekday}, , {value: month}, , {value: day}, , {value: year}] = formatter.formatToParts(date)
-  return {weekday, year, month, day}
-}
-
-export default function Clock({initialTime = null}: {initialTime?: Date | null}) {
-  const [time, setTime] = useState<Date | typeof initialTime>(initialTime)
   useEffect(() => {
 		const interval = setInterval(() => {
 			setTime(new Date())
@@ -28,7 +20,7 @@ export default function Clock({initialTime = null}: {initialTime?: Date | null})
   }, [time])
 
   return (
-    <div className="w-full font-bold text-center">
+    <div className="w-full font-bold text-center" suppressHydrationWarning={suppressHydrationWarning}>
       <span className="block text-6xl">
           {time?.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false})}
         </span>

@@ -98,3 +98,15 @@ export const areSameDay = (d1: Date, d2: Date) => {
     d1.getDate() === d2.getDate()
   )
 }
+
+const formatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'short',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
+export const extractDateParts = (date: Date) => {
+  const [{value: weekday}, , {value: month}, , {value: day}, , {value: year}] = formatter.formatToParts(date)
+  return {weekday, year, month, day}
+}
