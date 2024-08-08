@@ -3,6 +3,10 @@
 import React from "react"
 import Button from "@/app/ui/button/button"
 import { createRecord } from "@/app/lib/actions"
+import {
+  getFormattedDateString,
+  getFormattedTimeString
+} from '@/app/lib/helpers'
 
 export default function StartWorkingButton({
   disabled,
@@ -10,8 +14,14 @@ export default function StartWorkingButton({
 }: {
   disabled: boolean
 }) {
+  const d = new Date()
+  const data = {
+    date: getFormattedDateString(d),
+    starttime: getFormattedTimeString(d)
+  }
+  const createRecordWithDate = createRecord.bind(null, data)
   return (
-    <form action={createRecord}>
+    <form action={createRecordWithDate}>
       <Button
         type="submit"
         disabled={disabled}
