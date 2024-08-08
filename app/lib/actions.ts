@@ -63,9 +63,7 @@ export async function updateRecord(id: string, formData: FormData) {
   redirect('/records')
 }
 
-export async function updateRecordEndTime(id: string) {
-  const endtime = getFormattedTimeString(new Date())
-
+export async function updateRecordEndTime(endtime: string, id: string) {
   try {
     await sql`
       UPDATE records
@@ -98,15 +96,11 @@ export async function createRecord(data: {date: string, starttime: string}) {
   }
 }
 
-export async function createBreak(recordId: string) {
-  const d = new Date()
-  const starttime = getFormattedTimeString(d)
-  const endtime = null
-
+export async function createBreak(starttime: string, recordId: string) {
   try {
     await sql`
-      INSERT INTO breaks (recordId, starttime, endtime)
-      VALUES (${recordId}, ${starttime}, ${endtime});
+      INSERT INTO breaks (recordId, starttime)
+      VALUES (${recordId}, ${starttime});
     `
   } catch (error) {
     return {
@@ -118,13 +112,12 @@ export async function createBreak(recordId: string) {
   redirect('/')
 }
 
-export async function updateBreakEndTime(recordId: string) {
+export async function updateBreakEndTime(endtime: string, recordId: string) {
   const record = await fetchRecordById(recordId)
   const targetBreak = record.breaks.find(b => !b.endtime)
   if (!targetBreak) {
     return
   }
-  const endtime = getFormattedTimeString(new Date())
 
   try {
     await sql`
