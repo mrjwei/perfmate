@@ -81,10 +81,8 @@ export async function updateRecordEndTime(id: string) {
   redirect('/')
 }
 
-export async function createRecord() {
-  const d = new Date()
-  const date = getFormattedDateString(d)
-  const starttime = getFormattedTimeString(d)
+export async function createRecord(data: {date: string, starttime: string}) {
+  const {date, starttime} = data
 
   try {
     await sql`
