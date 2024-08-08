@@ -82,9 +82,7 @@ export async function updateRecordEndTime(id: string) {
 }
 
 export async function createRecord(data: {date: string, starttime: string}) {
-  const d = new Date()
-  const date = getFormattedDateString(d)
-  const starttime = getFormattedTimeString(d)
+  const {date, starttime} = data
 
   try {
     await sql`
