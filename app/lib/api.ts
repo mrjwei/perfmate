@@ -2,6 +2,21 @@ import {unstable_noStore as noStore} from 'next/cache'
 import {sql} from '@vercel/postgres'
 import { getFormattedDateString, getFormattedTimeString } from "./helpers"
 
+export const fetchUniqueMonths = async () => {
+  noStore()
+  try {
+    const data = await sql`
+      SELECT DISTINCT TO_CHAR(date, 'YYYY-MM') AS month
+      FROM records
+      ORDER BY month;
+    `
+    return data.rows.map(r => r.month)
+  } catch (error) {
+    console.error(`Database error: ${error}`);
+    throw new Error('Failed to get number of pages.');
+  }
+}
+
 export const fetchRecordById = async (id: string) => {
   noStore()
   try {
@@ -79,6 +94,35 @@ export const fetchRecords = async () => {
   } catch (error) {
     console.error(`Database error: ${error}`);
     throw new Error('Failed to fetch records.');
+  }
+}
+
+export const fetchPaginatedRecords = async (month: string) => {
+  noStore()
+  try {
+    const data = await sql`
+      SELECT * FROM records
+      WHERE TO_CHAR(date, 'YYYY-MM') = ${month}
+      ORDER BY date ASC;
+    `
+    const recordsWithBreaks = await Promise.all(data.rows.map(async r => {
+      const breaks = await fetchBreaksByRecordId(r.id)
+      return {
+        id: r.id,
+        date: getFormattedDateString(r.date),
+        starttime: getFormattedTimeString(r.starttime),
+        breaks: breaks.map(b => ({
+          id: b.id,
+          starttime: getFormattedTimeString(b.starttime),
+          endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
+        })),
+        endtime: r.endtime ? getFormattedTimeString(r.endtime) : null
+      }
+    }))
+    return recordsWithBreaks
+  } catch (error) {
+    console.error(`Database error: ${error}`);
+    throw new Error('Failed to fetch paginated records.');
   }
 }
 

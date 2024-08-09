@@ -1,3 +1,4 @@
+import {ReadonlyURLSearchParams} from 'next/navigation'
 import {TStatus, IRecord, IBreak} from '@/app/lib/types'
 
 export const returnStatus = (record: IRecord) => {
@@ -109,4 +110,42 @@ const formatter = new Intl.DateTimeFormat('en-US', {
 export const extractDateParts = (date: Date) => {
   const [{value: weekday}, , {value: month}, , {value: day}, , {value: year}] = formatter.formatToParts(date)
   return {weekday, year, month, day}
+}
+
+export const generatePageIndexes = (currentPageIndex: number, totalPages: number) => {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  if (currentPageIndex <= 3) {
+    return [1, 2, 3, '...', totalPages - 1, totalPages];
+  }
+
+  if (currentPageIndex >= totalPages - 2) {
+    return [1, 2, '...', totalPages - 2, totalPages - 1, totalPages];
+  }
+
+  return [
+    1,
+    '...',
+    currentPageIndex - 1,
+    currentPageIndex,
+    currentPageIndex + 1,
+    '...',
+    totalPages,
+  ];
+}
+
+export const getMonthStr = (date: Date) => {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+}
+
+export const getMonthIndex = (month: string, uniqueMonths: string[]) => {
+  return uniqueMonths.indexOf(month) + 1
+}
+
+export const createPageURL = (pathname: string, searchParams: ReadonlyURLSearchParams, pageIndex: number | string) => {
+  const params = new URLSearchParams(searchParams)
+  params.set('page', pageIndex.toString())
+  return `${pathname}?${params.toString()}`
 }
