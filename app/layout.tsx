@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="flex h-full">
+        <div className="flex min-h-full">
           <Sidebar />
           <main className="relative mx-auto py-12 w-2/3 xl:w-3/5 2xl:w-2/5">
             {children}
