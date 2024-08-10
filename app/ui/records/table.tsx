@@ -3,11 +3,9 @@ import {
   fetchPaginatedRecords
 } from '@/app/lib/api'
 import {
-  calculateTotalBreakMins,
-  getFormattedTimeString,
-  getTimeDifferneceInMins,
-  getMonthStr
+  generatePaddedRecordsForMonth
 } from "@/app/lib/helpers"
+import { IPaddedRecord } from "@/app/lib/types"
 
 export default async function Table({month}: {month: string}) {
   const records = await fetchPaginatedRecords(month)
@@ -28,34 +26,15 @@ export default async function Table({month}: {month: string}) {
         </tr>
       </thead>
       <tbody>
-        {records.map((record) => {
-          const { id, date, starttime, endtime } = record
-
-          let formattedTotalWorkHours = "--:--"
-          let formattedTotalBreakHours = "--:--"
-
-          const totalBreakMins = calculateTotalBreakMins(record)
-          if (totalBreakMins > 0) {
-            formattedTotalBreakHours = getFormattedTimeString(totalBreakMins)
-          }
-
-          if (endtime) {
-            const totalWorkHoursInMins = getTimeDifferneceInMins(
-              starttime,
-              endtime
-            )
-            formattedTotalWorkHours = getFormattedTimeString(
-              totalWorkHoursInMins - totalBreakMins
-            )
-          }
-
+        {generatePaddedRecordsForMonth(month, records).map((record: IPaddedRecord) => {
+          const {id, date, starttime, endtime, totalbreakhours, totalworkhours} = record
           return (
             <tr key={id} className="border-t-1 border-slate-200">
               <td className="py-4">{date}</td>
               <td className="py-4">{starttime}</td>
               <td className="py-4">{endtime ? endtime : "--:--"}</td>
-              <td className="py-4">{formattedTotalBreakHours}</td>
-              <td className="py-4">{formattedTotalWorkHours}</td>
+              <td className="py-4">{totalbreakhours}</td>
+              <td className="py-4">{totalworkhours}</td>
               <td className="py-4 text-right">
                 <Link className="text-sky-500" href={`/records/${id}/edit`}>
                   Edit

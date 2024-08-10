@@ -13,3 +13,12 @@ export interface IBreak {
   starttime: string
   endtime: string | null
 }
+
+export type TDateIndexedRecords = {
+  [key: string]: IRecord
+}
+
+export interface IPaddedRecord extends IRecord {
+  totalbreakhours: string
+  totalworkhours: string
+}

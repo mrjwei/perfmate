@@ -1,5 +1,8 @@
 import {ReadonlyURLSearchParams} from 'next/navigation'
-import {TStatus, IRecord, IBreak} from '@/app/lib/types'
+import {v4 as uuidv4} from 'uuid'
+import {TStatus, IRecord, IBreak, TDateIndexedRecords, IPaddedRecord} from '@/app/lib/types'
+
+const placeholder = '--:--'
 
 export const returnStatus = (record: IRecord) => {
   if (areSameDay(new Date(), new Date(record.date))) {
@@ -148,4 +151,66 @@ export const createPageURL = (pathname: string, searchParams: ReadonlyURLSearchP
   const params = new URLSearchParams(searchParams)
   params.set('page', pageIndex.toString())
   return `${pathname}?${params.toString()}`
+}
+
+export const generateObjFromRecords = (records: IRecord[]) => {
+  const obj: TDateIndexedRecords = {}
+  records.forEach(r => {
+    obj[r.date] = r
+  })
+  return obj
+}
+
+export const getFormattedTotalWorkHours = (record: IRecord) => {
+  if (!record.endtime) {
+    return placeholder
+  }
+  const totalWorkHoursInMins = getTimeDifferneceInMins(
+    record.starttime,
+    record.endtime
+  )
+  const totalBreakMins = calculateTotalBreakMins(record)
+  return getFormattedTimeString(
+    totalWorkHoursInMins - totalBreakMins
+  )
+}
+
+export const getFormattedTotalBreakHours = (record: IRecord) => {
+  const totalBreakMins = calculateTotalBreakMins(record)
+  if (totalBreakMins > 0) {
+    return getFormattedTimeString(totalBreakMins)
+  }
+  return placeholder
+}
+
+export const generatePaddedRecordsForMonth = (monthStr: string, records: IRecord[]) => {
+  const dateIndexedRecords = generateObjFromRecords(records)
+
+  const paddedRecords: IPaddedRecord[] = []
+
+  const [year, month] = monthStr.split('-').map(Number)
+  const date = new Date(year, month - 1, 1)
+
+  while (date.getMonth() === month - 1) {
+    let paddedRecord: IPaddedRecord = {
+      id: String(uuidv4()),
+      date: getFormattedDateString(date),
+      starttime: placeholder,
+      breaks: [],
+      endtime: placeholder,
+      totalbreakhours: placeholder,
+      totalworkhours: placeholder
+    }
+    const record = dateIndexedRecords[getFormattedDateString(date)]
+    if (record) {
+      paddedRecord = {
+        ...record,
+        totalbreakhours: getFormattedTotalBreakHours(record),
+        totalworkhours: getFormattedTotalWorkHours(record),
+      }
+    }
+    paddedRecords.push(paddedRecord)
+    date.setDate(date.getDate() + 1)
+  }
+  return paddedRecords
 }

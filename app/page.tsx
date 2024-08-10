@@ -14,6 +14,7 @@ import {
   getTimeDifferneceInMins,
   getFormattedTimeString,
   calculateTotalBreakMins,
+  getFormattedTotalWorkHours
 } from '@/app/lib/helpers'
 import { fetchLastRecord } from "@/app/lib/api"
 
@@ -21,17 +22,6 @@ export default async function Home() {
   const record = await fetchLastRecord()
 
   const status: TStatus = returnStatus(record)
-
-  let totalWorkHours
-
-  if (status === 'AFTER-WORK') {
-    const totalWorkHoursInMins = getTimeDifferneceInMins(
-      record.starttime,
-      record.endtime!
-    )
-    const totalBreakHoursInMins = calculateTotalBreakMins(record)
-    totalWorkHours = getFormattedTimeString(totalWorkHoursInMins - totalBreakHoursInMins)
-  }
 
   return (
     <>
@@ -81,20 +71,20 @@ export default async function Home() {
           </ul>
         </li>
         {record.endtime && (
-          <li className="border-t-2 py-4">
-            <TimeStamp
-              heading="Finished work at"
-              timeStamp={record.endtime}
-            />
-          </li>
-        )}
-        {totalWorkHours && (
-          <li className="border-t-2 py-4">
-            <TimeStamp
-              heading="Total hours"
-              timeStamp={totalWorkHours ? totalWorkHours : '--:--'}
-            />
-          </li>
+          <>
+            <li className="border-t-2 py-4">
+              <TimeStamp
+                heading="Finished work at"
+                timeStamp={record.endtime}
+              />
+            </li>
+            <li className="border-t-2 py-4">
+              <TimeStamp
+                heading="Total hours"
+                timeStamp={getFormattedTotalWorkHours(record)}
+              />
+            </li>
+          </>
         )}
       </ul>
     </>
