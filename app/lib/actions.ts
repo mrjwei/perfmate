@@ -61,9 +61,9 @@ export async function updateRecord(id: string, month: string | null, formData: F
   }
   revalidatePath('/records')
   if (month) {
-    redirect(`/records?month=${month}`)
+    redirect(`/records?month=${month}&edited=${id}`)
   } else {
-    redirect('/records')
+    redirect(`/records?edited=${id}`)
   }
 }
 

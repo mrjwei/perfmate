@@ -15,6 +15,16 @@ const config: Config = {
       },
       borderWidth: {
         1: '1px'
+      },
+      keyframes: {
+        fadeOutBackground: {
+          '0%': { backgroundColor: 'rgb(236, 252, 203, 1)' },
+          '80%': { backgroundColor: 'rgb(236, 252, 203, 1)' },
+          '100%': { backgroundColor: 'rgb(236, 252, 203, 0)' },
+        }
+      },
+      animation: {
+        fadeOutBackground: 'fadeOutBackground 3s ease-out forwards'
       }
     },
   },

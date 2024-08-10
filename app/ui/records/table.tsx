@@ -1,13 +1,16 @@
 import Link from "next/link"
-import {
-  fetchPaginatedRecords
-} from '@/app/lib/api'
-import {
-  generatePaddedRecordsForMonth
-} from "@/app/lib/helpers"
+import clsx from 'clsx'
+import { fetchPaginatedRecords } from "@/app/lib/api"
+import { generatePaddedRecordsForMonth } from "@/app/lib/helpers"
 import { IPaddedRecord } from "@/app/lib/types"
 
-export default async function Table({month}: {month: string}) {
+export default async function Table({
+  month,
+  editedRecordId,
+}: {
+  month: string
+  editedRecordId: string | undefined
+}) {
   const records = await fetchPaginatedRecords(month)
 
   return (
@@ -22,23 +25,37 @@ export default async function Table({month}: {month: string}) {
         </tr>
       </thead>
       <tbody>
-        {generatePaddedRecordsForMonth(month, records).map((record: IPaddedRecord) => {
-          const {id, date, starttime, endtime, totalbreakhours, totalworkhours} = record
-          return (
-            <tr key={id} className="border-t-1 border-slate-200">
-              <td className="py-4">{date}</td>
-              <td className="py-4">{starttime}</td>
-              <td className="py-4">{endtime ? endtime : "--:--"}</td>
-              <td className="py-4">{totalbreakhours}</td>
-              <td className="py-4">{totalworkhours}</td>
-              <td className="py-4 text-right">
-                <Link className="text-sky-500" href={`/records/${id}/edit?month=${month}`}>
-                  Edit
-                </Link>
-              </td>
-            </tr>
-          )
-        })}
+        {generatePaddedRecordsForMonth(month, records).map(
+          (record: IPaddedRecord) => {
+            const {
+              id,
+              date,
+              starttime,
+              endtime,
+              totalbreakhours,
+              totalworkhours,
+            } = record
+            return (
+              <tr key={id} className={clsx('border-t-1 border-slate-200', {
+                'animate-fadeOutBackground': editedRecordId === id
+              })}>
+                <td className="py-4">{date}</td>
+                <td className="py-4">{starttime}</td>
+                <td className="py-4">{endtime ? endtime : "--:--"}</td>
+                <td className="py-4">{totalbreakhours}</td>
+                <td className="py-4">{totalworkhours}</td>
+                <td className="py-4 text-right">
+                  <Link
+                    className="text-sky-500"
+                    href={`/records/${id}/edit?month=${month}`}
+                  >
+                    Edit
+                  </Link>
+                </td>
+              </tr>
+            )
+          }
+        )}
       </tbody>
     </table>
   )

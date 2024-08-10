@@ -6,12 +6,13 @@ import {TRecordsProps} from '@/app/lib/types'
 
 export default async function Records({searchParams}: TRecordsProps) {
   const month = searchParams?.month ? searchParams?.month : dateToMonthStr(new Date())
+  const editedRecordId = searchParams?.edited
 
   return (
     <>
       <h2 className="text-3xl font-bold mb-12">Records</h2>
       <MonthPicker />
-      <Table month={month} />
+      <Table month={month} editedRecordId={editedRecordId} />
     </>
   )
 }

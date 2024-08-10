@@ -26,5 +26,6 @@ export interface IPaddedRecord extends IRecord {
 export type TRecordsProps = {
   searchParams: {
     month?: string
+    edited?: string
   }
 }
