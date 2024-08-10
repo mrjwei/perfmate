@@ -1,15 +1,19 @@
 'use client'
 
 import React from 'react'
+import {useSearchParams} from 'next/navigation'
 import FormControl from '@/app/ui/form/form-control'
 import Button from '@/app/ui/button/button'
 import { IBreak, IRecord } from "@/app/lib/types"
 import {updateRecord} from '@/app/lib/actions'
 
 export default function RecordEditForm({record}: {record: IRecord}) {
+  const searchParams = useSearchParams()
+  const month = searchParams.get('month')
+
   const breaks = record.breaks
 
-  const updateRecordWithId = updateRecord.bind(null, record.id)
+  const updateRecordWithId = updateRecord.bind(null, record.id, month)
 
   return (
     <form action={updateRecordWithId}>

@@ -22,3 +22,9 @@ export interface IPaddedRecord extends IRecord {
   totalbreakhours: string
   totalworkhours: string
 }
+
+export type TRecordsProps = {
+  searchParams: {
+    month?: string
+  }
+}

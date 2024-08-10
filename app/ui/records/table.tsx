@@ -10,10 +10,6 @@ import { IPaddedRecord } from "@/app/lib/types"
 export default async function Table({month}: {month: string}) {
   const records = await fetchPaginatedRecords(month)
 
-  if (!records || records.length === 0) {
-    return (<p>No record</p>)
-  }
-
   return (
     <table className="w-full border-collapse">
       <thead className="">
@@ -36,7 +32,7 @@ export default async function Table({month}: {month: string}) {
               <td className="py-4">{totalbreakhours}</td>
               <td className="py-4">{totalworkhours}</td>
               <td className="py-4 text-right">
-                <Link className="text-sky-500" href={`/records/${id}/edit`}>
+                <Link className="text-sky-500" href={`/records/${id}/edit?month=${month}`}>
                   Edit
                 </Link>
               </td>

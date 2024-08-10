@@ -11,13 +11,13 @@ import {
   getMonthIndex,
   generatePageIndexes,
   createPageURL,
-  getMonthStr
+  dateToMonthStr
 } from '@/app/lib/helpers'
 
 export default function Pagination({uniqueMonths}: {uniqueMonths: string[]}) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const currentPageIndex = Number(searchParams.get('page')) || getMonthIndex(getMonthStr(new Date()), uniqueMonths)
+  const currentPageIndex = Number(searchParams.get('page')) || getMonthIndex(dateToMonthStr(new Date()), uniqueMonths)
   const totalPages = uniqueMonths.length
   const pageIndexes = generatePageIndexes(currentPageIndex, totalPages)
 

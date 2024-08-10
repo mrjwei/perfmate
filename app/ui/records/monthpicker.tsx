@@ -9,14 +9,16 @@ import {useSearchParams, useRouter, usePathname} from 'next/navigation'
 import Link from 'next/link'
 import FormControl from "@/app/ui/form/form-control"
 import {
-  getMonthIndex,
-  getMonthStr,
-  createPageURL
+  dateToMonthStr,
+  createPageURL,
+  getLastMonth,
+  getNextMonth,
+  monthStrToDate
 } from '@/app/lib/helpers'
 
-export default function MonthPicker({uniqueMonths}: {uniqueMonths: string[]}) {
+export default function MonthPicker() {
   const searchParams = useSearchParams()
-  const currentPageIndex = Number(searchParams.get('page')) || getMonthIndex(getMonthStr(new Date()), uniqueMonths)
+  const currentMonth = searchParams.get('month') ? searchParams.get('month') as string : dateToMonthStr(new Date())
 
   const pickerRef = useRef<HTMLInputElement>(null)
 
@@ -27,35 +29,23 @@ export default function MonthPicker({uniqueMonths}: {uniqueMonths: string[]}) {
     if (!pickerRef.current) {
       return
     }
-    pickerRef.current.value = uniqueMonths[currentPageIndex - 1]
+    pickerRef.current.value = currentMonth
   }, [searchParams])
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const params = new URLSearchParams(searchParams)
-    params.set('page', String(getMonthIndex(e.target.value, uniqueMonths)))
+    params.set('month', e.target.value)
     replace(`${pathname}?${params.toString()}`)
   }, [])
   return (
     <FormControl label="Month" htmlFor="month" className="items-center mb-8" labelClassName="font-bold mr-4">
-      {currentPageIndex > 1 ? (
-        <Link href={createPageURL(pathname, searchParams, currentPageIndex - 1)}>
-          <ChevronLeftIcon className="w-6" strokeWidth={2} />
-        </Link>
-      ) : (
-        <div className="text-gray-300">
-          <ChevronLeftIcon className="w-6"  strokeWidth={2} />
-        </div>
-      )}
-      <input ref={pickerRef} type="month" name="month" id="month" defaultValue={uniqueMonths[currentPageIndex - 1]} onChange={handleChange} className="border-1 border-slate-400 p-2 mx-4" />
-      {currentPageIndex < uniqueMonths.length ? (
-        <Link href={createPageURL(pathname, searchParams, currentPageIndex + 1)}>
-          <ChevronRightIcon className="w-6"  strokeWidth={2} />
-        </Link>
-      ) : (
-        <div className="text-gray-300">
-          <ChevronRightIcon className="w-6"  strokeWidth={2} />
-        </div>
-      )}
+      <Link href={createPageURL(pathname, searchParams, 'month', dateToMonthStr(getLastMonth(monthStrToDate(currentMonth))))}>
+        <ChevronLeftIcon className="w-6" strokeWidth={2} />
+      </Link>
+      <input ref={pickerRef} type="month" name="month" id="month" defaultValue={currentMonth} onChange={handleChange} className="border-1 border-slate-400 p-2 mx-4" />
+      <Link href={createPageURL(pathname, searchParams, 'month', dateToMonthStr(getNextMonth(monthStrToDate(currentMonth))))}>
+        <ChevronRightIcon className="w-6"  strokeWidth={2} />
+      </Link>
     </FormControl>
   )
 }

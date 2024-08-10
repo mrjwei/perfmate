@@ -139,17 +139,32 @@ export const generatePageIndexes = (currentPageIndex: number, totalPages: number
   ];
 }
 
-export const getMonthStr = (date: Date) => {
+export const getLastMonth = (date: Date): Date => {
+  date.setMonth(date.getMonth() - 1)
+  return date
+}
+
+export const getNextMonth = (date: Date): Date => {
+  date.setMonth(date.getMonth() + 1)
+  return date
+}
+
+export const dateToMonthStr = (date: Date) => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+}
+
+export const monthStrToDate = (monthStr: string) => {
+  const [year, month] = monthStr.split('-').map(Number)
+  return new Date(year, month - 1, 1)
 }
 
 export const getMonthIndex = (month: string, uniqueMonths: string[]) => {
   return uniqueMonths.indexOf(month) + 1
 }
 
-export const createPageURL = (pathname: string, searchParams: ReadonlyURLSearchParams, pageIndex: number | string) => {
+export const createPageURL = (pathname: string, searchParams: ReadonlyURLSearchParams, key: string, value: number | string) => {
   const params = new URLSearchParams(searchParams)
-  params.set('page', pageIndex.toString())
+  params.set(key, value.toString())
   return `${pathname}?${params.toString()}`
 }
 

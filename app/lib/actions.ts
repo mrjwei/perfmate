@@ -23,7 +23,7 @@ const FormSchema = z.object({
 
 const UpdateRecordSchema = FormSchema.omit({id: true})
 
-export async function updateRecord(id: string, formData: FormData) {
+export async function updateRecord(id: string, month: string | null, formData: FormData) {
   const validatedFields = UpdateRecordSchema.safeParse({
     date: formData.get('date'),
     starttime: formData.get('starttime'),
@@ -60,7 +60,11 @@ export async function updateRecord(id: string, formData: FormData) {
     }
   }
   revalidatePath('/records')
-  redirect('/records')
+  if (month) {
+    redirect(`/records?month=${month}`)
+  } else {
+    redirect('/records')
+  }
 }
 
 export async function updateRecordEndTime(endtime: string, id: string) {
