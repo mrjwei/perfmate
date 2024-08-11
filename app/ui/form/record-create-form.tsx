@@ -14,6 +14,18 @@ export default function RecordCreateForm() {
 
   const [breaks, setBreaks] = useState<{id: any}[]>([]);
 
+  const handleAddBreak = () => {
+    setBreaks([...breaks, {id: uuidv4()}])
+  }
+
+  const handleRemoveBreak = (id: any) => {
+    if (breaks.length === 0) {
+      return
+    }
+    const filteredBreaks = breaks.filter(b => b.id !== id)
+    setBreaks(filteredBreaks)
+  }
+
   return (
     <form action={createFullRecord}>
       <FormControl label="Date" htmlFor="date">
@@ -33,8 +45,14 @@ export default function RecordCreateForm() {
               <input type="time" id={`breakEndTime${i + 1}`} name="breakEndTime" />
             </FormControl>
           </div>
+          <Button type="button" onClick={() => handleRemoveBreak(b.id)}>
+            Remove break
+          </Button>
         </div>
       ))}
+      <Button type="button" onClick={handleAddBreak}>
+        Add break
+      </Button>
       <FormControl label="End Time" htmlFor="endtime">
         <input type="time" id="endtime" name="endtime" />
       </FormControl>

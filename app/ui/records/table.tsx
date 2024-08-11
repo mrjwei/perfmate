@@ -37,7 +37,7 @@ export default async function Table({
             } = record
             return (
               <tr
-                key={id}
+                key={date}
                 className={clsx("border-t-1 border-slate-200", {
                   "animate-fadeOutBackground": editedRecordId === id,
                 })}
@@ -58,7 +58,7 @@ export default async function Table({
                   ) : (
                     <Link
                       className="text-sky-500"
-                      href={`/records/new?date=${date}`}
+                      href={`/records/create?date=${date}`}
                     >
                       Edit
                     </Link>
