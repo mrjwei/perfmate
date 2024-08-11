@@ -1,5 +1,4 @@
 import {ReadonlyURLSearchParams} from 'next/navigation'
-import {v4 as uuidv4} from 'uuid'
 import {TStatus, IRecord, IBreak, TDateIndexedRecords, IPaddedRecord} from '@/app/lib/types'
 
 const placeholder = '--:--'
@@ -208,7 +207,6 @@ export const generatePaddedRecordsForMonth = (monthStr: string, records: IRecord
 
   while (date.getMonth() === month - 1) {
     let paddedRecord: IPaddedRecord = {
-      id: String(uuidv4()),
       date: getFormattedDateString(date),
       starttime: placeholder,
       breaks: [],

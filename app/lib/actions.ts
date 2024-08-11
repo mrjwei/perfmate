@@ -100,6 +100,10 @@ export async function createRecord(data: {date: string, starttime: string}) {
   }
 }
 
+export async function createFullRecord(formData: FormData) {
+  redirect('/records')
+}
+
 export async function createBreak(starttime: string, recordId: string) {
   try {
     await sql`

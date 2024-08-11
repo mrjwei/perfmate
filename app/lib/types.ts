@@ -8,6 +8,12 @@ export interface IRecord {
   endtime: string | null
 }
 
+export interface IPaddedRecord extends Omit<IRecord, 'id'> {
+  id?: any
+  totalbreakhours: string
+  totalworkhours: string
+}
+
 export interface IBreak {
   id: string
   starttime: string
@@ -16,11 +22,6 @@ export interface IBreak {
 
 export type TDateIndexedRecords = {
   [key: string]: IRecord
-}
-
-export interface IPaddedRecord extends IRecord {
-  totalbreakhours: string
-  totalworkhours: string
 }
 
 export type TRecordsProps = {

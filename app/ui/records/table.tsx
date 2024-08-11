@@ -1,5 +1,5 @@
 import Link from "next/link"
-import clsx from 'clsx'
+import clsx from "clsx"
 import { fetchPaginatedRecords } from "@/app/lib/api"
 import { generatePaddedRecordsForMonth } from "@/app/lib/helpers"
 import { IPaddedRecord } from "@/app/lib/types"
@@ -36,21 +36,33 @@ export default async function Table({
               totalworkhours,
             } = record
             return (
-              <tr key={id} className={clsx('border-t-1 border-slate-200', {
-                'animate-fadeOutBackground': editedRecordId === id
-              })}>
+              <tr
+                key={id}
+                className={clsx("border-t-1 border-slate-200", {
+                  "animate-fadeOutBackground": editedRecordId === id,
+                })}
+              >
                 <td className="py-4">{date}</td>
                 <td className="py-4">{starttime}</td>
                 <td className="py-4">{endtime ? endtime : "--:--"}</td>
                 <td className="py-4">{totalbreakhours}</td>
                 <td className="py-4">{totalworkhours}</td>
                 <td className="py-4 text-right">
-                  <Link
-                    className="text-sky-500"
-                    href={`/records/${id}/edit?month=${month}`}
-                  >
-                    Edit
-                  </Link>
+                  {id ? (
+                    <Link
+                      className="text-sky-500"
+                      href={`/records/${id}/edit?month=${month}`}
+                    >
+                      Edit
+                    </Link>
+                  ) : (
+                    <Link
+                      className="text-sky-500"
+                      href={`/records/new?date=${date}`}
+                    >
+                      Edit
+                    </Link>
+                  )}
                 </td>
               </tr>
             )
