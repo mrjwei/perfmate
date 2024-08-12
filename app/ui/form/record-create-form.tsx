@@ -38,8 +38,8 @@ export default function RecordCreateForm() {
         <div className="flex" key={b.id}>
           <label htmlFor="">Break {i + 1}</label>
           <div>
-            <FormControl label="Begin" htmlFor={`breakBeginTime${i + 1}`}>
-              <input type="time" id={`breakBeginTime${i + 1}`} name="breakBeginTime" />
+            <FormControl label="Begin" htmlFor={`breakStartTime${i + 1}`}>
+              <input type="time" id={`breakStartTime${i + 1}`} name="breakStartTime" />
             </FormControl>
             <FormControl label="End" htmlFor={`breakEndTime${i + 1}`}>
               <input type="time" id={`breakEndTime${i + 1}`} name="breakEndTime" />

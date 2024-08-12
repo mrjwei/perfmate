@@ -16,12 +16,24 @@ const FormSchema = z.object({
   date: z.string(),
   starttime: z.string(),
   breakIds: z.array(z.string()).optional(),
-  breakBeginTimes: z.array(z.string().min(1)),
+  breakStartTimes: z.array(z.string().min(1)),
   breakEndTimes: z.array(z.string().nullable()),
   endtime: z.string().nullable(),
 })
 
-const UpdateRecordSchema = FormSchema.omit({ id: true })
+const UpdateRecordSchema = FormSchema.omit({
+  id: true,
+  breakIds: true,
+  breakStartTimes: true,
+  breakEndTimes: true
+}).extend({
+  existing_breakIds: z.array(z.string()).optional(),
+  existing_breakStartTimes: z.array(z.string().min(1)),
+  existing_breakEndTimes: z.array(z.string().nullable()),
+  new_breakIds: z.array(z.string()).optional(),
+  new_breakStartTimes: z.array(z.string().min(1)),
+  new_breakEndTimes: z.array(z.string().nullable()),
+})
 const CreateRecordSchema = FormSchema.omit({ id: true })
 
 export async function updateRecord(
@@ -32,9 +44,12 @@ export async function updateRecord(
   const validatedFields = UpdateRecordSchema.safeParse({
     date: formData.get("date"),
     starttime: formData.get("starttime"),
-    breakIds: formData.getAll("breakId"),
-    breakBeginTimes: formData.getAll("breakBeginTime"),
-    breakEndTimes: formData.getAll("breakEndTime"),
+    existing_breakIds: formData.getAll("existing_breakId"),
+    existing_breakStartTimes: formData.getAll("existing_breakStartTime"),
+    existing_breakEndTimes: formData.getAll("existing_breakEndTime"),
+    new_breakIds: formData.getAll("new_breakId"),
+    new_breakStartTimes: formData.getAll("new_breakStartTime"),
+    new_breakEndTimes: formData.getAll("new_breakEndTime"),
     endtime: formData.get("endtime"),
   })
   if (!validatedFields.success) {
@@ -43,10 +58,30 @@ export async function updateRecord(
       errors: validatedFields.error.flatten().fieldErrors,
     }
   }
-  let { date, starttime, breakIds, breakBeginTimes, breakEndTimes, endtime } =
-    validatedFields.data
+  let {
+    date,
+    starttime,
+    existing_breakIds,
+    existing_breakStartTimes,
+    existing_breakEndTimes,
+    new_breakIds,
+    new_breakStartTimes,
+    new_breakEndTimes,
+    endtime,
+  } = validatedFields.data
 
-  const breakTimes = zip(null, breakIds, breakBeginTimes, breakEndTimes)
+  const existingBreakTimes = zip(
+    null,
+    existing_breakIds,
+    existing_breakStartTimes,
+    existing_breakEndTimes
+  )
+
+  const newBreakTimes = zip(
+    null,
+    new_breakStartTimes,
+    new_breakEndTimes
+  )
 
   try {
     await sql`
@@ -57,12 +92,20 @@ export async function updateRecord(
       WHERE id=${id};
     `
     await Promise.all(
-      breakTimes.map(
-        (data) => sql`
-      UPDATE breaks
-      SET starttime=${data[1]}, endtime=${data[2]}
-      WHERE id=${data[0]};
-    `
+      existingBreakTimes.map(
+        ([id, starttime, endtime]) => sql`
+          UPDATE breaks
+          SET starttime=${starttime}, endtime=${endtime}
+          WHERE id=${id};
+        `
+      )
+    )
+    await Promise.all(
+      newBreakTimes.map(
+        ([starttime, endtime]) => sql`
+          INSERT INTO breaks (recordId, starttime, endtime)
+          VALUES (${id}, ${starttime}, ${endtime});
+        `
       )
     )
   } catch (error) {
@@ -76,6 +119,21 @@ export async function updateRecord(
   } else {
     redirect(`/records?edited=${id}`)
   }
+}
+
+export async function deleteBreak(id: string) {
+  try {
+		await sql`
+	    DELETE FROM breaks WHERE id=${id};
+		`
+		revalidatePath('/records');
+		return {message: 'Deleted break'}
+	} catch (error) {
+		console.log(`Database error: ${error}`)
+    return {
+      message: "Database error: failed to delete break",
+    }
+	}
 }
 
 export async function updateRecordEndTime(endtime: string, id: string) {
@@ -115,7 +173,7 @@ export async function createFullRecord(formData: FormData) {
   const validatedFields = CreateRecordSchema.safeParse({
     date: formData.get("date"),
     starttime: formData.get("starttime"),
-    breakBeginTimes: formData.getAll("breakBeginTime"),
+    breakStartTimes: formData.getAll("breakStartTime"),
     breakEndTimes: formData.getAll("breakEndTime"),
     endtime: formData.get("endtime"),
   })
@@ -125,14 +183,14 @@ export async function createFullRecord(formData: FormData) {
       errors: validatedFields.error.flatten().fieldErrors,
     }
   }
-  let { date, starttime, breakBeginTimes, breakEndTimes, endtime } =
+  let { date, starttime, breakStartTimes, breakEndTimes, endtime } =
     validatedFields.data
 
   if (!endtime) {
     endtime = null
   }
 
-  const breakTimes = zip(null, breakBeginTimes, breakEndTimes)
+  const breakTimes = zip(null, breakStartTimes, breakEndTimes)
 
   breakEndTimes = breakEndTimes.map((t) => (!t ? null : t))
 
