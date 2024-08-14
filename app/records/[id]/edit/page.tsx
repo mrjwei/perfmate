@@ -7,6 +7,7 @@ export default async function Page({params}: {params: {id: string}}) {
 
   return (
     <div>
+      <h2 className="text-3xl font-bold mb-12">Edit Record</h2>
       <RecordEditForm record={record} />
     </div>
   )

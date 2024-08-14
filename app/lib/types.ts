@@ -20,6 +20,10 @@ export interface IBreak {
   endtime: string | null
 }
 
+export interface IGenericBreak extends Omit<IBreak, 'starttime' | 'endtime'> {
+  [key: string]: any
+}
+
 export type TDateIndexedRecords = {
   [key: string]: IRecord
 }
