@@ -38,12 +38,12 @@ export default function MonthPicker() {
     replace(`${pathname}?${params.toString()}`)
   }, [])
   return (
-    <FormControl label="Month" htmlFor="month" className="items-center mb-8" labelClassName="font-bold mr-4">
-      <Link href={createPageURL(pathname, searchParams, 'month', dateToMonthStr(getLastMonth(monthStrToDate(currentMonth))))}>
+    <FormControl label="Month" htmlFor="month" className="items-center mb-8" labelClassName="col-span-1 font-bold mr-4">
+      <Link href={createPageURL(pathname, searchParams, 'month', dateToMonthStr(getLastMonth(monthStrToDate(currentMonth))))} className="flex justify-end col-span-1">
         <ChevronLeftIcon className="w-6" strokeWidth={2} />
       </Link>
-      <input ref={pickerRef} type="month" name="month" id="month" defaultValue={currentMonth} onChange={handleChange} className="border-1 border-slate-400 p-2 mx-4" />
-      <Link href={createPageURL(pathname, searchParams, 'month', dateToMonthStr(getNextMonth(monthStrToDate(currentMonth))))}>
+      <input ref={pickerRef} type="month" name="month" id="month" defaultValue={currentMonth} onChange={handleChange} className="col-span-4 border-1 border-slate-400 p-2" />
+      <Link href={createPageURL(pathname, searchParams, 'month', dateToMonthStr(getNextMonth(monthStrToDate(currentMonth))))} className="flex justify-start col-span-1">
         <ChevronRightIcon className="w-6"  strokeWidth={2} />
       </Link>
     </FormControl>
