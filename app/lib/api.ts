@@ -40,7 +40,7 @@ export const fetchRecordById = async (id: string) => {
     }
   } catch (error) {
     console.error(`Database error: ${error}`);
-    throw new Error('Failed to fetch record.');
+    return null
   }
 }
 

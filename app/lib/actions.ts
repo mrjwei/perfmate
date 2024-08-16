@@ -5,8 +5,6 @@ import { z } from "zod"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import {
-  getFormattedDateString,
-  getFormattedTimeString,
   zip,
 } from "@/app/lib/helpers"
 import { fetchRecordById } from "@/app/lib/api"
@@ -155,13 +153,13 @@ export async function createRecord(data: { date: string; starttime: string }) {
       INSERT INTO records (date, starttime)
       VALUES (${date}, ${starttime});
     `
-    revalidatePath("/")
-    redirect("/")
   } catch (error) {
     return {
       message: "Database error: failed to create record",
     }
   }
+  revalidatePath("/")
+  redirect("/")
 }
 
 export async function createFullRecord(formData: FormData) {
@@ -246,6 +244,9 @@ export async function updateBreak(data: Partial<IBreak>, isEndingBreak: boolean)
         return
       }
       const record = await fetchRecordById(data.recordId)
+      if (!record) {
+        return
+      }
       const targetBreak = record.breaks.findLast((b) => !b.endtime)
       if (!targetBreak) {
         return
