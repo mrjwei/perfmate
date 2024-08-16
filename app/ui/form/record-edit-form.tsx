@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import Link from "next/link"
+import clsx from 'clsx'
 import { PlusIcon } from "@heroicons/react/24/outline"
 import { v4 as uuidv4 } from "uuid"
 import { useSearchParams } from "next/navigation"
@@ -40,42 +41,45 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
         label="Date"
         htmlFor="date"
         className="items-center mb-8"
-        labelClassName="font-bold"
+        labelClassName="col-span-4 font-bold"
       >
         <input
           type="date"
           id="date"
           name="date"
           defaultValue={record.date}
-          className="border-1 border-slate-400 p-2 mx-4"
+          className="col-span-8 border-1 border-slate-400 p-2 mx-4"
         />
       </FormControl>
       <FormControl
         label="Start Time"
         htmlFor="starttime"
         className="items-center mb-8"
-        labelClassName="font-bold"
+        labelClassName="col-span-4 font-bold"
       >
         <input
           type="time"
           id="starttime"
           name="starttime"
           defaultValue={record.starttime}
-          className="border-1 border-slate-400 p-2 mx-4"
+          className="col-span-8 border-1 border-slate-400 p-2 mx-4"
         />
       </FormControl>
-      <div className="border-y-1 border-slate-200 py-8 mb-8">
-        {breaks.map((b, i) => {
-          return (
-            <BreakField
-              key={b.id}
-              b={b}
-              index={i}
-              namePrefix={b.starttime ? "existing" : "new"}
-              handleRemoveBreak={handleRemoveBreak}
-            />
-          )
-        })}
+      <div className={clsx(
+        'border-slate-200',
+        {
+          'border-y-1 py-8 mb-8': breaks.length > 0
+        }
+      )}>
+        {breaks.map((b, i) => (
+          <BreakField
+            key={b.id}
+            b={b}
+            index={i}
+            namePrefix={b.starttime ? "existing" : "new"}
+            handleRemoveBreak={handleRemoveBreak}
+          />
+        ))}
         <Button
           type="button"
           onClick={handleAddBreak}
@@ -91,14 +95,14 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
         label="End Time"
         htmlFor="endtime"
         className="items-center mb-8"
-        labelClassName="font-bold"
+        labelClassName="col-span-4 font-bold"
       >
         <input
           type="time"
           id="endtime"
           name="endtime"
           defaultValue={record.endtime ? record.endtime : undefined}
-          className="border-1 border-slate-400 p-2 mx-4"
+          className="col-span-8 border-1 border-slate-400 p-2 mx-4"
         />
       </FormControl>
       <div className="flex items-center">

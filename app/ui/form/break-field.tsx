@@ -25,7 +25,7 @@ export default function BreakField({
       <label htmlFor={`break${index + 1}`} className="block font-bold mb-4">
         Break {index + 1}
       </label>
-      <div id={`break${index + 1}`} className="flex items-center">
+      <div id={`break${index + 1}`} className="grid grid-cols-12 gap:4 lg:gap-8">
         <FormControl
           className="hidden"
           label={`${namePrefix}_breakId`}
@@ -42,36 +42,36 @@ export default function BreakField({
         <FormControl
           label="Start"
           htmlFor={`${namePrefix}_breakStartTime${index + 1}`}
-          className="items-center"
-          labelClassName="font-bold"
+          className="items-center col-span-5"
+          labelClassName="col-span-2 font-bold"
         >
           <input
             type="time"
             id={`${namePrefix}_breakStartTime${index + 1}`}
             name={`${namePrefix}_breakStartTime`}
             defaultValue={b.starttime ? b.starttime : undefined}
-            className="border-1 border-slate-400 p-2 mx-4"
+            className="col-span-10 border-1 border-slate-400 p-2"
           />
         </FormControl>
         <FormControl
           label="End"
           htmlFor={`${namePrefix}_breakEndTime${index + 1}`}
-          className="items-center"
-          labelClassName="font-bold"
+          className="items-center col-span-5"
+          labelClassName="col-span-2 font-bold"
         >
           <input
             type="time"
             id={`${namePrefix}_breakEndTime${index + 1}`}
             name={`${namePrefix}_breakEndTime`}
             defaultValue={b.endtime ? b.endtime : undefined}
-            className="border-1 border-slate-400 p-2 mx-4"
+            className="col-span-10 border-1 border-slate-400 p-2"
           />
         </FormControl>
         <Button
           type="button"
           name={namePrefix}
           onClick={(e) => handleRemoveBreak(e, b.id)}
-          className="text-red-500 flex items-center"
+          className="col-span-2 text-red-500 flex items-center"
         >
           <span className="mr-2">
             <TrashIcon className="w-6" />
