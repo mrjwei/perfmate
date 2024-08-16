@@ -32,6 +32,7 @@ export const fetchRecordById = async (id: string) => {
       starttime: getFormattedTimeString(record.starttime),
       breaks: breaks.map(b => ({
         id: b.id,
+        recordId: record.id,
         starttime: getFormattedTimeString(b.starttime),
         endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
       })),
@@ -58,6 +59,7 @@ export const fetchRecordByDate = async (date: string) => {
       starttime: getFormattedTimeString(record.starttime),
       breaks: breaks.map(b => ({
         id: b.id,
+        recordId: record.id,
         starttime: getFormattedTimeString(b.starttime),
         endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
       })),
@@ -76,18 +78,19 @@ export const fetchRecords = async () => {
       SELECT * FROM records
       ORDER BY date DESC;
     `
-    const recordsWithBreaks = await Promise.all(data.rows.map(async r => {
-      const breaks = await fetchBreaksByRecordId(r.id)
+    const recordsWithBreaks = await Promise.all(data.rows.map(async record => {
+      const breaks = await fetchBreaksByRecordId(record.id)
       return {
-        id: r.id,
-        date: getFormattedDateString(r.date),
-        starttime: getFormattedTimeString(r.starttime),
+        id: record.id,
+        date: getFormattedDateString(record.date),
+        starttime: getFormattedTimeString(record.starttime),
         breaks: breaks.map(b => ({
           id: b.id,
+          recordId: record.id,
           starttime: getFormattedTimeString(b.starttime),
           endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
         })),
-        endtime: r.endtime ? getFormattedTimeString(r.endtime) : null
+        endtime: record.endtime ? getFormattedTimeString(record.endtime) : null
       }
     }))
     return recordsWithBreaks
@@ -105,18 +108,19 @@ export const fetchPaginatedRecords = async (month: string) => {
       WHERE TO_CHAR(date, 'YYYY-MM') = ${month}
       ORDER BY date ASC;
     `
-    const recordsWithBreaks = await Promise.all(data.rows.map(async r => {
-      const breaks = await fetchBreaksByRecordId(r.id)
+    const recordsWithBreaks = await Promise.all(data.rows.map(async record => {
+      const breaks = await fetchBreaksByRecordId(record.id)
       return {
-        id: r.id,
-        date: getFormattedDateString(r.date),
-        starttime: getFormattedTimeString(r.starttime),
+        id: record.id,
+        date: getFormattedDateString(record.date),
+        starttime: getFormattedTimeString(record.starttime),
         breaks: breaks.map(b => ({
           id: b.id,
+          recordId: record.id,
           starttime: getFormattedTimeString(b.starttime),
           endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
         })),
-        endtime: r.endtime ? getFormattedTimeString(r.endtime) : null
+        endtime: record.endtime ? getFormattedTimeString(record.endtime) : null
       }
     }))
     return recordsWithBreaks
@@ -158,6 +162,7 @@ export const fetchLastRecord = async () => {
       starttime: getFormattedTimeString(record.starttime),
       breaks: breaks.map(b => ({
         id: b.id,
+        recordId: record.id,
         starttime: getFormattedTimeString(b.starttime),
         endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
       })),

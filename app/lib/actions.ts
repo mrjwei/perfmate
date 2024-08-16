@@ -168,8 +168,8 @@ export async function createFullRecord(formData: FormData) {
   const validatedFields = CreateRecordSchema.safeParse({
     date: formData.get("date"),
     starttime: formData.get("starttime"),
-    breakStartTimes: formData.getAll("breakStartTime"),
-    breakEndTimes: formData.getAll("breakEndTime"),
+    breakStartTimes: formData.getAll("new_breakStartTime"),
+    breakEndTimes: formData.getAll("new_breakEndTime"),
     endtime: formData.get("endtime"),
   })
   if (!validatedFields.success) {
