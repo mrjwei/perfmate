@@ -16,11 +16,12 @@ export interface IPaddedRecord extends Omit<IRecord, 'id'> {
 
 export interface IBreak {
   id: string
+  recordId: string
   starttime: string
   endtime: string | null
 }
 
-export interface IGenericBreak extends Omit<IBreak, 'starttime' | 'endtime'> {
+export interface IGenericBreak extends Omit<IBreak, 'recordId' | 'starttime' | 'endtime'> {
   [key: string]: any
 }
 

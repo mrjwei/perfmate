@@ -17,7 +17,7 @@ export default function StartBreakButton({
   disabled: boolean
 }) {
   const starttime = getFormattedTimeString(new Date())
-  const updateRecordEndTimeWithId = createBreak.bind(null, starttime, record.id)
+  const updateRecordEndTimeWithId = createBreak.bind(null, {starttime, recordId: record.id})
   return (
     <form action={updateRecordEndTimeWithId}>
       <Button

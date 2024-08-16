@@ -10,6 +10,7 @@ import {
   zip,
 } from "@/app/lib/helpers"
 import { fetchRecordById } from "@/app/lib/api"
+import {IBreak} from '@/app/lib/types'
 
 const FormSchema = z.object({
   id: z.string(),
@@ -30,7 +31,6 @@ const UpdateRecordSchema = FormSchema.omit({
   existing_breakIds: z.array(z.string()).optional(),
   existing_breakStartTimes: z.array(z.string().min(1)),
   existing_breakEndTimes: z.array(z.string().nullable()),
-  new_breakIds: z.array(z.string()).optional(),
   new_breakStartTimes: z.array(z.string().min(1)),
   new_breakEndTimes: z.array(z.string().nullable()),
 })
@@ -47,7 +47,6 @@ export async function updateRecord(
     existing_breakIds: formData.getAll("existing_breakId"),
     existing_breakStartTimes: formData.getAll("existing_breakStartTime"),
     existing_breakEndTimes: formData.getAll("existing_breakEndTime"),
-    new_breakIds: formData.getAll("new_breakId"),
     new_breakStartTimes: formData.getAll("new_breakStartTime"),
     new_breakEndTimes: formData.getAll("new_breakEndTime"),
     endtime: formData.get("endtime"),
@@ -64,7 +63,6 @@ export async function updateRecord(
     existing_breakIds,
     existing_breakStartTimes,
     existing_breakEndTimes,
-    new_breakIds,
     new_breakStartTimes,
     new_breakEndTimes,
     endtime,
@@ -91,23 +89,20 @@ export async function updateRecord(
     }
       WHERE id=${id};
     `
-    await Promise.all(
-      existingBreakTimes.map(
-        ([id, starttime, endtime]) => sql`
-          UPDATE breaks
-          SET starttime=${starttime}, endtime=${endtime}
-          WHERE id=${id};
-        `
+    if (existingBreakTimes.length > 0) {
+      await Promise.all(
+        existingBreakTimes.map(
+          ([id, starttime, endtime]) => updateBreak({id, starttime, endtime}, false)
+        )
       )
-    )
-    await Promise.all(
-      newBreakTimes.map(
-        ([starttime, endtime]) => sql`
-          INSERT INTO breaks (recordId, starttime, endtime)
-          VALUES (${id}, ${starttime}, ${endtime});
-        `
+    }
+    if (newBreakTimes.length > 0) {
+      await Promise.all(
+        newBreakTimes.map(
+          ([starttime, endtime]) => createBreak({starttime, endtime, recordId: id})
+        )
       )
-    )
+    }
   } catch (error) {
     return {
       message: "Database error: failed to update record",
@@ -221,12 +216,20 @@ export async function createFullRecord(formData: FormData) {
   redirect("/records")
 }
 
-export async function createBreak(starttime: string, recordId: string) {
+export async function createBreak(data: Partial<IBreak>) {
+  const {recordId, starttime} = data
   try {
-    await sql`
-      INSERT INTO breaks (recordId, starttime)
-      VALUES (${recordId}, ${starttime});
-    `
+    if (data.endtime) {
+      await sql`
+        INSERT INTO breaks (recordId, starttime, endtime)
+        VALUES (${recordId}, ${starttime}, ${data.endtime});
+      `
+    } else {
+      await sql`
+        INSERT INTO breaks (recordId, starttime)
+        VALUES (${recordId}, ${starttime});
+      `
+    }
   } catch (error) {
     return {
       message: "Database error: failed to create break",
@@ -234,27 +237,41 @@ export async function createBreak(starttime: string, recordId: string) {
   }
   revalidatePath("/")
   revalidatePath("/records")
-  redirect("/")
 }
 
-export async function updateBreakEndTime(endtime: string, recordId: string) {
-  const record = await fetchRecordById(recordId)
-  const targetBreak = record.breaks.find((b) => !b.endtime)
-  if (!targetBreak) {
-    return
-  }
-
+export async function updateBreak(data: Partial<IBreak>, isEndingBreak: boolean) {
   try {
-    await sql`
-      UPDATE breaks
-      SET endtime=${endtime}
-      WHERE id=${targetBreak.id};
-    `
+    if (isEndingBreak) {
+      if (!data.recordId) {
+        return
+      }
+      const record = await fetchRecordById(data.recordId)
+      const targetBreak = record.breaks.findLast((b) => !b.endtime)
+      if (!targetBreak) {
+        return
+      }
+      await sql`
+        UPDATE breaks
+        SET endtime=${data.endtime}
+        WHERE id=${targetBreak.id};
+      `
+    } else {
+      const id = data.id
+      if (!id) {
+        return
+      }
+      const starttime = data.starttime ? data.starttime : null
+      const endtime = data.endtime ? data.endtime : null
+      await sql`
+        UPDATE breaks
+        SET starttime=${starttime}, endtime=${endtime}
+        WHERE id=${id};
+      `
+    }
   } catch (error) {
     return {
       message: "Database error: failed to update endtime of break",
     }
   }
   revalidatePath("/")
-  redirect("/")
 }
