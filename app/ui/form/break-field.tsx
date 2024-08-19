@@ -35,7 +35,8 @@ export default function BreakField({
             type="text"
             id={b.id}
             name={`${namePrefix}_breakId`}
-            defaultValue={b.id}
+            value={b.id}
+            readOnly
             aria-hidden
           />
         </FormControl>

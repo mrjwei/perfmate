@@ -19,9 +19,9 @@ export default function StartWorkingButton({
     date: getFormattedDateString(d),
     starttime: getFormattedTimeString(d)
   }
-  const createRecordWithDate = createRecord.bind(null, data)
+  const createRecordAction = createRecord.bind(null, data, new FormData())
   return (
-    <form action={createRecordWithDate}>
+    <form action={createRecordAction}>
       <Button
         type="submit"
         disabled={disabled}

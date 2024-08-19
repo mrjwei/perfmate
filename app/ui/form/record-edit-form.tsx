@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useActionState } from "react"
 import Link from "next/link"
 import clsx from 'clsx'
 import { PlusIcon } from "@heroicons/react/24/outline"
@@ -33,10 +33,15 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
     setBreaks(filteredBreaks)
   }
 
-  const updateRecordWithId = updateRecord.bind(null, record.id, month)
+  const updateRecordAction = updateRecord.bind(null, record.id, month, undefined)
+  const initialState: any = {
+    message: '',
+    errors: {}
+  }
+  const [state, formAction] = useActionState(updateRecordAction, initialState)
 
   return (
-    <form action={updateRecordWithId}>
+    <form action={formAction}>
       <FormControl
         label="Date"
         htmlFor="date"
@@ -48,8 +53,22 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
           id="date"
           name="date"
           defaultValue={record.date}
-          className="col-span-8 border-1 border-slate-400 p-2 mx-4"
+          className={clsx(
+            'col-span-8 border-1 p-2 mx-4',
+            {
+              'border-slate-400': !state.errors?.date,
+              'border-red-500': state.errors?.date
+            }
+          )}
+          aria-describedby="date-error"
         />
+        <div id="date-error" className="col-span-12" aria-live="polite" aria-atomic="true">
+          {state.errors?.date && (
+            <p className="text-red-500" key={state.errors.date.message}>
+              {state.errors.date.message}
+            </p>
+          )}
+        </div>
       </FormControl>
       <FormControl
         label="Start Time"
@@ -62,8 +81,22 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
           id="starttime"
           name="starttime"
           defaultValue={record.starttime}
-          className="col-span-8 border-1 border-slate-400 p-2 mx-4"
+          className={clsx(
+            'col-span-8 border-1 p-2 mx-4',
+            {
+              'border-slate-400': !state.errors?.starttime,
+              'border-red-500': state.errors?.starttime
+            }
+          )}
+          aria-describedby="starttime-error"
         />
+        <div id="starttime-error" className="col-span-12" aria-live="polite" aria-atomic="true">
+          {state.errors?.starttime && (
+            <p className="text-red-500" key={state.errors?.starttime.message}>
+              {state.errors?.starttime.message}
+            </p>
+          )}
+        </div>
       </FormControl>
       <div className={clsx(
         'border-slate-200',
@@ -72,13 +105,20 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
         }
       )}>
         {breaks.map((b, i) => (
-          <BreakField
-            key={b.id}
-            b={b}
-            index={i}
-            namePrefix={b.starttime ? "existing" : "new"}
-            handleRemoveBreak={handleRemoveBreak}
-          />
+          <div>
+            <BreakField
+              key={b.id}
+              b={b}
+              index={i}
+              namePrefix={b.starttime ? "existing" : "new"}
+              handleRemoveBreak={handleRemoveBreak}
+            />
+            {state.errors?.existingBreaks && state.errors?.existingBreaks.indexTuples.find((t: [number | undefined]) => t[0] === i) && (
+              <p className="text-red-500" key={b.id}>
+                {state.errors.existingBreaks.message}
+              </p>
+            )}
+          </div>
         ))}
         <Button
           type="button"

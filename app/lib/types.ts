@@ -35,3 +35,14 @@ export type TRecordsProps = {
     edited?: string
   }
 }
+
+// export type TActionState = {
+//   message: string
+//   errors: {
+//     date: string[]
+//     starttime: string[]
+//     existingBreaks: string[]
+//     newBreaks: string[]
+//     endTime: string[]
+//   }
+// }

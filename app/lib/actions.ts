@@ -5,112 +5,198 @@ import { z } from "zod"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import {
+  getTimeDifferneceInMins,
   zip,
 } from "@/app/lib/helpers"
 import { fetchRecordById } from "@/app/lib/api"
 import {IBreak} from '@/app/lib/types'
 
-const FormSchema = z.object({
-  id: z.string(),
+const BaseFormObj = z.object({
+  id: z.string().uuid(),
   date: z.string(),
   starttime: z.string(),
-  breakIds: z.array(z.string()).optional(),
-  breakStartTimes: z.array(z.string().min(1)),
-  breakEndTimes: z.array(z.string().nullable()),
+  existing_breakIds: z.array(z.string().uuid()),
+  existing_breakStartTimes: z.array(z.string()),
+  existing_breakEndTimes: z.array(z.string().nullable()),
+  new_breakStartTimes: z.array(z.string()),
+  new_breakEndTimes: z.array(z.string().nullable()),
   endtime: z.string().nullable(),
 })
 
-const UpdateRecordSchema = FormSchema.omit({
-  id: true,
-  breakIds: true,
-  breakStartTimes: true,
-  breakEndTimes: true
-}).extend({
-  existing_breakIds: z.array(z.string()).optional(),
-  existing_breakStartTimes: z.array(z.string().min(1)),
-  existing_breakEndTimes: z.array(z.string().nullable()),
-  new_breakStartTimes: z.array(z.string().min(1)),
-  new_breakEndTimes: z.array(z.string().nullable()),
+const TargetFormObj = z.object({
+  id: z.string().uuid(),
+  date: z.string().length(10, 'Date must not be empty and should be of yyyy-mm-dd format'),
+  starttime: z.string().length(5, 'Start time must not be empty and should be of hh:mm format'),
+  existingBreaks: z.array(z.tuple([z.string(), z.string({
+    message: 'Break start time must not be empty and should be of hh:mm format'
+  }).length(5), z.string({
+    message: 'Break end time should be of hh:mm format'
+  }).length(5).nullable()])).optional(),
+  newBreaks: z.array(z.tuple([z.string().length(5, {
+    message: 'Break start time must not be empty and should be of hh:mm format'
+  }), z.string().length(5, {
+    message: 'Break end time should be of hh:mm format'
+  }).nullable()])).optional(),
+  endtime: z.string().length(5, 'End time should be of hh:mm format').nullable(),
 })
-const CreateRecordSchema = FormSchema.omit({ id: true })
+
+const UpdateFormObj = BaseFormObj.omit({
+  id: true
+})
+
+const UpdateFormSchema = z.preprocess((data: unknown) => {
+  const typedData = data as z.infer<typeof UpdateFormObj>
+  return {
+    date: typedData.date,
+    starttime: typedData.starttime,
+    existingBreaks: zip(
+      null,
+      typedData.existing_breakIds,
+      typedData.existing_breakStartTimes,
+      typedData.existing_breakEndTimes
+    ).filter(b => !(!b[1] && !b[2])),
+    newBreaks: zip(
+      null,
+      typedData.new_breakStartTimes,
+      typedData.new_breakEndTimes
+    ).filter(b => !(!b[0] && !b[1])),
+    endtime: typedData.endtime === '' ? null : typedData.endtime
+  }
+}, TargetFormObj.omit({id: true})).refine(data => {
+  if (data.starttime && data.endtime) {
+    return getTimeDifferneceInMins(data.starttime, data.endtime) >= 0
+  }
+  return true
+}, 'Start time must be earlier than end time').refine(data => {
+  if (data.existingBreaks) {
+    return !data.existingBreaks.some(b => (!b[1] && b[2]) || (b[2] && getTimeDifferneceInMins(b[1], b[2]) < 0))
+  }
+  if (data.newBreaks) {
+    return !data.newBreaks.some(b => (!b[0] && b[1]) || (b[1] && getTimeDifferneceInMins(b[0], b[1]) < 0))
+  }
+  return true
+}, 'Please check break start time and end time')
+
+const CreateFormObj = BaseFormObj.omit({
+  id: true,
+  existing_breakIds: true,
+  existing_breakStartTimes: true,
+  existing_breakEndTimes: true,
+})
+
+const CreateFormSchema = z.preprocess((data: unknown) => {
+  const typedData = data as z.infer<typeof CreateFormObj>
+  return {
+    date: typedData.date,
+    starttime: typedData.starttime,
+    newBreaks: zip(
+      null,
+      typedData.new_breakStartTimes,
+      typedData.new_breakEndTimes
+    ).filter(b => !(!b[0] && !b[1])),
+    endtime: typedData.endtime === '' ? null : typedData.endtime
+  }
+}, TargetFormObj.omit({id: true, existingBreaks: true})).refine(data => {
+  if (data.starttime && data.endtime) {
+    return getTimeDifferneceInMins(data.starttime, data.endtime) >= 0
+  }
+  return true
+}, 'Start time must be earlier than end time')
 
 export async function updateRecord(
   id: string,
   month: string | null,
+  data: {endtime: string} | undefined,
+  prevState: any,
   formData: FormData
 ) {
-  const validatedFields = UpdateRecordSchema.safeParse({
-    date: formData.get("date"),
-    starttime: formData.get("starttime"),
-    existing_breakIds: formData.getAll("existing_breakId"),
-    existing_breakStartTimes: formData.getAll("existing_breakStartTime"),
-    existing_breakEndTimes: formData.getAll("existing_breakEndTime"),
-    new_breakStartTimes: formData.getAll("new_breakStartTime"),
-    new_breakEndTimes: formData.getAll("new_breakEndTime"),
-    endtime: formData.get("endtime"),
-  })
-  if (!validatedFields.success) {
-    return {
-      message: "Failed to update record",
-      errors: validatedFields.error.flatten().fieldErrors,
+  if (data) {
+    // End working
+    const {endtime} = data
+    try {
+      await sql`
+        UPDATE records
+        SET endtime=${endtime}
+        WHERE id=${id};
+      `
+    } catch (error) {
+      return {
+        message: "Database error: failed to update endtime of record",
+      }
     }
-  }
-  let {
-    date,
-    starttime,
-    existing_breakIds,
-    existing_breakStartTimes,
-    existing_breakEndTimes,
-    new_breakStartTimes,
-    new_breakEndTimes,
-    endtime,
-  } = validatedFields.data
-
-  const existingBreakTimes = zip(
-    null,
-    existing_breakIds,
-    existing_breakStartTimes,
-    existing_breakEndTimes
-  )
-
-  const newBreakTimes = zip(
-    null,
-    new_breakStartTimes,
-    new_breakEndTimes
-  )
-
-  try {
-    await sql`
-      UPDATE records
-      SET date=${date}, starttime=${starttime}, endtime=${
-      endtime ? endtime : null
-    }
-      WHERE id=${id};
-    `
-    if (existingBreakTimes.length > 0) {
-      await Promise.all(
-        existingBreakTimes.map(
-          ([id, starttime, endtime]) => updateBreak({id, starttime, endtime}, false)
-        )
-      )
-    }
-    if (newBreakTimes.length > 0) {
-      await Promise.all(
-        newBreakTimes.map(
-          ([starttime, endtime]) => createBreak({starttime, endtime, recordId: id})
-        )
-      )
-    }
-  } catch (error) {
-    return {
-      message: "Database error: failed to update record",
-    }
-  }
-  revalidatePath("/records")
-  if (month) {
-    redirect(`/records?month=${month}&edited=${id}`)
+    revalidatePath("/")
+    redirect("/")
   } else {
-    redirect(`/records?edited=${id}`)
+    // edit record via form
+    const validatedFields = UpdateFormSchema.safeParse({
+      date: formData.get("date"),
+      starttime: formData.get("starttime"),
+      existing_breakIds: formData.getAll("existing_breakId"),
+      existing_breakStartTimes: formData.getAll("existing_breakStartTime"),
+      existing_breakEndTimes: formData.getAll("existing_breakEndTime"),
+      new_breakStartTimes: formData.getAll("new_breakStartTime"),
+      new_breakEndTimes: formData.getAll("new_breakEndTime"),
+      endtime: formData.get("endtime"),
+    })
+    console.log(JSON.stringify(validatedFields.error))
+    if (!validatedFields.success) {
+      return {
+        message: "Failed to update record",
+        errors: validatedFields.error.issues.reduce((acc: any, curr: any) => {
+           const key = curr['path'][0]
+           if (key in acc) {
+            acc[key].indexTuples.push([curr['path'][1], curr['path'][2]])
+           } else {
+            acc[key] = {
+              message: curr['message'],
+              indexTuples: [[curr['path'][1], curr['path'][2]]]
+             }
+           }
+           return acc
+        }, {}),
+      }
+    }
+    let {
+      date,
+      starttime,
+      existingBreaks,
+      newBreaks,
+      endtime,
+    } = validatedFields.data
+
+    try {
+      await sql`
+        UPDATE records
+        SET date=${date}, starttime=${starttime}, endtime=${
+        endtime ? endtime : null
+      }
+        WHERE id=${id};
+      `
+      if (existingBreaks && existingBreaks.length > 0) {
+        await Promise.all(
+          existingBreaks.map(
+            ([id, starttime, endtime]) => updateBreak({id, starttime, endtime}, false)
+          )
+        )
+      }
+      if (newBreaks && newBreaks.length > 0) {
+        await Promise.all(
+          newBreaks.map(
+            ([starttime, endtime]) => createBreak({starttime, endtime, recordId: id})
+          )
+        )
+      }
+    } catch (error) {
+      return {
+        message: "Database error: failed to update record",
+      }
+    }
+    revalidatePath("/records")
+    if (month) {
+      redirect(`/records?month=${month}&edited=${id}`)
+    } else {
+      redirect(`/records?edited=${id}`)
+    }
   }
 }
 
@@ -129,89 +215,63 @@ export async function deleteBreak(id: string) {
 	}
 }
 
-export async function updateRecordEndTime(endtime: string, id: string) {
-  try {
-    await sql`
-      UPDATE records
-      SET endtime=${endtime}
-      WHERE id=${id};
-    `
-  } catch (error) {
-    return {
-      message: "Database error: failed to update endtime of record",
+export async function createRecord(data: {date: string, starttime: string} | undefined, formData: FormData) {
+  if (data) {
+    const {date, starttime} = data
+    try {
+      await sql`
+        INSERT INTO records (date, starttime)
+        VALUES (${date}, ${starttime});
+      `
+    } catch (error) {
+      return {
+        message: "Database error: failed to create record",
+      }
     }
-  }
-  revalidatePath("/")
-  redirect("/")
-}
-
-export async function createRecord(data: { date: string; starttime: string }) {
-  const { date, starttime } = data
-
-  try {
-    await sql`
-      INSERT INTO records (date, starttime)
-      VALUES (${date}, ${starttime});
-    `
-  } catch (error) {
-    return {
-      message: "Database error: failed to create record",
+    revalidatePath("/")
+    redirect("/")
+  } else {
+    const validatedFields = CreateFormSchema.safeParse({
+      date: formData.get("date"),
+      starttime: formData.get("starttime"),
+      new_breakStartTimes: formData.getAll("new_breakStartTime"),
+      new_breakEndTimes: formData.getAll("new_breakEndTime"),
+      endtime: formData.get("endtime"),
+    })
+    if (!validatedFields.success) {
+      return {
+        message: "Failed to create record",
+        errors: validatedFields.error.flatten().fieldErrors,
+      }
     }
-  }
-  revalidatePath("/")
-  redirect("/")
-}
-
-export async function createFullRecord(formData: FormData) {
-  const validatedFields = CreateRecordSchema.safeParse({
-    date: formData.get("date"),
-    starttime: formData.get("starttime"),
-    breakStartTimes: formData.getAll("new_breakStartTime"),
-    breakEndTimes: formData.getAll("new_breakEndTime"),
-    endtime: formData.get("endtime"),
-  })
-  if (!validatedFields.success) {
-    return {
-      message: "Failed to create record",
-      errors: validatedFields.error.flatten().fieldErrors,
-    }
-  }
-  let { date, starttime, breakStartTimes, breakEndTimes, endtime } =
+    const { date, starttime, newBreaks, endtime } =
     validatedFields.data
+    try {
+      const recordData = await sql`
+        INSERT INTO records (date, starttime, endtime)
+        VALUES (${date}, ${starttime}, ${endtime})
+        RETURNING id;
+      `
+      const recordId = recordData.rows[0].id
 
-  if (!endtime) {
-    endtime = null
-  }
-
-  const breakTimes = zip(null, breakStartTimes, breakEndTimes)
-
-  breakEndTimes = breakEndTimes.map((t) => (!t ? null : t))
-
-  try {
-    const data = await sql`
-      INSERT INTO records (date, starttime, endtime)
-      VALUES (${date}, ${starttime}, ${endtime})
-      RETURNING id;
-    `
-    const recordId = data.rows[0].id
-
-    if (breakTimes.length > 0) {
-      await Promise.all(
-        breakTimes.map(
-          ([starttime, endtime]) => sql`
-            INSERT INTO breaks (recordId, starttime, endtime)
-            VALUES (${recordId}, ${starttime}, ${endtime});
-          `
+      if (newBreaks && newBreaks.length > 0) {
+        await Promise.all(
+          newBreaks.map(
+            ([starttime, endtime]) => sql`
+              INSERT INTO breaks (recordId, starttime, endtime)
+              VALUES (${recordId}, ${starttime}, ${endtime});
+            `
+          )
         )
-      )
+      }
+    } catch (error) {
+      return {
+        message: `Database error: ${error}`,
+      }
     }
-  } catch (error) {
-    return {
-      message: `Database error: ${error}`,
-    }
+    revalidatePath("/records")
+    redirect("/records")
   }
-  revalidatePath("/records")
-  redirect("/records")
 }
 
 export async function createBreak(data: Partial<IBreak>) {

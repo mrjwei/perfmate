@@ -10,7 +10,7 @@ import FormControl from "@/app/ui/form/form-control"
 import BreakField from "@/app/ui/form/break-field"
 import Button from "@/app/ui/button/button"
 import { IGenericBreak } from "@/app/lib/types"
-import { createFullRecord } from "@/app/lib/actions"
+import { createRecord } from "@/app/lib/actions"
 import { dateToMonthStr } from "@/app/lib/helpers"
 
 export default function RecordCreateForm() {
@@ -34,8 +34,10 @@ export default function RecordCreateForm() {
     setBreaks(filteredBreaks)
   }
 
+  const createRecordAction = createRecord.bind(null, undefined)
+
   return (
-    <form action={createFullRecord}>
+    <form action={createRecordAction}>
       <FormControl
         label="Date"
         htmlFor="date"
