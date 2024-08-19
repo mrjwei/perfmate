@@ -1,6 +1,5 @@
 import React from 'react'
 import dynamic from 'next/dynamic'
-import Clock from '@/app/ui/clock/clock'
 import StartWorkingButton from "@/app/ui/start-working-button/start-working-button"
 import EndWorkingButton from "@/app/ui/end-working-button/end-working-button"
 import StartBreakButton from "@/app/ui/start-break-button/start-break-button"
@@ -17,6 +16,8 @@ import {
   getFormattedTotalWorkHours
 } from '@/app/lib/helpers'
 import { fetchLastRecord } from "@/app/lib/api"
+
+const Clock = dynamic(() => import('@/app/ui/clock/clock'), {ssr: false})
 
 export default async function Home() {
   const record = await fetchLastRecord()
