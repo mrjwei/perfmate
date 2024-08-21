@@ -5,12 +5,15 @@ import { TrashIcon } from "@heroicons/react/24/outline"
 import FormControl from "@/app/ui/form/form-control"
 import Button from "@/app/ui/button/button"
 import { IGenericBreak } from "@/app/lib/types"
+import clsx from "clsx"
 
 export default function BreakField({
   b,
   index,
   namePrefix,
   handleRemoveBreak,
+  showErrorStyleStartTime,
+  showErrorStyleEndTime,
 }: {
   b: IGenericBreak
   index: number
@@ -19,9 +22,11 @@ export default function BreakField({
     e: React.MouseEvent<HTMLButtonElement>,
     id: string
   ) => void
+  showErrorStyleStartTime?: boolean
+  showErrorStyleEndTime?: boolean
 }) {
   return (
-    <div className="mb-6">
+    <div className="mb-2">
       <label htmlFor={`break${index + 1}`} className="block font-bold mb-4">
         Break {index + 1}
       </label>
@@ -51,7 +56,14 @@ export default function BreakField({
             id={`${namePrefix}_breakStartTime${index + 1}`}
             name={`${namePrefix}_breakStartTime`}
             defaultValue={b.starttime ? b.starttime : undefined}
-            className="col-span-10 border-1 border-slate-400 p-2"
+            className={clsx(
+              "col-span-10 border-1 p-2",
+              {
+                'border-slate-400': !showErrorStyleStartTime,
+                'border-red-500': showErrorStyleStartTime
+              }
+            )}
+            aria-describedby="break-error"
           />
         </FormControl>
         <FormControl
@@ -65,7 +77,14 @@ export default function BreakField({
             id={`${namePrefix}_breakEndTime${index + 1}`}
             name={`${namePrefix}_breakEndTime`}
             defaultValue={b.endtime ? b.endtime : undefined}
-            className="col-span-10 border-1 border-slate-400 p-2"
+            className={clsx(
+              "col-span-10 border-1 p-2",
+              {
+                'border-slate-400': !showErrorStyleEndTime,
+                'border-red-500': showErrorStyleEndTime
+              }
+            )}
+            aria-describedby="break-error"
           />
         </FormControl>
         <Button

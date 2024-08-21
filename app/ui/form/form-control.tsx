@@ -15,7 +15,7 @@ export default function FormControl({
   children: React.ReactNode
 }) {
   return (
-    <div className={clsx("grid grid-cols-12 gap-4", className)}>
+    <div className={clsx("grid grid-cols-12 gap-x-4", className)}>
       <label htmlFor={htmlFor} className={labelClassName}>
         {label}
       </label>

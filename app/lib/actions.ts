@@ -29,7 +29,7 @@ const TargetFormObj = z.object({
   starttime: z.string().length(5, 'Start time must not be empty and should be of hh:mm format'),
   existingBreaks: z.array(z.tuple([z.string(), z.string({
     message: 'Break start time must not be empty and should be of hh:mm format'
-  }).length(5), z.string({
+  }).length(5).nullable(), z.string({
     message: 'Break end time should be of hh:mm format'
   }).length(5).nullable()])).optional(),
   newBreaks: z.array(z.tuple([z.string().length(5, {
@@ -54,7 +54,7 @@ const UpdateFormSchema = z.preprocess((data: unknown) => {
       typedData.existing_breakIds,
       typedData.existing_breakStartTimes,
       typedData.existing_breakEndTimes
-    ).filter(b => !(!b[1] && !b[2])),
+    ),
     newBreaks: zip(
       null,
       typedData.new_breakStartTimes,
@@ -67,15 +67,31 @@ const UpdateFormSchema = z.preprocess((data: unknown) => {
     return getTimeDifferneceInMins(data.starttime, data.endtime) >= 0
   }
   return true
-}, 'Start time must be earlier than end time').refine(data => {
+}, 'Start time must be earlier than end time').superRefine((data, ctx) => {
   if (data.existingBreaks) {
-    return !data.existingBreaks.some(b => (!b[1] && b[2]) || (b[2] && getTimeDifferneceInMins(b[1], b[2]) < 0))
+    const index = data.existingBreaks.findIndex(b => (!b[1] && b[2]) || (b[1] && b[2] && getTimeDifferneceInMins(b[1], b[2]) < 0))
+    if (index !== -1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please check existing break start time and end time',
+        path: ['existingBreaks', index, 0]
+      });
+    }
+    }
   }
+).superRefine((data, ctx) => {
   if (data.newBreaks) {
-    return !data.newBreaks.some(b => (!b[0] && b[1]) || (b[1] && getTimeDifferneceInMins(b[0], b[1]) < 0))
+    const index = data.newBreaks.findIndex(b => (!b[0] && b[1]) || (b[0] && b[1] && getTimeDifferneceInMins(b[0], b[1]) < 0))
+    if (index !== -1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please check new break start time and end time',
+        path: ['newBreaks', index, 0]
+      });
+    }
+    }
   }
-  return true
-}, 'Please check break start time and end time')
+)
 
 const CreateFormObj = BaseFormObj.omit({
   id: true,
@@ -164,6 +180,8 @@ export async function updateRecord(
       endtime,
     } = validatedFields.data
 
+    console.log(JSON.stringify(existingBreaks))
+
     try {
       await sql`
         UPDATE records
@@ -175,7 +193,18 @@ export async function updateRecord(
       if (existingBreaks && existingBreaks.length > 0) {
         await Promise.all(
           existingBreaks.map(
-            ([id, starttime, endtime]) => updateBreak({id, starttime, endtime}, false)
+            ([id, starttime, endtime]) => {
+              if (!starttime && !endtime) {
+                deleteBreak(id)
+              }
+              if (starttime) {
+                updateBreak({id, starttime, endtime}, false)
+              } else {
+                return {
+                  message: "Failed to update record: break star time is empty but end time is not",
+                }
+              }
+            }
           )
         )
       }

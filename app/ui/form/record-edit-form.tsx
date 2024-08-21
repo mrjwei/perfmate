@@ -54,7 +54,7 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
           name="date"
           defaultValue={record.date}
           className={clsx(
-            'col-span-8 border-1 p-2 mx-4',
+            'col-span-8 border-1 p-2 mx-4 mb-2',
             {
               'border-slate-400': !state.errors?.date,
               'border-red-500': state.errors?.date
@@ -82,7 +82,7 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
           name="starttime"
           defaultValue={record.starttime}
           className={clsx(
-            'col-span-8 border-1 p-2 mx-4',
+            'col-span-8 border-1 p-2 mx-4 mb-2',
             {
               'border-slate-400': !state.errors?.starttime,
               'border-red-500': state.errors?.starttime
@@ -105,19 +105,28 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
         }
       )}>
         {breaks.map((b, i) => (
-          <div>
+          <div className="mb-6">
             <BreakField
               key={b.id}
               b={b}
               index={i}
               namePrefix={b.starttime ? "existing" : "new"}
               handleRemoveBreak={handleRemoveBreak}
+              showErrorStyleStartTime={state.errors?.existingBreaks && state.errors?.existingBreaks.indexTuples.find((t: Array<number | undefined>) => t[0] === i && t[1] === 0) || state.errors?.newBreaks && state.errors?.newBreaks.indexTuples.find((t: Array<number | undefined>) => t[0] === i && t[1] === 0)}
+              showErrorStyleEndTime={state.errors?.existingBreaks && state.errors?.existingBreaks.indexTuples.find((t: Array<number | undefined>) => t[0] === i && t[1] === 1) || state.errors?.newBreaks && state.errors?.newBreaks.indexTuples.find((t: Array<number | undefined>) => t[0] === i && t[1] === 1)}
             />
-            {state.errors?.existingBreaks && state.errors?.existingBreaks.indexTuples.find((t: [number | undefined]) => t[0] === i) && (
-              <p className="text-red-500" key={b.id}>
-                {state.errors.existingBreaks.message}
-              </p>
-            )}
+            <div id='break-error' aria-live="polite" aria-atomic="true">
+              {state.errors?.existingBreaks && state.errors?.existingBreaks.indexTuples.find((t: [number | undefined]) => t[0] === i) && (
+                <p className="text-red-500" key={b.id}>
+                  {state.errors.existingBreaks.message}
+                </p>
+              )}
+              {state.errors?.newBreaks && state.errors?.newBreaks.indexTuples.find((t: [number | undefined]) => t[0] === i) && (
+                <p className="text-red-500" key={b.id}>
+                  {state.errors.newBreaks.message}
+                </p>
+              )}
+            </div>
           </div>
         ))}
         <Button
@@ -142,8 +151,22 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
           id="endtime"
           name="endtime"
           defaultValue={record.endtime ? record.endtime : undefined}
-          className="col-span-8 border-1 border-slate-400 p-2 mx-4"
+          className={clsx(
+            'col-span-8 border-1 p-2 mx-4 mb-2',
+            {
+              'border-slate-400': !state.errors?.endtime,
+              'border-red-500': state.errors?.endtime
+            }
+          )}
+          aria-describedby="endtime-error"
         />
+        <div id="endtime-error" className="col-span-12" aria-live="polite" aria-atomic="true">
+          {state.errors?.endtime && (
+            <p className="text-red-500" key={state.errors?.endtime.message}>
+              {state.errors?.endtime.message}
+            </p>
+          )}
+        </div>
       </FormControl>
       <div className="flex items-center">
         <Button type="submit" className="bg-lime-600 text-white mr-4">
