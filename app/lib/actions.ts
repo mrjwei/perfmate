@@ -173,7 +173,6 @@ export async function editForm(
     endtime: formData.get("endtime"),
     breaks,
   })
-  console.log(JSON.stringify(validatedFields.error?.issues))
   if (!validatedFields.success) {
     return {
       message: "Failed to update record",
@@ -232,7 +231,7 @@ export async function editForm(
     } else if (validatedStarttime) {
       // Otherwise update record
       const endtime = validatedEndtime ? validatedEndtime : null
-      updateRecord(id, endtime, validatedDate, validatedStarttime)
+      updateRecord(id, endtime, validatedStarttime, validatedDate)
     }
     // Handle breaks if any exists
     if (validatedBreaks && validatedBreaks.length > 0) {
@@ -265,6 +264,7 @@ export async function editForm(
       message: "Database error: failed to update record",
     }
   }
+  revalidatePath("/")
   revalidatePath("/records")
   if (month) {
     redirect(`/records?month=${month}&edited=${id}`)
@@ -313,13 +313,6 @@ export async function creationForm(prevState: any, formData: FormData) {
     endtime: formData.get("endtime"),
     breaks,
   })
-  console.log(JSON.stringify({
-    date: formData.get("date"),
-    starttime: formData.get("starttime"),
-    endtime: formData.get("endtime"),
-    breaks,
-  }))
-  console.log(JSON.stringify(validatedFields.error?.issues))
   if (!validatedFields.success) {
     return {
       message: "Failed to create record",
