@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useActionState } from "react"
 import Link from "next/link"
 import clsx from "clsx"
 import { PlusIcon } from "@heroicons/react/24/outline"
@@ -10,7 +10,7 @@ import FormControl from "@/app/ui/form/form-control"
 import BreakField from "@/app/ui/form/break-field"
 import Button from "@/app/ui/button/button"
 import { IGenericBreak } from "@/app/lib/types"
-import { createRecord } from "@/app/lib/actions"
+import { creationForm } from "@/app/lib/actions"
 import { dateToMonthStr } from "@/app/lib/helpers"
 
 export default function RecordCreateForm() {
@@ -34,10 +34,14 @@ export default function RecordCreateForm() {
     setBreaks(filteredBreaks)
   }
 
-  const createRecordAction = createRecord.bind(null, undefined)
+  const initialState: any = {
+    message: '',
+    errors: {}
+  }
+  const [state, formAction] = useActionState(creationForm, initialState)
 
   return (
-    <form action={createRecordAction}>
+    <form action={formAction}>
       <FormControl
         label="Date"
         htmlFor="date"
@@ -48,8 +52,9 @@ export default function RecordCreateForm() {
           type="date"
           id="date"
           name="date"
-          defaultValue={date}
-          className="col-span-8 border-1 border-slate-400 p-2"
+          value={date}
+          readOnly
+          className='col-span-8 border-1 border-slate-400 bg-slate-100 p-2 mx-4 mb-2'
         />
       </FormControl>
       <FormControl
@@ -62,8 +67,22 @@ export default function RecordCreateForm() {
           type="time"
           id="starttime"
           name="starttime"
-          className="col-span-8 border-1 border-slate-400 p-2"
+          className={clsx(
+            'col-span-8 border-1 p-2 mx-4 mb-2',
+            {
+              'border-slate-400': !state.errors?.starttime,
+              'border-red-500': state.errors?.starttime,
+            }
+          )}
+          aria-describedby="starttime-error"
         />
+        <div id="starttime-error" className="col-span-12" aria-live="polite" aria-atomic="true">
+          {state.errors?.starttime && (
+            <p className="text-red-500" key={state.errors?.starttime.message}>
+              {state.errors?.starttime.message}
+            </p>
+          )}
+        </div>
       </FormControl>
       <div
         className={clsx("border-slate-200", {
@@ -71,13 +90,23 @@ export default function RecordCreateForm() {
         })}
       >
         {breaks.map((b, i) => (
-          <BreakField
-            key={b.id}
-            b={b}
-            index={i}
-            namePrefix="new"
-            handleRemoveBreak={handleRemoveBreak}
-          />
+          <div className="mb-6" key={b.id}>
+            <BreakField
+              key={b.id}
+              b={b}
+              index={i}
+              isStarttimeError={state.errors?.breaks?.errors.find((error: any) => error.id === b.id && error.fieldName === 'starttime')}
+              isEndtimeError={state.errors?.breaks?.errors.find((error: any) => error.id === b.id && error.fieldName === 'endtime')}
+              handleRemoveBreak={handleRemoveBreak}
+            />
+            <div id='break-error' aria-live="polite" aria-atomic="true">
+              {state.errors?.breaks && state.errors?.breaks.errors.find((error: any) => error.id === b.id) && (
+                <p className="text-red-500" key={b.id}>
+                  {state.errors.breaks.message}
+                </p>
+              )}
+            </div>
+          </div>
         ))}
         <Button
           type="button"
@@ -100,8 +129,22 @@ export default function RecordCreateForm() {
           type="time"
           id="endtime"
           name="endtime"
-          className="col-span-8 border-1 border-slate-400 p-2"
+          className={clsx(
+            'col-span-8 border-1 p-2 mx-4 mb-2',
+            {
+              'border-slate-400': !state.errors?.starttime,
+              'border-red-500': state.errors?.starttime,
+            }
+          )}
+          aria-describedby="endtime-error"
         />
+        <div id="endtime-error" className="col-span-12" aria-live="polite" aria-atomic="true">
+          {state.errors?.endtime && (
+            <p className="text-red-500" key={state.errors?.endtime.message}>
+              {state.errors?.endtime.message}
+            </p>
+          )}
+        </div>
       </FormControl>
       <div className="flex items-center">
         <Button type="submit" className="bg-lime-600 text-white mr-4">

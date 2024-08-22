@@ -10,20 +10,18 @@ import clsx from "clsx"
 export default function BreakField({
   b,
   index,
-  namePrefix,
+  isStarttimeError,
+  isEndtimeError,
   handleRemoveBreak,
-  showErrorStyleStartTime,
-  showErrorStyleEndTime,
 }: {
   b: IGenericBreak
   index: number
-  namePrefix: "existing" | "new"
+  isStarttimeError: boolean,
+  isEndtimeError: boolean,
   handleRemoveBreak: (
     e: React.MouseEvent<HTMLButtonElement>,
     id: string
   ) => void
-  showErrorStyleStartTime?: boolean
-  showErrorStyleEndTime?: boolean
 }) {
   return (
     <div className="mb-2">
@@ -33,13 +31,13 @@ export default function BreakField({
       <div id={`break${index + 1}`} className="grid grid-cols-12 gap:4 lg:gap-8">
         <FormControl
           className="hidden"
-          label={`${namePrefix}_breakId`}
+          label='Break Id'
           htmlFor={b.id}
         >
           <input
             type="text"
             id={b.id}
-            name={`${namePrefix}_breakId`}
+            name='breakid'
             value={b.id}
             readOnly
             aria-hidden
@@ -47,20 +45,20 @@ export default function BreakField({
         </FormControl>
         <FormControl
           label="Start"
-          htmlFor={`${namePrefix}_breakStartTime${index + 1}`}
+          htmlFor={`breakstarttime-${index + 1}`}
           className="items-center col-span-5"
           labelClassName="col-span-2 font-bold"
         >
           <input
             type="time"
-            id={`${namePrefix}_breakStartTime${index + 1}`}
-            name={`${namePrefix}_breakStartTime`}
+            id={`breakstarttime-${index + 1}`}
+            name='breakstarttime'
             defaultValue={b.starttime ? b.starttime : undefined}
             className={clsx(
               "col-span-10 border-1 p-2",
               {
-                'border-slate-400': !showErrorStyleStartTime,
-                'border-red-500': showErrorStyleStartTime
+                'border-slate-400': !isStarttimeError,
+                'border-red-500': isStarttimeError,
               }
             )}
             aria-describedby="break-error"
@@ -68,20 +66,20 @@ export default function BreakField({
         </FormControl>
         <FormControl
           label="End"
-          htmlFor={`${namePrefix}_breakEndTime${index + 1}`}
+          htmlFor={`breakendtime-${index + 1}`}
           className="items-center col-span-5"
           labelClassName="col-span-2 font-bold"
         >
           <input
             type="time"
-            id={`${namePrefix}_breakEndTime${index + 1}`}
-            name={`${namePrefix}_breakEndTime`}
+            id={`breakendtime-${index + 1}`}
+            name='breakendtime'
             defaultValue={b.endtime ? b.endtime : undefined}
             className={clsx(
               "col-span-10 border-1 p-2",
               {
-                'border-slate-400': !showErrorStyleEndTime,
-                'border-red-500': showErrorStyleEndTime
+                'border-slate-400': !isEndtimeError,
+                'border-red-500': isEndtimeError,
               }
             )}
             aria-describedby="break-error"
@@ -89,8 +87,8 @@ export default function BreakField({
         </FormControl>
         <Button
           type="button"
-          name={namePrefix}
           onClick={(e) => handleRemoveBreak(e, b.id)}
+          name={b.starttime ? 'existing' : 'new'}
           className="col-span-2 text-red-500 flex items-center"
         >
           <span className="mr-2">

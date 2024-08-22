@@ -2,7 +2,7 @@
 
 import React from "react"
 import Button from "@/app/ui/button/button"
-import { createBreak } from "@/app/lib/actions"
+import { startBreak } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
 import {
   getFormattedTimeString
@@ -17,9 +17,9 @@ export default function StartBreakButton({
   disabled: boolean
 }) {
   const starttime = getFormattedTimeString(new Date())
-  const updateRecordEndTimeWithId = createBreak.bind(null, {starttime, recordId: record.id})
+  const startBreakAction = startBreak.bind(null, record.id, starttime)
   return (
-    <form action={updateRecordEndTimeWithId}>
+    <form action={startBreakAction}>
       <Button
         type="submit"
         disabled={disabled}

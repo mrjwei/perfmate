@@ -2,7 +2,7 @@
 
 import React from "react"
 import Button from "@/app/ui/button/button"
-import { updateRecord } from "@/app/lib/actions"
+import { endWorking } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
 import {
   getFormattedTimeString
@@ -18,9 +18,9 @@ export default function EndWorkingButton({
 }) {
   // record timestamp on client side to avoid time zone mismatch
   const endtime = getFormattedTimeString(new Date())
-  const updateRecordAction = updateRecord.bind(null, record.id, null, {endtime}, {message: null}, new FormData())
+  const endWorkingAction = endWorking.bind(null, record.id, endtime)
   return (
-    <form action={updateRecordAction}>
+    <form action={endWorkingAction}>
       <Button
         type="submit"
         disabled={disabled}
