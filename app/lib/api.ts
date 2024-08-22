@@ -154,6 +154,10 @@ export const fetchLastRecord = async () => {
       LIMIT 1;
     `
     const record = data.rows[0]
+
+    if (!record) {
+      return null
+    }
     const breaks = await fetchBreaksByRecordId(record.id)
 
     return {
@@ -169,7 +173,6 @@ export const fetchLastRecord = async () => {
       endtime: record.endtime ? getFormattedTimeString(record.endtime) : null
     }
   } catch (error) {
-    console.error(`Database error: ${error}`);
     throw new Error('Failed to fetch last record.');
   }
 }

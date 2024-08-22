@@ -10,9 +10,6 @@ import TimeStamp from "@/app/ui/time-stamp/time-stamp"
 import { TStatus } from '@/app/lib/types'
 import {
   returnStatus,
-  getTimeDifferneceInMins,
-  getFormattedTimeString,
-  calculateTotalBreakMins,
   getFormattedTotalWorkHours
 } from '@/app/lib/helpers'
 import { fetchLastRecord } from "@/app/lib/api"
@@ -22,7 +19,13 @@ const Clock = dynamic(() => import('@/app/ui/clock/clock'), {ssr: false})
 export default async function Home() {
   const record = await fetchLastRecord()
 
-  const status: TStatus = returnStatus(record)
+  let status: TStatus
+
+  if (!record) {
+    status = 'BEFORE-WORK'
+  } else {
+    status = returnStatus(record)
+  }
 
   return (
     <>
@@ -50,7 +53,7 @@ export default async function Home() {
         </div>
       </div>
       <ul className={`pl-4 ${status === 'BEFORE-WORK' && 'hidden'}`}>
-        {record.starttime && (
+        {record && record.starttime && (
           <li className="border-t-2 py-4">
             <TimeStamp
               heading="Started work at"
@@ -60,7 +63,7 @@ export default async function Home() {
         )}
         <li>
           <ul className="pl-4">
-            {record.breaks.map((b: any, i: number) => (
+            {record && record.breaks.map((b: any, i: number) => (
               <li className="border-t-2 py-2" key={`${b.starttime}-${i}`}>
                 <BreakUnit
                   index={i + 1}
@@ -71,7 +74,7 @@ export default async function Home() {
             ))}
           </ul>
         </li>
-        {record.endtime && (
+        {record && record.endtime && (
           <>
             <li className="border-t-2 py-4">
               <TimeStamp

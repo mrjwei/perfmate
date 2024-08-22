@@ -13,11 +13,20 @@ export default function StartBreakButton({
   disabled,
   ...props
 }: {
-  record: IRecord
+  record: IRecord | null
   disabled: boolean
 }) {
   const starttime = getFormattedTimeString(new Date())
-  const startBreakAction = startBreak.bind(null, record.id, starttime)
+
+  let recordId
+
+  if (!record) {
+    recordId = null
+  } else {
+    recordId = record.id
+  }
+
+  const startBreakAction = startBreak.bind(null, recordId, starttime)
   return (
     <form action={startBreakAction}>
       <Button

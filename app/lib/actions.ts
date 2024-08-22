@@ -144,7 +144,10 @@ export async function startWorking(date: string, starttime: string) {
   redirect("/")
 }
 
-export async function endWorking(id: string, endtime: string) {
+export async function endWorking(id: string | null, endtime: string) {
+  if (!id) {
+    return
+  }
   updateRecord(id, endtime)
   revalidatePath("/")
   redirect("/")
@@ -270,13 +273,19 @@ export async function editForm(
   }
 }
 
-export async function startBreak(recordId: string, starttime: string) {
+export async function startBreak(recordId: string | null, starttime: string) {
+  if (!recordId) {
+    return
+  }
   createBreak(recordId, starttime)
   revalidatePath("/")
   redirect("/")
 }
 
-export async function endBreak(recordId: string, endtime: string) {
+export async function endBreak(recordId: string | null, endtime: string) {
+  if (!recordId) {
+    return
+  }
   const record = await fetchRecordById(recordId)
   if (!record) {
     return
