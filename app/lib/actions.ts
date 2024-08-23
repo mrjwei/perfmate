@@ -39,12 +39,12 @@ export async function deleteRecord(id: string) {
     await sql`
 	    DELETE FROM records WHERE id=${id};
 		`
-    return { message: "Deleted record" }
   } catch (error) {
     return {
       message: "Database error: failed to delete record",
     }
   }
+  revalidatePath('/records')
 }
 
 export async function createRecord(
@@ -300,11 +300,13 @@ export async function endBreak(recordId: string | null, endtime: string) {
 }
 
 export async function creationForm(prevState: any, formData: FormData) {
+  const breakIds = formData.getAll("breakid")
   const breakStartTimes = formData.getAll("breakstarttime")
   const breakEndTimes = formData.getAll("breakendtime")
-  const breaks = zip(null, breakStartTimes, breakEndTimes).map((b) => ({
-    starttime: b[0],
-    endtime: b[1],
+  const breaks = zip(null, breakIds, breakStartTimes, breakEndTimes).map((b) => ({
+    id: b[0],
+    starttime: b[1],
+    endtime: b[2],
   }))
 
   const validatedFields = creationSchema.safeParse({
@@ -313,6 +315,7 @@ export async function creationForm(prevState: any, formData: FormData) {
     endtime: formData.get("endtime"),
     breaks,
   })
+  console.log(JSON.stringify(validatedFields.error?.issues))
   if (!validatedFields.success) {
     return {
       message: "Failed to create record",

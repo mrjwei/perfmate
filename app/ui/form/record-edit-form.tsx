@@ -40,8 +40,6 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
   }
   const [state, formAction] = useActionState(editFormAction, initialState)
 
-  console.log(JSON.stringify(state))
-
   return (
     <form action={formAction}>
       <FormControl
@@ -115,12 +113,12 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
               key={b.id}
               b={b}
               index={i}
-              isStarttimeError={state.errors?.breaks?.errors.find((error: any) => error.id === b.id && error.fieldName === 'starttime')}
-              isEndtimeError={state.errors?.breaks?.errors.find((error: any) => error.id === b.id && error.fieldName === 'endtime')}
+              isStarttimeError={state.errors?.breaks?.errors?.find((error: any) => error.id === b.id && error.fieldName === 'starttime')}
+              isEndtimeError={state.errors?.breaks?.errors?.find((error: any) => error.id === b.id && error.fieldName === 'endtime')}
               handleRemoveBreak={handleRemoveBreak}
             />
             <div id='break-error' aria-live="polite" aria-atomic="true">
-              {state.errors?.breaks && state.errors?.breaks.errors.find((error: any) => error.id === b.id) && (
+              {state.errors?.breaks && state.errors?.breaks?.errors?.find((error: any) => error.id === b.id) && (
                 <p className="text-red-500" key={b.id}>
                   {state.errors.breaks.message}
                 </p>
