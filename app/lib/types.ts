@@ -32,7 +32,7 @@ export type TDateIndexedRecords = {
 export type TRecordsProps = {
   searchParams: {
     month?: string
-    edited?: string
+    date?: string
   }
 }
 

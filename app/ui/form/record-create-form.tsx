@@ -13,9 +13,10 @@ import { IGenericBreak } from "@/app/lib/types"
 import { creationForm } from "@/app/lib/actions"
 import { dateToMonthStr } from "@/app/lib/helpers"
 
-export default function RecordCreateForm() {
+export default function RecordCreateForm({}) {
   const searchParams = useSearchParams()
   const date = searchParams.get("date") as string
+  const month = searchParams.get("month") ? searchParams.get("month") : null
 
   const [breaks, setBreaks] = useState<IGenericBreak[]>([])
 
@@ -38,7 +39,9 @@ export default function RecordCreateForm() {
     message: '',
     errors: {}
   }
-  const [state, formAction] = useActionState(creationForm, initialState)
+
+  const creationFormAction = creationForm.bind(null, month)
+  const [state, formAction] = useActionState(creationFormAction, initialState)
 
   return (
     <form action={formAction}>

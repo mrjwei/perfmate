@@ -3,7 +3,7 @@
 import { sql } from "@vercel/postgres"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { zip } from "@/app/lib/helpers"
+import { getFormattedDateString, zip } from "@/app/lib/helpers"
 import { fetchRecordById } from "@/app/lib/api"
 import { updateSchema, creationSchema } from "@/app/lib/schemas"
 
@@ -34,17 +34,25 @@ export async function updateRecord(
   }
 }
 
-export async function deleteRecord(id: string) {
+export async function deleteRecord(id: string, month?: string) {
+  let date
   try {
-    await sql`
-	    DELETE FROM records WHERE id=${id};
+    const data = await sql`
+	    DELETE FROM records WHERE id=${id}
+      RETURNING date;
 		`
+    date = getFormattedDateString(data.rows[0].date)
   } catch (error) {
     return {
       message: "Database error: failed to delete record",
     }
   }
   revalidatePath('/records')
+  if (month) {
+    redirect(`/records?month=${month}&date=${date}`)
+  } else {
+    redirect(`/records?date=${date}`)
+  }
 }
 
 export async function createRecord(
@@ -267,9 +275,9 @@ export async function editForm(
   revalidatePath("/")
   revalidatePath("/records")
   if (month) {
-    redirect(`/records?month=${month}&edited=${id}`)
+    redirect(`/records?month=${month}&date=${validatedDate}`)
   } else {
-    redirect(`/records?edited=${id}`)
+    redirect(`/records?date=${validatedDate}`)
   }
 }
 
@@ -299,7 +307,7 @@ export async function endBreak(recordId: string | null, endtime: string) {
   redirect("/")
 }
 
-export async function creationForm(prevState: any, formData: FormData) {
+export async function creationForm(month: string | null, prevState: any, formData: FormData) {
   const breakIds = formData.getAll("breakid")
   const breakStartTimes = formData.getAll("breakstarttime")
   const breakEndTimes = formData.getAll("breakendtime")
@@ -377,5 +385,9 @@ export async function creationForm(prevState: any, formData: FormData) {
     }
   }
   revalidatePath("/records")
-  redirect("/records")
+  if (month) {
+    redirect(`/records?month=${month}&date=${validatedDate}`)
+  } else {
+    redirect(`/records?date=${validatedDate}`)
+  }
 }

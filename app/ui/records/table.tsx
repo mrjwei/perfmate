@@ -8,10 +8,10 @@ import DeleteButton from '@/app/ui/records/delete-button'
 
 export default async function Table({
   month,
-  editedRecordId,
+  targetDate,
 }: {
   month: string
-  editedRecordId: string | undefined
+  targetDate?: string
 }) {
   const records = await fetchPaginatedRecords(month)
 
@@ -41,7 +41,7 @@ export default async function Table({
               <tr
                 key={date}
                 className={clsx("border-t-1 border-slate-200", {
-                  "animate-fadeOutBackground": editedRecordId === id,
+                  "animate-fadeOutBackground": targetDate === date,
                 })}
               >
                 <td className="py-4">{date}</td>
@@ -60,12 +60,12 @@ export default async function Table({
                   ) : (
                     <Link
                       className="text-sky-500"
-                      href={`/records/create?date=${date}`}
+                      href={`/records/create?month=${month}&date=${date}`}
                     >
                       <PencilIcon className="w-5" />
                     </Link>
                   )}
-                  <DeleteButton id={record.id} />
+                  <DeleteButton id={record.id} month={month} />
                 </td>
               </tr>
             )
