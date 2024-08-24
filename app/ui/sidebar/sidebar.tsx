@@ -4,9 +4,9 @@ import Button from '@/app/ui/button/button'
 import { signOut } from '@/auth'
 
 const LINKS = [
-  {href: '/', children: 'Home'},
-  {href: '/records', children: 'Records'},
-  {href: '/setting', children: 'Setting'},
+  {href: '/app', children: 'Home'},
+  {href: '/app/records', children: 'Records'},
+  {href: '/app/setting', children: 'Setting'},
 ]
 
 export default function Sidebar() {

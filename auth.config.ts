@@ -8,14 +8,14 @@ export const authConfig = {
     authorized({auth, request: {nextUrl}}) {
       console.log('next url: ', nextUrl)
       const isLoggedIn = !!auth?.user
-      const isOnHome = nextUrl.pathname.startsWith('/')
-      if (isOnHome) {
+      const isOnApp = nextUrl.pathname.startsWith('/app')
+      if (isOnApp) {
         if (isLoggedIn) {
           return true
         }
         return false
       } else if (isLoggedIn) {
-        return Response.redirect(new URL('/', nextUrl))
+        return Response.redirect(new URL('/app', nextUrl))
       }
       return true
     }

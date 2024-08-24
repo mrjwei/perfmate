@@ -410,5 +410,7 @@ export async function authenticate(
       }
     }
     throw error
+  } finally {
+    redirect('/app')
   }
 }
