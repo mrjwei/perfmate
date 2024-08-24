@@ -1,5 +1,7 @@
 import React from 'react'
 import LinkItem from '@/app/ui/link-item/link-item'
+import Button from '@/app/ui/button/button'
+import { signOut } from '@/auth'
 
 const LINKS = [
   {href: '/', children: 'Home'},
@@ -21,6 +23,16 @@ export default function Sidebar() {
           )
         })}
       </ul>
+      <form action={
+        async () => {
+          'use server'
+          await signOut()
+        }
+      }>
+        <Button type="submit">
+          Sign Out
+        </Button>
+      </form>
     </div>
   )
 }

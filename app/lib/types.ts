@@ -36,6 +36,15 @@ export type TRecordsProps = {
   }
 }
 
+export interface IUser {
+  id: string
+  name: string
+  email: string
+  password: string
+  hourlywages: number
+  currency: string
+}
+
 // export type TActionState = {
 //   message: string
 //   errors: {

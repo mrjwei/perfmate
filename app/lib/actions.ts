@@ -6,6 +6,8 @@ import { redirect } from "next/navigation"
 import { getFormattedDateString, zip } from "@/app/lib/helpers"
 import { fetchRecordById } from "@/app/lib/api"
 import { updateSchema, creationSchema } from "@/app/lib/schemas"
+import { signIn } from '@/auth';
+import { AuthError } from 'next-auth';
 
 export async function updateRecord(
   id: string,
@@ -389,5 +391,24 @@ export async function creationForm(month: string | null, prevState: any, formDat
     redirect(`/records?month=${month}&date=${validatedDate}`)
   } else {
     redirect(`/records?date=${validatedDate}`)
+  }
+}
+
+export async function authenticate(
+  prevState: any,
+  formData: FormData
+) {
+  try {
+    await signIn('credentials', formData)
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials'
+        default:
+          return 'Something went wrong'
+      }
+    }
+    throw error
   }
 }
