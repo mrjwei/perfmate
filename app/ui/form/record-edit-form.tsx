@@ -170,7 +170,7 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
           Submit
         </Button>
         <Link
-          href={`/records?month=${month}`}
+          href={`/app/records?month=${month}`}
           className="box-border px-4 py-2 font-medium rounded-lg disabled:bg-slate-300 whitespace-nowrap  border-2 border-slate-800"
         >
           Cancel

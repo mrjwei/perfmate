@@ -49,11 +49,11 @@ export async function deleteRecord(id: string, month?: string) {
       message: "Database error: failed to delete record",
     }
   }
-  revalidatePath('/records')
+  revalidatePath('/app/records')
   if (month) {
-    redirect(`/records?month=${month}&date=${date}`)
+    redirect(`/app/records?month=${month}&date=${date}`)
   } else {
-    redirect(`/records?date=${date}`)
+    redirect(`/app/records?date=${date}`)
   }
 }
 
@@ -150,8 +150,8 @@ export async function createBreak(
 
 export async function startWorking(date: string, starttime: string) {
   createRecord(date, starttime)
-  revalidatePath("/")
-  redirect("/")
+  revalidatePath('/app')
+  redirect('/app')
 }
 
 export async function endWorking(id: string | null, endtime: string) {
@@ -159,8 +159,8 @@ export async function endWorking(id: string | null, endtime: string) {
     return
   }
   updateRecord(id, endtime)
-  revalidatePath("/")
-  redirect("/")
+  revalidatePath('/app')
+  redirect('/app')
 }
 
 export async function editForm(
@@ -274,12 +274,12 @@ export async function editForm(
       message: "Database error: failed to update record",
     }
   }
-  revalidatePath("/")
-  revalidatePath("/records")
+  revalidatePath("/app")
+  revalidatePath("/app/records")
   if (month) {
-    redirect(`/records?month=${month}&date=${validatedDate}`)
+    redirect(`/app/records?month=${month}&date=${validatedDate}`)
   } else {
-    redirect(`/records?date=${validatedDate}`)
+    redirect(`/app/records?date=${validatedDate}`)
   }
 }
 
@@ -288,8 +288,8 @@ export async function startBreak(recordId: string | null, starttime: string) {
     return
   }
   createBreak(recordId, starttime)
-  revalidatePath("/")
-  redirect("/")
+  revalidatePath('/app')
+  redirect('/app')
 }
 
 export async function endBreak(recordId: string | null, endtime: string) {
@@ -305,8 +305,8 @@ export async function endBreak(recordId: string | null, endtime: string) {
     return
   }
   updateBreak(targetBreak.id, undefined, endtime)
-  revalidatePath("/")
-  redirect("/")
+  revalidatePath('/app')
+  redirect('/app')
 }
 
 export async function creationForm(month: string | null, prevState: any, formData: FormData) {
@@ -386,11 +386,11 @@ export async function creationForm(month: string | null, prevState: any, formDat
       message: `Database error: ${error}`,
     }
   }
-  revalidatePath("/records")
+  revalidatePath("/app/records")
   if (month) {
-    redirect(`/records?month=${month}&date=${validatedDate}`)
+    redirect(`/app/records?month=${month}&date=${validatedDate}`)
   } else {
-    redirect(`/records?date=${validatedDate}`)
+    redirect(`/app/records?date=${validatedDate}`)
   }
 }
 

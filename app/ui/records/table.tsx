@@ -53,14 +53,14 @@ export default async function Table({
                   {id ? (
                     <Link
                       className="text-sky-500"
-                      href={`/records/${id}/edit?month=${month}`}
+                      href={`/app/records/${id}/edit?month=${month}`}
                     >
                       <PencilIcon className="w-5" />
                     </Link>
                   ) : (
                     <Link
                       className="text-sky-500"
-                      href={`/records/create?month=${month}&date=${date}`}
+                      href={`/app/records/create?month=${month}&date=${date}`}
                     >
                       <PencilIcon className="w-5" />
                     </Link>
