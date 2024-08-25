@@ -3,11 +3,13 @@
 import { sql } from "@vercel/postgres"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import bcrypt from 'bcrypt'
 import { getFormattedDateString, zip } from "@/app/lib/helpers"
 import { fetchRecordById } from "@/app/lib/api"
-import { updateSchema, creationSchema } from "@/app/lib/schemas"
+import { updateSchema, creationSchema, userCreationSchema } from "@/app/lib/schemas"
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import {IUser} from '@/app/lib/types'
 
 export async function updateRecord(
   id: string,
@@ -410,7 +412,63 @@ export async function authenticate(
       }
     }
     throw error
-  } finally {
-    redirect('/app')
+  }
+}
+
+export async function createUser(data: Omit<IUser, 'id'>) {
+  const {name, email, password, hourlywages, currency, taxincluded} = data
+
+  try {
+    const data = await sql`
+      INSERT INTO users (name, email, password, hourlywages, currency, taxincluded)
+      VALUES (${name}, ${email}, ${password}, ${hourlywages}, ${currency}, ${taxincluded})
+      RETURNING email, password;
+    `
+    return data.rows[0]
+  } catch (error) {
+    return {
+      message: "Database error: failed to create user",
+    }
+  }
+}
+
+export async function signup(
+  prevState: any,
+  formData: FormData
+) {
+  const validatedFields = userCreationSchema.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    password: formData.get('password'),
+    hourlywages: formData.get('hourlywages'),
+    // currency: formData.get('currency'),
+    // taxincluded: formData.get('taxincluded'),
+  })
+  console.log(JSON.stringify({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    password: formData.get('password'),
+    hourlywages: formData.get('hourlywages'),
+    // currency: formData.get('currency'),
+    // taxincluded: formData.get('taxincluded'),
+  }))
+  if (!validatedFields.success) {
+    return JSON.stringify(validatedFields.error.flatten().fieldErrors)
+  }
+  const password = await bcrypt.hash(validatedFields.data.password, 10)
+
+  try {
+    const data = await createUser({...validatedFields.data, password, currency: 'JP yen', taxincluded: false })
+    await signIn('credentials', {email: validatedFields.data.email, password: validatedFields.data.password})
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials'
+        default:
+          return 'Something went wrong'
+      }
+    }
+    throw error
   }
 }

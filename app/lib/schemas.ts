@@ -283,4 +283,25 @@ export const creationSchema = baseSchema
     }
   })
 
+export const userBaseSchema = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string({message: 'Name is required'}),
+    email: z.string({message: 'Email is required'}).email(),
+    password: z.string({message: 'Password is required'}).min(6, {message: 'Password must have at least 6 characters'}),
+    hourlywages: z.coerce.number({message: 'Hourly wages is required'}),
+    currency: z.string().optional(),
+    taxincluded: z.boolean().optional()
+  })
+
+export const userCreationSchema = userBaseSchema
+.omit({
+  id: true
+})
+
+export const userUpdateSchema = userBaseSchema
+.omit({
+  id: true
+})
+
 

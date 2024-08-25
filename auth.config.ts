@@ -6,7 +6,6 @@ export const authConfig = {
   },
   callbacks: {
     authorized({auth, request: {nextUrl}}) {
-      console.log('next url: ', nextUrl)
       const isLoggedIn = !!auth?.user
       const isOnApp = nextUrl.pathname.startsWith('/app')
       if (isOnApp) {

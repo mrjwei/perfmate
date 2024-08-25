@@ -42,7 +42,8 @@ export interface IUser {
   email: string
   password: string
   hourlywages: number
-  currency: string
+  currency?: string
+  taxincluded?: boolean
 }
 
 // export type TActionState = {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import Link from 'next/link'
 import { authenticate } from '@/app/lib/actions';
 import {
   AtSymbolIcon,
@@ -66,6 +67,10 @@ export default function LoginForm() {
         <Button type="submit" className="mt-4 w-full" aria-disabled={isPending}>
           Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
         </Button>
+        <p>
+          <span>New to TimeTide?</span>
+          <Link href='/signup'>Sign Up</Link>
+        </p>
         <div
           className="flex h-8 items-end space-x-1"
           aria-live="polite"
