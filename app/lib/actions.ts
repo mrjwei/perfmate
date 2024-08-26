@@ -2,11 +2,11 @@
 
 import { sql } from "@vercel/postgres"
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
+import { redirect  } from "next/navigation"
 import bcrypt from 'bcrypt'
 import { getFormattedDateString, zip } from "@/app/lib/helpers"
-import { fetchRecordById } from "@/app/lib/api"
-import { updateSchema, creationSchema, userCreationSchema } from "@/app/lib/schemas"
+import { fetchRecordById, fetchUser } from "@/app/lib/api"
+import { updateSchema, creationSchema, userCreationSchema, userSettingsSchema } from "@/app/lib/schemas"
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import {IUser} from '@/app/lib/types'
@@ -413,6 +413,7 @@ export async function authenticate(
     }
     throw error
   }
+  redirect('/app')
 }
 
 export async function createUser(data: Omit<IUser, 'id'>) {
@@ -422,12 +423,33 @@ export async function createUser(data: Omit<IUser, 'id'>) {
     const data = await sql`
       INSERT INTO users (name, email, password, hourlywages, currency, taxincluded)
       VALUES (${name}, ${email}, ${password}, ${hourlywages}, ${currency}, ${taxincluded})
-      RETURNING email, password;
+      RETURNING id;
     `
-    return data.rows[0]
+    return data.rows[0].id
   } catch (error) {
     return {
       message: "Database error: failed to create user",
+    }
+  }
+}
+
+export async function updateUser(data: Partial<IUser>) {
+  if (!data.id) {
+    return
+  }
+  const setClause = Object.keys(data)
+        .map((key) => `${key}=${data[key as keyof IUser] ? data[key as keyof IUser] : null}`)
+        .join(', ')
+
+  try {
+    await sql`
+      UPDATE users
+      SET ${setClause}
+      WHERE id=${data.id};
+    `
+  } catch (error) {
+    return {
+      message: "Database error: failed to update user",
     }
   }
 }
@@ -440,26 +462,55 @@ export async function signup(
     name: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
-    hourlywages: formData.get('hourlywages'),
-    // currency: formData.get('currency'),
-    // taxincluded: formData.get('taxincluded'),
   })
   console.log(JSON.stringify({
     name: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
-    hourlywages: formData.get('hourlywages'),
-    // currency: formData.get('currency'),
-    // taxincluded: formData.get('taxincluded'),
   }))
   if (!validatedFields.success) {
     return JSON.stringify(validatedFields.error.flatten().fieldErrors)
   }
   const password = await bcrypt.hash(validatedFields.data.password, 10)
 
+  let userid
+
   try {
-    const data = await createUser({...validatedFields.data, password, currency: 'JP yen', taxincluded: false })
-    await signIn('credentials', {email: validatedFields.data.email, password: validatedFields.data.password})
+    userid = await createUser({...validatedFields.data, password, currency: 'JP yen', taxincluded: false })
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials'
+        default:
+          return 'Something went wrong'
+      }
+    }
+    throw error
+  }
+  redirect(`/signup/step-2?userid=${userid}`)
+}
+
+export async function setUserInfo(
+  prevState: any,
+  formData: FormData
+) {
+  const validatedFields = userSettingsSchema.safeParse({
+    hourlywages: formData.get('hourlywages'),
+    currency: formData.get('currency'),
+    // taxincluded: formData.get('taxincluded'),
+  })
+
+  if (!validatedFields.success) {
+    return JSON.stringify(validatedFields.error.flatten().fieldErrors)
+  }
+  const userid = formData.get('userid') as string
+  const {hourlywages, currency} = validatedFields.data
+
+  try {
+    const user = await fetchUser(userid)
+    await updateUser({id: user.id, hourlywages, currency: currency ? currency : undefined})
+    await signIn('credentials', {email: user.email, password: user.password})
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

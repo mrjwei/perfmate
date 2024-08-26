@@ -41,9 +41,15 @@ export interface IUser {
   name: string
   email: string
   password: string
-  hourlywages: number
+  hourlywages?: number
   currency?: string
   taxincluded?: boolean
+}
+
+export type TSignupProps = {
+  searchParams: {
+    userid: string
+  }
 }
 
 // export type TActionState = {

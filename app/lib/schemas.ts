@@ -289,7 +289,7 @@ export const userBaseSchema = z
     name: z.string({message: 'Name is required'}),
     email: z.string({message: 'Email is required'}).email(),
     password: z.string({message: 'Password is required'}).min(6, {message: 'Password must have at least 6 characters'}),
-    hourlywages: z.coerce.number({message: 'Hourly wages is required'}),
+    hourlywages: z.coerce.number().optional(),
     currency: z.string().optional(),
     taxincluded: z.boolean().optional()
   })
@@ -302,6 +302,14 @@ export const userCreationSchema = userBaseSchema
 export const userUpdateSchema = userBaseSchema
 .omit({
   id: true
+})
+
+export const userSettingsSchema = userBaseSchema
+.omit({
+  id: true,
+  name: true,
+  email: true,
+  password: true,
 })
 
 

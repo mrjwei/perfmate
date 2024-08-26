@@ -176,3 +176,15 @@ export const fetchLastRecord = async () => {
     throw new Error('Failed to fetch last record.');
   }
 }
+
+export const fetchUser = async (id: string) => {
+  noStore()
+  try {
+    const data = await sql`
+      SELECT * FROM users WHERE id = ${id};
+    `
+    return data.rows[0]
+  } catch (error) {
+    throw new Error('Failed to get user');
+  }
+}
