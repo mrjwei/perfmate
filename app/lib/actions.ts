@@ -6,7 +6,7 @@ import { redirect  } from "next/navigation"
 import bcrypt from 'bcrypt'
 import { getFormattedDateString, zip } from "@/app/lib/helpers"
 import { fetchRecordById, fetchUser } from "@/app/lib/api"
-import { updateSchema, creationSchema, userCreationSchema, userSettingsSchema } from "@/app/lib/schemas"
+import { updateSchema, creationSchema, userAuthenticationSchema, userCreationSchema, userSettingsSchema } from "@/app/lib/schemas"
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import {IUser} from '@/app/lib/types'
@@ -401,7 +401,7 @@ export async function authenticate(
   formData: FormData
 ) {
   try {
-    await signIn('credentials', formData)
+    await signIn('credentials', {email: formData.get('email'), password: formData.get('password'), redirectTo: '/app'})
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -413,7 +413,6 @@ export async function authenticate(
     }
     throw error
   }
-  redirect('/app')
 }
 
 export async function createUser(data: Omit<IUser, 'id'>) {
@@ -463,11 +462,6 @@ export async function signup(
     email: formData.get('email'),
     password: formData.get('password'),
   })
-  console.log(JSON.stringify({
-    name: formData.get('name'),
-    email: formData.get('email'),
-    password: formData.get('password'),
-  }))
   if (!validatedFields.success) {
     return JSON.stringify(validatedFields.error.flatten().fieldErrors)
   }
