@@ -13,11 +13,14 @@ import {
   getFormattedTotalWorkHours
 } from '@/app/lib/helpers'
 import { fetchLastRecord } from "@/app/lib/api"
+import { auth } from "@/auth"
+import { Session } from "next-auth"
 
 const Clock = dynamic(() => import('@/app/ui/clock/clock'), {ssr: false})
 
 export default async function Home() {
-  const record = await fetchLastRecord()
+  const {user} = await auth() as Session
+  const record = await fetchLastRecord(user.id!)
 
   let status: TStatus
 
@@ -36,6 +39,7 @@ export default async function Home() {
         </Tag>
         <div className="flex justify-between">
           <StartWorkingButton
+            userid={user.id!}
             disabled={status !== "BEFORE-WORK"}
           />
           <StartBreakButton

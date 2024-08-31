@@ -1,3 +1,4 @@
+import React from 'react'
 import { fetchRecordById } from "@/app/lib/api"
 import RecordEditForm from '@/app/ui/form/record-edit-form'
 import {notFound} from 'next/navigation'

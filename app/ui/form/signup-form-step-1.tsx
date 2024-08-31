@@ -1,7 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
-import Link from "next/link"
+import React, { useActionState } from "react"
 import { signup } from "@/app/lib/actions"
 import {
   AtSymbolIcon,

@@ -2,32 +2,19 @@ import {unstable_noStore as noStore} from 'next/cache'
 import {sql} from '@vercel/postgres'
 import { getFormattedDateString, getFormattedTimeString } from "./helpers"
 
-export const fetchUniqueMonths = async () => {
-  noStore()
-  try {
-    const data = await sql`
-      SELECT DISTINCT TO_CHAR(date, 'YYYY-MM') AS month
-      FROM records
-      ORDER BY month;
-    `
-    return data.rows.map(r => r.month)
-  } catch (error) {
-    console.error(`Database error: ${error}`);
-    throw new Error('Failed to get number of pages.');
-  }
-}
-
 export const fetchRecordById = async (id: string) => {
   noStore()
   try {
     const data = await sql`
-      SELECT * FROM records WHERE id = ${id};
+      SELECT * FROM records
+      WHERE id = ${id};
     `
     const record = data.rows[0]
     const breaks = await fetchBreaksByRecordId(record.id)
 
     return {
       id: record.id,
+      userid: record.userid,
       date: getFormattedDateString(record.date),
       starttime: getFormattedTimeString(record.starttime),
       breaks: breaks.map(b => ({
@@ -44,74 +31,20 @@ export const fetchRecordById = async (id: string) => {
   }
 }
 
-export const fetchRecordByDate = async (date: string) => {
-  noStore()
-  try {
-    const data = await sql`
-      SELECT * FROM records WHERE date = DATE(${date});
-    `
-    const record = data.rows[0]
-    const breaks = await fetchBreaksByRecordId(record.id)
-
-    return {
-      id: record.id,
-      date: getFormattedDateString(record.date),
-      starttime: getFormattedTimeString(record.starttime),
-      breaks: breaks.map(b => ({
-        id: b.id,
-        recordId: record.id,
-        starttime: getFormattedTimeString(b.starttime),
-        endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
-      })),
-      endtime: record.endtime ? getFormattedTimeString(record.endtime) : null
-    }
-  } catch (error) {
-    console.error(`Database error: ${error}`);
-    throw new Error('Failed to fetch record.');
-  }
-}
-
-export const fetchRecords = async () => {
+export const fetchPaginatedRecords = async (userId: string, month: string) => {
   noStore()
   try {
     const data = await sql`
       SELECT * FROM records
-      ORDER BY date DESC;
-    `
-    const recordsWithBreaks = await Promise.all(data.rows.map(async record => {
-      const breaks = await fetchBreaksByRecordId(record.id)
-      return {
-        id: record.id,
-        date: getFormattedDateString(record.date),
-        starttime: getFormattedTimeString(record.starttime),
-        breaks: breaks.map(b => ({
-          id: b.id,
-          recordId: record.id,
-          starttime: getFormattedTimeString(b.starttime),
-          endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
-        })),
-        endtime: record.endtime ? getFormattedTimeString(record.endtime) : null
-      }
-    }))
-    return recordsWithBreaks
-  } catch (error) {
-    console.error(`Database error: ${error}`);
-    throw new Error('Failed to fetch records.');
-  }
-}
-
-export const fetchPaginatedRecords = async (month: string) => {
-  noStore()
-  try {
-    const data = await sql`
-      SELECT * FROM records
-      WHERE TO_CHAR(date, 'YYYY-MM') = ${month}
+      WHERE userid = ${userId}
+      AND TO_CHAR(date, 'YYYY-MM') = ${month}
       ORDER BY date ASC;
     `
     const recordsWithBreaks = await Promise.all(data.rows.map(async record => {
       const breaks = await fetchBreaksByRecordId(record.id)
       return {
         id: record.id,
+        userid: record.userid,
         date: getFormattedDateString(record.date),
         starttime: getFormattedTimeString(record.starttime),
         breaks: breaks.map(b => ({
@@ -145,11 +78,12 @@ export const fetchBreaksByRecordId = async (recordId: string) => {
   }
 }
 
-export const fetchLastRecord = async () => {
+export const fetchLastRecord = async (userId: string) => {
   noStore()
   try {
     const data = await sql`
       SELECT * FROM records
+      WHERE userid = ${userId}
       ORDER BY date DESC
       LIMIT 1;
     `
@@ -162,6 +96,7 @@ export const fetchLastRecord = async () => {
 
     return {
       id: record.id,
+      userid: record.userid,
       date: getFormattedDateString(record.date),
       starttime: getFormattedTimeString(record.starttime),
       breaks: breaks.map(b => ({
@@ -177,11 +112,11 @@ export const fetchLastRecord = async () => {
   }
 }
 
-export const fetchUser = async (id: string) => {
+export const fetchUserByEmail = async (email: string) => {
   noStore()
   try {
     const data = await sql`
-      SELECT * FROM users WHERE id = ${id};
+      SELECT * FROM users WHERE email = ${email};
     `
     return data.rows[0]
   } catch (error) {

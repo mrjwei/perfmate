@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useRef, useCallback} from 'react'
+import React, {useEffect, useRef, useCallback} from 'react'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,

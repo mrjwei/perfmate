@@ -1,6 +1,6 @@
 "use client"
 
-import { revalidatePath } from "next/cache"
+import React from 'react'
 import { TrashIcon } from "@heroicons/react/24/outline"
 import Button from '@/app/ui/button/button'
 import {deleteRecord} from '@/app/lib/actions'

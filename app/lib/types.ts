@@ -2,13 +2,14 @@ export type TStatus = 'BEFORE-WORK' | 'IN-WORK' | 'IN-BREAK' | 'AFTER-WORK'
 
 export interface IRecord {
   id: string
+  userid: string
   date: string
   starttime: string
   breaks: IBreak[]
   endtime: string | null
 }
 
-export interface IPaddedRecord extends Omit<IRecord, 'id'> {
+export interface IPaddedRecord extends Omit<IRecord, 'id' | 'userid'> {
   id?: any
   totalbreakhours: string
   totalworkhours: string
@@ -48,7 +49,7 @@ export interface IUser {
 
 export type TSignupProps = {
   searchParams: {
-    userid: string
+    email: string
   }
 }
 

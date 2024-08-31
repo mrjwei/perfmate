@@ -9,15 +9,17 @@ import {
 } from '@/app/lib/helpers'
 
 export default function StartWorkingButton({
+  userid,
   disabled,
   ...props
 }: {
+  userid: string
   disabled: boolean
 }) {
   const d = new Date()
   const date = getFormattedDateString(d)
   const starttime = getFormattedTimeString(d)
-  const startWorkingAction = startWorking.bind(null, date, starttime)
+  const startWorkingAction = startWorking.bind(null, userid, date, starttime)
   return (
     <form action={startWorkingAction}>
       <Button

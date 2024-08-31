@@ -2,6 +2,7 @@
 
 import React, { useState, useActionState } from "react"
 import Link from "next/link"
+import {useSession} from 'next-auth/react'
 import clsx from "clsx"
 import { PlusIcon } from "@heroicons/react/24/outline"
 import { v4 as uuidv4 } from "uuid"
@@ -14,6 +15,11 @@ import { creationForm } from "@/app/lib/actions"
 import { dateToMonthStr } from "@/app/lib/helpers"
 
 export default function RecordCreateForm({}) {
+  const {data: session} = useSession()
+  if (!session?.user?.id) {
+    return <p>Loading...</p>
+  }
+
   const searchParams = useSearchParams()
   const date = searchParams.get("date") as string
   const month = searchParams.get("month") ? searchParams.get("month") : null
@@ -40,7 +46,7 @@ export default function RecordCreateForm({}) {
     errors: {}
   }
 
-  const creationFormAction = creationForm.bind(null, month)
+  const creationFormAction = creationForm.bind(null, session.user.id, month)
   const [state, formAction] = useActionState(creationFormAction, initialState)
 
   return (

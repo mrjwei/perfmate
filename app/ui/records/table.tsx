@@ -1,3 +1,4 @@
+import React from 'react'
 import Link from "next/link"
 import clsx from "clsx"
 import { PencilIcon } from "@heroicons/react/24/outline"
@@ -7,13 +8,15 @@ import { IPaddedRecord } from "@/app/lib/types"
 import DeleteButton from '@/app/ui/records/delete-button'
 
 export default async function Table({
+  userid,
   month,
   targetDate,
 }: {
+  userid: string
   month: string
   targetDate?: string
 }) {
-  const records = await fetchPaginatedRecords(month)
+  const records = await fetchPaginatedRecords(userid, month)
 
   return (
     <table className="w-full border-collapse">

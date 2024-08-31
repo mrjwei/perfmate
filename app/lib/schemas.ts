@@ -294,15 +294,6 @@ export const userBaseSchema = z
     taxincluded: z.boolean().optional()
   })
 
-  export const userAuthenticationSchema = userBaseSchema
-  .omit({
-    id: true,
-    name: true,
-    hourlywages: true,
-    currency: true,
-    taxincluded: true
-  })
-
 export const userCreationSchema = userBaseSchema
 .omit({
   id: true

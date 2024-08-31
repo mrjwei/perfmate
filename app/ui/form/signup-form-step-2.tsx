@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import React, { useActionState } from "react"
 import { setUserInfo } from "@/app/lib/actions"
 import {
   AtSymbolIcon,
@@ -9,7 +9,7 @@ import {
 import { ArrowRightIcon } from "@heroicons/react/20/solid"
 import Button from "@/app/ui/button/button"
 
-export default function SignupStepTwoForm({userId}: {userId: string}) {
+export default function SignupStepTwoForm({email}: {email: string}) {
   const [errorMessage, formAction, isPending] = useActionState(
     setUserInfo,
     undefined
@@ -23,7 +23,7 @@ export default function SignupStepTwoForm({userId}: {userId: string}) {
           <div>
             <label
               className="hidden"
-              htmlFor="userid"
+              htmlFor="email"
               aria-hidden
             >
               User Id
@@ -31,10 +31,10 @@ export default function SignupStepTwoForm({userId}: {userId: string}) {
             <div>
               <input
                 className="hidden"
-                id="userid"
-                type="text"
-                name="userid"
-                value={userId}
+                id="email"
+                type="email"
+                name="email"
+                value={email}
                 aria-hidden
                 readOnly
               />

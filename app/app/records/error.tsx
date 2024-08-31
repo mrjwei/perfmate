@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect} from 'react'
+import React, {useEffect} from 'react'
 import Button from '@/app/ui/button/button'
 
 export default function Error({

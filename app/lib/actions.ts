@@ -5,10 +5,10 @@ import { revalidatePath } from "next/cache"
 import { redirect  } from "next/navigation"
 import bcrypt from 'bcrypt'
 import { getFormattedDateString, zip } from "@/app/lib/helpers"
-import { fetchRecordById, fetchUser } from "@/app/lib/api"
-import { updateSchema, creationSchema, userAuthenticationSchema, userCreationSchema, userSettingsSchema } from "@/app/lib/schemas"
-import { signIn } from '@/auth';
-import { AuthError } from 'next-auth';
+import { fetchRecordById, fetchUserByEmail } from "@/app/lib/api"
+import { updateSchema, creationSchema, userCreationSchema, userSettingsSchema } from "@/app/lib/schemas"
+import { signIn, signOut as authSignOut } from '@/auth';
+import {AuthError} from 'next-auth'
 import {IUser} from '@/app/lib/types'
 
 export async function updateRecord(
@@ -60,6 +60,7 @@ export async function deleteRecord(id: string, month?: string) {
 }
 
 export async function createRecord(
+  userId: string,
   date: string,
   starttime: string,
   endtime?: string | null
@@ -68,14 +69,14 @@ export async function createRecord(
     let data
     if (endtime && endtime !== null) {
       data = await sql`
-        INSERT INTO records (date, starttime, endtime)
-        VALUES (${date}, ${starttime}, ${endtime})
+        INSERT INTO records (userid, date, starttime, endtime)
+        VALUES (${userId}, ${date}, ${starttime}, ${endtime})
         RETURNING id;
       `
     } else {
       data = await sql`
-        INSERT INTO records (date, starttime)
-        VALUES (${date}, ${starttime})
+        INSERT INTO records (userid, date, starttime)
+        VALUES (${userId}, ${date}, ${starttime})
         RETURNING id;
       `
     }
@@ -150,8 +151,8 @@ export async function createBreak(
   }
 }
 
-export async function startWorking(date: string, starttime: string) {
-  createRecord(date, starttime)
+export async function startWorking(userId: string, date: string, starttime: string) {
+  createRecord(userId, date, starttime)
   revalidatePath('/app')
   redirect('/app')
 }
@@ -311,7 +312,7 @@ export async function endBreak(recordId: string | null, endtime: string) {
   redirect('/app')
 }
 
-export async function creationForm(month: string | null, prevState: any, formData: FormData) {
+export async function creationForm(userId: string, month: string | null, prevState: any, formData: FormData) {
   const breakIds = formData.getAll("breakid")
   const breakStartTimes = formData.getAll("breakstarttime")
   const breakEndTimes = formData.getAll("breakendtime")
@@ -327,7 +328,6 @@ export async function creationForm(month: string | null, prevState: any, formDat
     endtime: formData.get("endtime"),
     breaks,
   })
-  console.log(JSON.stringify(validatedFields.error?.issues))
   if (!validatedFields.success) {
     return {
       message: "Failed to create record",
@@ -363,6 +363,7 @@ export async function creationForm(month: string | null, prevState: any, formDat
     if (validatedStarttime) {
       const endtime = validatedEndtime ? validatedEndtime : null
       const data = await createRecord(
+        userId,
         validatedDate,
         validatedStarttime,
         endtime
@@ -402,7 +403,7 @@ export async function authenticate(
 ) {
   try {
     await signIn('credentials', {email: formData.get('email'), password: formData.get('password'), redirectTo: '/app'})
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case 'CredentialsSignin':
@@ -422,9 +423,9 @@ export async function createUser(data: Omit<IUser, 'id'>) {
     const data = await sql`
       INSERT INTO users (name, email, password, hourlywages, currency, taxincluded)
       VALUES (${name}, ${email}, ${password}, ${hourlywages}, ${currency}, ${taxincluded})
-      RETURNING id;
+      RETURNING email;
     `
-    return data.rows[0].id
+    return data.rows[0].email
   } catch (error) {
     return {
       message: "Database error: failed to create user",
@@ -467,11 +468,11 @@ export async function signup(
   }
   const password = await bcrypt.hash(validatedFields.data.password, 10)
 
-  let userid
+  let email
 
   try {
-    userid = await createUser({...validatedFields.data, password, currency: 'JP yen', taxincluded: false })
-  } catch (error) {
+    email = await createUser({...validatedFields.data, password, currency: 'JP yen', taxincluded: false })
+  } catch (error: any) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case 'CredentialsSignin':
@@ -482,7 +483,7 @@ export async function signup(
     }
     throw error
   }
-  redirect(`/signup/step-2?userid=${userid}`)
+  redirect(`/signup/step-2?email=${email}`)
 }
 
 export async function setUserInfo(
@@ -498,14 +499,14 @@ export async function setUserInfo(
   if (!validatedFields.success) {
     return JSON.stringify(validatedFields.error.flatten().fieldErrors)
   }
-  const userid = formData.get('userid') as string
+  const email = formData.get('email') as string
   const {hourlywages, currency} = validatedFields.data
 
   try {
-    const user = await fetchUser(userid)
+    const user = await fetchUserByEmail(email)
     await updateUser({id: user.id, hourlywages, currency: currency ? currency : undefined})
     await signIn('credentials', {email: user.email, password: user.password})
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case 'CredentialsSignin':
@@ -516,4 +517,8 @@ export async function setUserInfo(
     }
     throw error
   }
+}
+
+export async function signOut() {
+  await authSignOut({ redirectTo: "/login" })
 }

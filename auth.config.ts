@@ -6,19 +6,22 @@ export const authConfig = {
     signIn: '/login',
   },
   callbacks: {
-    async authorized({auth, request}) {
-      const isLoggedIn = !!auth?.user
-      const isOnApp = request.nextUrl.pathname.startsWith('/app')
-      if (isOnApp) {
-        if (isLoggedIn) {
-          return true
-        }
-        return false
-      } else if (isLoggedIn) {
-        return NextResponse.rewrite(new URL('/app', request.nextUrl))
+    async jwt({user, token}) {
+      if (user) {
+        token.id = user.id
+        token.hourlywages = user.hourlywages
+        token.currency = user.currency
+        token.taxincluded = user.taxincluded
       }
-      return true
+      return token
     },
+    async session({session, token}) {
+      session.user.id = token.id as string
+      session.user.hourlywages = token.hourlywages as number
+      session.user.currency = token.currency as string
+      session.user.taxincluded = token.taxincluded as boolean
+      return session
+    }
   },
   providers: []
 } satisfies NextAuthConfig;
