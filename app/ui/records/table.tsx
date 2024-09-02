@@ -2,22 +2,19 @@ import React from 'react'
 import Link from "next/link"
 import clsx from "clsx"
 import { PencilIcon } from "@heroicons/react/24/outline"
-import { fetchPaginatedRecords } from "@/app/lib/api"
 import { generatePaddedRecordsForMonth } from "@/app/lib/helpers"
-import { IPaddedRecord } from "@/app/lib/types"
+import { IPaddedRecord, IRecord } from "@/app/lib/types"
 import DeleteButton from '@/app/ui/records/delete-button'
 
-export default async function Table({
-  userid,
+export default function Table({
+  records,
   month,
   targetDate,
 }: {
-  userid: string
+  records: IRecord[]
   month: string
   targetDate?: string
 }) {
-  const records = await fetchPaginatedRecords(userid, month)
-
   return (
     <table className="w-full border-collapse">
       <thead>

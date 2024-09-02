@@ -48,12 +48,14 @@ export const getFormattedDateString = (date: Date) => {
   return `${year}-${month}-${day}`
 }
 
-export const getTimeDifferneceInMins = (starttime: string, endtime: string) => {
-  const [startHours, startMins] = starttime.split(':').map(Number)
-  const [endHours, endMins] = endtime.split(':').map(Number)
+export const timeStringToMins = (timeStr: string) => {
+  const [hours, mins] = timeStr.split(':').map(Number)
+  return hours * 60 + mins
+}
 
-  const startTotalMins = startHours * 60 + startMins;
-  const endTotalMins = endHours * 60 + endMins;
+export const getTimeDifferneceInMins = (starttime: string, endtime: string) => {
+  const startTotalMins = timeStringToMins(starttime)
+  const endTotalMins = timeStringToMins(endtime)
 
   let diffInMins = endTotalMins - startTotalMins
 
@@ -226,4 +228,29 @@ export const generatePaddedRecordsForMonth = (monthStr: string, records: IRecord
     date.setDate(date.getDate() + 1)
   }
   return paddedRecords
+}
+
+export const calculateMonthlyTotalWorkMins = (records: IRecord[]) => {
+  const recordsWithStartAndEndTimes = records.filter(r => r.starttime && r.endtime && r.starttime !== null && r.endtime !== null)
+  const monthlyTotalWorkMins =  recordsWithStartAndEndTimes.reduce((acc, curr) => {
+    const workMins = getTimeDifferneceInMins(curr.starttime, curr.endtime!) - calculateTotalBreakMins(curr)
+    return acc + workMins
+  }, 0)
+  return monthlyTotalWorkMins
+}
+
+export const mapCurrencyToMark = (currency: string) => {
+  switch (currency) {
+    case 'yen':
+    case 'rmb':
+      return '¥'
+    case 'usd':
+      return '$'
+    default:
+      return '$'
+  }
+}
+
+export const calculateMonthlyTotalWages = (monthlyTotalWorkMins: number, hourlyWages: number) => {
+  return Math.round(Number((monthlyTotalWorkMins / 60).toFixed(1)) * hourlyWages)
 }
