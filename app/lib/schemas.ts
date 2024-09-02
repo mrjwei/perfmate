@@ -222,7 +222,7 @@ export const creationSchema = baseSchema
               path: ['breaks', currentBreak.id, 'starttime']
             })
           }
-          if (currentBreak.endtime && currentBreak.endtime > data.starttime) {
+          if (currentBreak.endtime && currentBreak.endtime > data.endtime) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               message: "Break end time must not be after work end time",
