@@ -1,55 +1,61 @@
-import {ReadonlyURLSearchParams} from 'next/navigation'
-import {TStatus, IRecord, IBreak, TDateIndexedRecords, IPaddedRecord} from '@/app/lib/types'
+import { ReadonlyURLSearchParams } from "next/navigation"
+import {
+  TStatus,
+  IRecord,
+  IBreak,
+  TDateIndexedRecords,
+  IPaddedRecord,
+} from "@/app/lib/types"
 
-const placeholder = '--:--'
+export const placeholder = "--:--"
 
 export const returnStatus = (record: IRecord) => {
   if (areSameDay(new Date(), new Date(record.date))) {
     // If today's record exists.
     if (record.endtime) {
-      return 'AFTER-WORK'
+      return "AFTER-WORK"
     } else {
       if (record.breaks.length > 0) {
         if (record.breaks.some((b: any) => !b.endtime)) {
-          return 'IN-BREAK'
+          return "IN-BREAK"
         } else {
-          return 'IN-WORK'
+          return "IN-WORK"
         }
       } else {
-        return 'IN-WORK'
+        return "IN-WORK"
       }
     }
   } else {
     // If today's record does not exist.
-    return 'BEFORE-WORK'
+    return "BEFORE-WORK"
   }
 }
 
 export const mapStatusToHumanReadableString = (status: TStatus | null) => {
   switch (status) {
-    case 'BEFORE-WORK':
-      return 'Ready to Start'
-    case 'IN-WORK':
-      return 'At Work'
-    case 'IN-BREAK':
-      return 'On Break'
-    case 'AFTER-WORK':
-      return 'Work Over'
+    case "BEFORE-WORK":
+      return "Ready to Start"
+    case "IN-WORK":
+      return "At Work"
+    case "IN-BREAK":
+      return "On Break"
+    case "AFTER-WORK":
+      return "Work Over"
     default:
-      return ''
+      return ""
   }
 }
 
 export const getFormattedDateString = (date: Date) => {
   const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
 
   return `${year}-${month}-${day}`
 }
 
 export const timeStringToMins = (timeStr: string) => {
-  const [hours, mins] = timeStr.split(':').map(Number)
+  const [hours, mins] = timeStr.split(":").map(Number)
   return hours * 60 + mins
 }
 
@@ -67,24 +73,23 @@ export const getTimeDifferneceInMins = (starttime: string, endtime: string) => {
 }
 
 export const getFormattedTimeString = (input: Date | number | string) => {
-  if (typeof input === 'string') {
-    return input.split(':').slice(0, 2).join(':')
-  }
-  else if (typeof input === 'number') {
+  if (typeof input === "string") {
+    return input.split(":").slice(0, 2).join(":")
+  } else if (typeof input === "number") {
     const hours = Math.floor(input / 60)
     const mins = input % 60
 
-    return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
+    return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`
   } else if (input instanceof Date) {
-    return input.toLocaleTimeString('en-US', { hour12: false })
+    return input.toLocaleTimeString("en-US", { hour12: false })
   } else {
-    throw new Error('Invalid input type. Can only accept Date or number.')
+    throw new Error("Invalid input type. Can only accept Date or number.")
   }
 }
 
 export const calculateTotalBreakMins = (record: IRecord) => {
   return record.breaks.reduce((acc: number, curr: IBreak) => {
-    if (!curr.endtime || curr.endtime === '--:--') {
+    if (!curr.endtime || curr.endtime === "--:--") {
       return acc
     }
     return acc + getTimeDifferneceInMins(curr.starttime, curr.endtime)
@@ -93,7 +98,9 @@ export const calculateTotalBreakMins = (record: IRecord) => {
 
 export const zip = (fillna: any, ...arrays: any) => {
   const length = Math.max(...arrays.map((arr: any) => arr.length))
-  return Array.from({length}, (_, i) => arrays.map((arr: any) => arr[i] ? arr[i] : fillna))
+  return Array.from({ length }, (_, i) =>
+    arrays.map((arr: any) => (arr[i] ? arr[i] : fillna))
+  )
 }
 
 export const areSameDay = (d1: Date, d2: Date) => {
@@ -104,40 +111,51 @@ export const areSameDay = (d1: Date, d2: Date) => {
   )
 }
 
-const formatter = new Intl.DateTimeFormat('en-US', {
-  weekday: 'short',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
+const formatter = new Intl.DateTimeFormat("en-US", {
+  weekday: "short",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
 })
 
 export const extractDateParts = (date: Date) => {
-  const [{value: weekday}, , {value: month}, , {value: day}, , {value: year}] = formatter.formatToParts(date)
-  return {weekday, year, month, day}
+  const [
+    { value: weekday },
+    ,
+    { value: month },
+    ,
+    { value: day },
+    ,
+    { value: year },
+  ] = formatter.formatToParts(date)
+  return { weekday, year, month, day }
 }
 
-export const generatePageIndexes = (currentPageIndex: number, totalPages: number) => {
+export const generatePageIndexes = (
+  currentPageIndex: number,
+  totalPages: number
+) => {
   if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
+    return Array.from({ length: totalPages }, (_, i) => i + 1)
   }
 
   if (currentPageIndex <= 3) {
-    return [1, 2, 3, '...', totalPages - 1, totalPages];
+    return [1, 2, 3, "...", totalPages - 1, totalPages]
   }
 
   if (currentPageIndex >= totalPages - 2) {
-    return [1, 2, '...', totalPages - 2, totalPages - 1, totalPages];
+    return [1, 2, "...", totalPages - 2, totalPages - 1, totalPages]
   }
 
   return [
     1,
-    '...',
+    "...",
     currentPageIndex - 1,
     currentPageIndex,
     currentPageIndex + 1,
-    '...',
+    "...",
     totalPages,
-  ];
+  ]
 }
 
 export const getLastMonth = (date: Date): Date => {
@@ -151,11 +169,11 @@ export const getNextMonth = (date: Date): Date => {
 }
 
 export const dateToMonthStr = (date: Date) => {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
 }
 
 export const monthStrToDate = (monthStr: string) => {
-  const [year, month] = monthStr.split('-').map(Number)
+  const [year, month] = monthStr.split("-").map(Number)
   return new Date(year, month - 1, 1)
 }
 
@@ -163,7 +181,12 @@ export const getMonthIndex = (month: string, uniqueMonths: string[]) => {
   return uniqueMonths.indexOf(month) + 1
 }
 
-export const createPageURL = (pathname: string, searchParams: ReadonlyURLSearchParams, key: string, value: number | string) => {
+export const createPageURL = (
+  pathname: string,
+  searchParams: ReadonlyURLSearchParams,
+  key: string,
+  value: number | string
+) => {
   const params = new URLSearchParams(searchParams)
   params.set(key, value.toString())
   return `${pathname}?${params.toString()}`
@@ -171,7 +194,7 @@ export const createPageURL = (pathname: string, searchParams: ReadonlyURLSearchP
 
 export const generateObjFromRecords = (records: IRecord[]) => {
   const obj: TDateIndexedRecords = {}
-  records.forEach(r => {
+  records.forEach((r) => {
     obj[r.date] = r
   })
   return obj
@@ -186,9 +209,7 @@ export const getFormattedTotalWorkHours = (record: IRecord) => {
     record.endtime
   )
   const totalBreakMins = calculateTotalBreakMins(record)
-  return getFormattedTimeString(
-    totalWorkHoursInMins - totalBreakMins
-  )
+  return getFormattedTimeString(totalWorkHoursInMins - totalBreakMins)
 }
 
 export const getFormattedTotalBreakHours = (record: IRecord) => {
@@ -199,12 +220,15 @@ export const getFormattedTotalBreakHours = (record: IRecord) => {
   return placeholder
 }
 
-export const generatePaddedRecordsForMonth = (monthStr: string, records: IRecord[]) => {
+export const generatePaddedRecordsForMonth = (
+  monthStr: string,
+  records: IRecord[]
+) => {
   const dateIndexedRecords = generateObjFromRecords(records)
 
   const paddedRecords: IPaddedRecord[] = []
 
-  const [year, month] = monthStr.split('-').map(Number)
+  const [year, month] = monthStr.split("-").map(Number)
   const date = new Date(year, month - 1, 1)
 
   while (date.getMonth() === month - 1) {
@@ -214,7 +238,7 @@ export const generatePaddedRecordsForMonth = (monthStr: string, records: IRecord
       breaks: [],
       endtime: placeholder,
       totalbreakhours: placeholder,
-      totalworkhours: placeholder
+      totalworkhours: placeholder,
     }
     const record = dateIndexedRecords[getFormattedDateString(date)]
     if (record) {
@@ -231,26 +255,34 @@ export const generatePaddedRecordsForMonth = (monthStr: string, records: IRecord
 }
 
 export const calculateMonthlyTotalWorkMins = (records: IRecord[]) => {
-  const recordsWithStartAndEndTimes = records.filter(r => r.starttime && r.endtime && r.starttime !== null && r.endtime !== null)
-  const monthlyTotalWorkMins =  recordsWithStartAndEndTimes.reduce((acc, curr) => {
-    const workMins = getTimeDifferneceInMins(curr.starttime, curr.endtime!) - calculateTotalBreakMins(curr)
-    return acc + workMins
-  }, 0)
+  const recordsWithStartAndEndTimes = records.filter(
+    (r) =>
+      r.starttime && r.endtime && r.starttime !== null && r.endtime !== null
+  )
+  const monthlyTotalWorkMins = recordsWithStartAndEndTimes.reduce(
+    (acc, curr) => {
+      const workMins =
+        getTimeDifferneceInMins(curr.starttime, curr.endtime!) -
+        calculateTotalBreakMins(curr)
+      return acc + workMins
+    },
+    0
+  )
   return monthlyTotalWorkMins
 }
 
 export const mapCurrencyToMark = (currency: string) => {
   switch (currency) {
-    case 'yen':
-    case 'rmb':
-      return '¥'
-    case 'usd':
-      return '$'
+    case "yen":
+    case "rmb":
+      return "¥"
+    case "usd":
+      return "$"
     default:
-      return '$'
+      return "$"
   }
 }
 
-export const calculateMonthlyTotalWages = (monthlyTotalWorkMins: number, hourlyWages: number) => {
-  return Math.round(Number((monthlyTotalWorkMins / 60).toFixed(1)) * hourlyWages)
+export const calculateWagesFromMins = (mins: number, hourlyWages: number) => {
+  return Math.round(Number((mins / 60).toFixed(1)) * hourlyWages)
 }
