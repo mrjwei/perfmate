@@ -4,6 +4,9 @@ export const authConfig = {
   pages: {
     signIn: '/login',
   },
+  session: {
+    maxAge: 24 * 60 * 60,
+  },
   callbacks: {
     async jwt({user, token}) {
       if (user) {
