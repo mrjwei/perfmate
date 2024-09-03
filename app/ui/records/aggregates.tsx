@@ -55,7 +55,7 @@ export default function Aggregates({
   )
 
   const labels = rawData.map((r) => r.date.substring(5))
-  const data = {
+  const workHoursData = {
     labels,
     datasets: [
       {
@@ -73,11 +73,20 @@ export default function Aggregates({
       },
     ],
   }
-  const options: any = {
+  const workHoursOptions: any = {
     responsive: true,
     plugins: {
       legend: {
         position: "top",
+      },
+      tooltip: {
+        displayColors: false,
+        callbacks: {
+          label: (ctx: any) => {
+            const mins = ctx.dataset.data[ctx.dataIndex]
+            return `Work hours: ${getFormattedTimeString(mins)}`
+          },
+        },
       },
     },
     scales: {
@@ -93,7 +102,7 @@ export default function Aggregates({
     },
   }
 
-  const data2 = {
+  const startAndEndTimesdata = {
     labels,
     datasets: [
       {
@@ -115,7 +124,7 @@ export default function Aggregates({
       },
     ],
   }
-  const options2: any = {
+  const startAndEndTimesOptions: any = {
     responsive: true,
     plugins: {
       legend: {
@@ -147,7 +156,7 @@ export default function Aggregates({
     },
   }
 
-  const data3 = {
+  const wagesData = {
     labels,
     datasets: [
       {
@@ -172,22 +181,20 @@ export default function Aggregates({
       },
     ],
   }
-  const options3: any = {
+  const wagesOptions: any = {
     responsive: true,
     plugins: {
       legend: {
         position: "top",
       },
-    },
-    scales: {
-      y: {
-        ticks: {
-          // callback: (mins: number) => {
-          //   return getFormattedTimeString(mins)
-          // },
+      tooltip: {
+        displayColors: false,
+        callbacks: {
+          label: (ctx: any) => {
+            const wages = ctx.dataset.data[ctx.dataIndex]
+            return `Wages: ${mapCurrencyToMark(user.currency)} ${wages}`
+          },
         },
-        // suggestedMin: 0,
-        // suggestedMax: 1200,
       },
     },
   }
@@ -262,11 +269,11 @@ export default function Aggregates({
               Wages
             </Button>
           </div>
-          {activeTab === "work hours" && <Line data={data} options={options} />}
+          {activeTab === "work hours" && <Line data={workHoursData} options={workHoursOptions} />}
           {activeTab === "work start and end times" && (
-            <Bar data={data2} options={options2} />
+            <Bar data={startAndEndTimesdata} options={startAndEndTimesOptions} />
           )}
-          {activeTab === "wages" && <Bar data={data3} options={options3} />}
+          {activeTab === "wages" && <Bar data={wagesData} options={wagesOptions} />}
         </div>
       )}
     </div>
