@@ -16,6 +16,7 @@ import { dateToMonthStr } from "@/app/lib/helpers"
 
 export default function RecordCreateForm({}) {
   const {data: session} = useSession()
+  console.log(session)
   if (!session?.user?.id) {
     return <p>Loading...</p>
   }
