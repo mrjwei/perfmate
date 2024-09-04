@@ -14,7 +14,7 @@ import { IGenericBreak } from "@/app/lib/types"
 import { creationForm } from "@/app/lib/actions"
 import { dateToMonthStr } from "@/app/lib/helpers"
 
-export default function RecordCreateForm({}) {
+export default function RecordCreateForm() {
   const {data: session} = useSession()
   console.log(session)
   if (!session?.user?.id) {

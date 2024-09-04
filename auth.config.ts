@@ -8,8 +8,8 @@ export const authConfig = {
     maxAge: 24 * 60 * 60,
   },
   callbacks: {
-    async jwt({user, token}) {
-      if (user) {
+    async jwt({user, token, trigger}) {
+      if ((trigger === "update" && user) || user) {
         token.id = user.id
         token.hourlywages = user.hourlywages
         token.currency = user.currency

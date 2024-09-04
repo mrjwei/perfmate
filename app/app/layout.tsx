@@ -1,9 +1,11 @@
 import React from 'react'
 import { redirect } from "next/navigation"
+import type {User} from 'next-auth'
 import {SessionProvider} from 'next-auth/react'
 import { auth } from "@/auth"
 import Sidebar from "@/app/ui/sidebar/sidebar"
 import GlobalHeader from "@/app/ui/global-header/global-header"
+import { fetchUserByEmail } from "../lib/api"
 
 export default async function RootLayout({
   children,
@@ -15,6 +17,8 @@ export default async function RootLayout({
   if (!session) {
     redirect('/login')
   }
+  const user = await fetchUserByEmail(session.user.email!)
+  session.user = user as User
 
   return (
     <SessionProvider session={session}>

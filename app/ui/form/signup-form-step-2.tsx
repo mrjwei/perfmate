@@ -8,8 +8,9 @@ import {
 } from "@heroicons/react/24/outline"
 import { ArrowRightIcon } from "@heroicons/react/20/solid"
 import Button from "@/app/ui/button/button"
+import FormControl from "@/app/ui/form/form-control"
 
-export default function SignupStepTwoForm({email}: {email: string}) {
+export default function SignupStepTwoForm({ email }: { email: string }) {
   const [errorMessage, formAction, isPending] = useActionState(
     setUserInfo,
     undefined
@@ -21,11 +22,7 @@ export default function SignupStepTwoForm({email}: {email: string}) {
         <h1 className={`mb-3 text-2xl`}>Step 2: User Settings</h1>
         <div className="w-full">
           <div>
-            <label
-              className="hidden"
-              htmlFor="email"
-              aria-hidden
-            >
+            <label className="hidden" htmlFor="email" aria-hidden>
               User Id
             </label>
             <div>
@@ -40,61 +37,75 @@ export default function SignupStepTwoForm({email}: {email: string}) {
               />
             </div>
           </div>
-          <div>
-            <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="hourlywages"
+          <FormControl
+            label="Hourly wages"
+            htmlFor="hourlywages"
+            className="items-center mb-8"
+            labelClassName="col-span-12 font-bold mb-2"
+          >
+            <input
+              type="number"
+              id="hourlywages"
+              name="hourlywages"
+              step={10}
+              className="col-span-12 border-1 border-slate-400 bg-slate-100 p-2"
+            />
+          </FormControl>
+          <FormControl
+            label="Currency"
+            htmlFor="currency"
+            className="items-center mb-8"
+            labelClassName="col-span-12 font-bold mb-2"
+          >
+            <select
+              name="currency"
+              id="currency"
+              className="col-span-12 border-1 border-slate-400 bg-slate-100 p-2"
             >
-              Hourly Wages
-            </label>
-            <div className="relative">
-              <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                id="hourlywages"
-                type="number"
-                name="hourlywages"
-                placeholder="Enter your hourlywages"
-                required
-              />
-              <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <option value="">Select one</option>
+              <option value="yen">YEN</option>
+              <option value="usd">USD</option>
+              <option value="rmb">RMB</option>
+            </select>
+          </FormControl>
+          <FormControl
+            label="Tax included"
+            htmlFor="taxincluded"
+            className="items-center mb-8"
+            labelClassName="col-span-12 font-bold mb-2"
+          >
+            <div id="taxincluded" className="flex">
+              <FormControl
+                label="Yes"
+                htmlFor="yes"
+                className="items-center col-span-6"
+                labelClassName="col-span-2"
+              >
+                <input
+                  type="radio"
+                  id="yes"
+                  name="taxincluded"
+                  value="true"
+                  defaultChecked
+                  className="mx-4 col-span-2 w-4"
+                />
+              </FormControl>
+              <FormControl
+                label="No"
+                htmlFor="no"
+                className="items-center col-span-6"
+                labelClassName="col-span-2"
+              >
+                <input
+                  type="radio"
+                  id="no"
+                  name="taxincluded"
+                  value="false"
+                  className="mx-4 col-span-2 w-4"
+                />
+              </FormControl>
             </div>
-          </div>
-          <div>
-            <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="currency"
-            >
-              Currency
-            </label>
-            <div className="relative">
-              <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                id="currency"
-                type="text"
-                name="currency"
-                placeholder="Enter your currency"
-              />
-              <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-            </div>
-          </div>
-          <div>
-            <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="taxincluded"
-            >
-              Tax Included
-            </label>
-            <div className="relative">
-              <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                id="taxincluded"
-                type="text"
-                name="taxincluded"
-                placeholder="Enter your tax included"
-              />
-              <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-            </div>
-          </div>
+          </FormControl>
         </div>
         <Button type="submit" className="mt-4 w-full" aria-disabled={isPending}>
           Sign Up <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />

@@ -283,6 +283,8 @@ export const creationSchema = baseSchema
     }
   })
 
+const booleanSchema = z.enum(['true', 'false']).transform((val) => val === 'true')
+
 export const userBaseSchema = z
   .object({
     id: z.string().uuid(),
@@ -291,7 +293,7 @@ export const userBaseSchema = z
     password: z.string({message: 'Password is required'}).min(6, {message: 'Password must have at least 6 characters'}),
     hourlywages: z.coerce.number().optional(),
     currency: z.string().optional(),
-    taxincluded: z.boolean().optional()
+    taxincluded: booleanSchema.optional()
   })
 
 export const userCreationSchema = userBaseSchema
@@ -299,9 +301,15 @@ export const userCreationSchema = userBaseSchema
   id: true
 })
 
-export const userUpdateSchema = userBaseSchema
-.omit({
-  id: true
+export const userUpdateSchema = z
+.object({
+  id: z.string().uuid(),
+  name: z.string({message: 'Name is required'}).optional(),
+  email: z.string({message: 'Email is required'}).email().optional(),
+  password: z.string({message: 'Password is required'}).min(6, {message: 'Password must have at least 6 characters'}).optional(),
+  hourlywages: z.coerce.number().optional(),
+  currency: z.string().optional(),
+  taxincluded: booleanSchema.optional()
 })
 
 export const userSettingsSchema = userBaseSchema

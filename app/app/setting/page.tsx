@@ -1,10 +1,12 @@
 import React from 'react'
+import type {User} from 'next-auth'
 import SettingForm from '@/app/ui/setting/setting-form'
 import { auth } from "@/auth"
-import { Session } from "next-auth"
+import { fetchUserByEmail } from "@/app/lib/api"
 
 export default async function Settings() {
-  const {user} = await auth() as Session
+  const session = await auth()
+  const user = await fetchUserByEmail(session?.user.email!) as User
 
   return (
     <>

@@ -1,5 +1,6 @@
 import React from 'react'
 import dynamic from 'next/dynamic'
+import type {User} from 'next-auth'
 import StartWorkingButton from "@/app/ui/start-working-button/start-working-button"
 import EndWorkingButton from "@/app/ui/end-working-button/end-working-button"
 import StartBreakButton from "@/app/ui/start-break-button/start-break-button"
@@ -12,14 +13,14 @@ import {
   returnStatus,
   getFormattedTotalWorkHours
 } from '@/app/lib/helpers'
-import { fetchLastRecord } from "@/app/lib/api"
+import { fetchLastRecord, fetchUserByEmail } from "@/app/lib/api"
 import { auth } from "@/auth"
-import { Session } from "next-auth"
 
 const Clock = dynamic(() => import('@/app/ui/clock/clock'), {ssr: false})
 
 export default async function Home() {
-  const {user} = await auth() as Session
+  const session = await auth()
+  const user = await fetchUserByEmail(session?.user.email!) as User
   const record = await fetchLastRecord(user.id!)
 
   let status: TStatus
