@@ -304,12 +304,12 @@ export const userCreationSchema = userBaseSchema
 export const userUpdateSchema = z
 .object({
   id: z.string().uuid(),
-  name: z.string({message: 'Name is required'}).optional(),
-  email: z.string({message: 'Email is required'}).email().optional(),
-  password: z.string({message: 'Password is required'}).min(6, {message: 'Password must have at least 6 characters'}).optional(),
-  hourlywages: z.coerce.number().optional(),
-  currency: z.string().optional(),
-  taxincluded: booleanSchema.optional()
+  name: z.string().min(1, {message: 'Name cannot be empty'}),
+  hourlywages: z.coerce.number({message: 'Hourly wages cannot be empty'}).refine((val) => val > 0, {
+    message: 'Hourly wages must be greater than 0'
+  }),
+  currency: z.string().min(1, {message: 'Please select a currency'}),
+  taxincluded: booleanSchema
 })
 
 export const userSettingsSchema = userBaseSchema

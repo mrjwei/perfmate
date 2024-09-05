@@ -460,10 +460,10 @@ export async function updateUser(data: Partial<IUser>) {
   }
 
   try {
-    if (data.name && data.email) {
+    if (data.name) {
       await sql`
         UPDATE users
-        SET name=${data.name}, email=${data.email}, hourlywages=${data.hourlywages}, currency=${data.currency}, taxincluded=${data.taxincluded}
+        SET name=${data.name}, hourlywages=${data.hourlywages}, currency=${data.currency}, taxincluded=${data.taxincluded}
         WHERE id=${data.id};
       `
     } else {
@@ -560,11 +560,11 @@ export async function updateUserInfo(prevState: any, formData: FormData) {
   const validatedFields = userUpdateSchema.safeParse({
     id: formData.get("userid"),
     name: formData.get("username"),
-    email: formData.get("email"),
     hourlywages: formData.get("hourlywages"),
     currency: formData.get("currency"),
     taxincluded: formData.get("taxincluded"),
   })
+  console.log(JSON.stringify(validatedFields.error?.flatten().fieldErrors))
   if (!validatedFields.success) {
     return {
       message: "Failed to update user",
@@ -572,11 +572,11 @@ export async function updateUserInfo(prevState: any, formData: FormData) {
     }
   }
 
-  const { id, name, email, hourlywages, currency, taxincluded } =
+  const { id, name, hourlywages, currency, taxincluded } =
     validatedFields.data
 
   try {
-    await updateUser({ id, name, email, hourlywages, currency, taxincluded })
+    await updateUser({ id, name, hourlywages, currency, taxincluded })
   } catch (error: any) {
     throw error
   }
