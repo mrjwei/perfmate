@@ -42,7 +42,7 @@ export default function MonthPicker() {
       <Link href={createPageURL(pathname, searchParams, 'month', dateToMonthStr(getLastMonth(monthStrToDate(currentMonth))))} className="flex justify-end mr-2">
         <ChevronLeftIcon className="w-6" strokeWidth={2} />
       </Link>
-      <input ref={pickerRef} type="month" name="month" id="month" defaultValue={currentMonth} onChange={handleChange} className="border-1 border-slate-400 p-2" />
+      <input ref={pickerRef} type="month" name="month" id="month" defaultValue={currentMonth} onChange={handleChange} className="border-1 border-slate-400 p-2 rounded" />
       <Link href={createPageURL(pathname, searchParams, 'month', dateToMonthStr(getNextMonth(monthStrToDate(currentMonth))))} className="flex justify-start ml-2">
         <ChevronRightIcon className="w-6"  strokeWidth={2} />
       </Link>

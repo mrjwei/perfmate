@@ -201,7 +201,7 @@ export default function Aggregates({
 
   return (
     <div className="mb-4">
-      <div className="flex items-center justify-between p-4 bg-lime-100 mb-2">
+      <div className="flex items-center justify-between p-4 bg-lime-100 mb-2 rounded-md">
         <div className="flex">
           <div className="flex items-center mr-8">
             <p className="mr-2">Total Hours: </p>

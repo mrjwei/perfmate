@@ -16,13 +16,15 @@ export default async function Records({searchParams}: TRecordsProps) {
   const targetDate = searchParams?.date ? searchParams?.date : undefined
 
   return (
-    <>
+    <div className="pb-8">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold">Records</h2>
         <MonthPicker />
       </div>
-      <Aggregates records={records} user={user} month={month} />
-      <Table records={records} month={month} targetDate={targetDate} />
-    </>
+      <div className="py-8 px-8 bg-white rounded-lg shadow">
+        <Aggregates records={records} user={user} month={month} />
+        <Table records={records} month={month} targetDate={targetDate} />
+      </div>
+    </div>
   )
 }
