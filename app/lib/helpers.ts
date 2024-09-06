@@ -286,3 +286,41 @@ export const mapCurrencyToMark = (currency: string) => {
 export const calculateWagesFromMins = (mins: number, hourlyWages: number) => {
   return Math.round(Number((mins / 60).toFixed(1)) * hourlyWages)
 }
+
+export const fetchNationalHolidays = async (year: string | number, countryCode: string) => {
+  const res = await fetch(`https://date.nager.at/api/v3/publicholidays/${year}/${countryCode}`)
+  const array = await res.json()
+  return array
+}
+
+export const isSaturday = (date: string | Date) => {
+  let day
+  if (typeof date === 'string') {
+    day = new Date(date).getDay()
+  } else {
+    day = date.getDay()
+  }
+  return day === 6
+}
+
+export const isSunday = (date: string | Date) => {
+  let day
+  if (typeof date === 'string') {
+    day = new Date(date).getDay()
+  } else {
+    day = date.getDay()
+  }
+  return day === 0
+}
+
+export const isNationalHoliday = async (date: string | Date, countryCode: string = 'US') => {
+  let year
+  if (typeof date === 'string') {
+    year = date.substring(0, 4)
+  } else {
+    year = date.getFullYear()
+  }
+  const dateStr = typeof date === 'string' ? date : getFormattedDateString(date)
+  const data = await fetchNationalHolidays(year, countryCode)
+  return !!data.map((obj: any) => obj.date).find((date: string) => date === dateStr)
+}

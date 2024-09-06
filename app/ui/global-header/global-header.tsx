@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { User } from "next-auth"
-import Image from 'next/image'
+import Link from 'next/link'
 import { League_Spartan } from "next/font/google";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline"
 import Button from "@/app/ui/button/button"
@@ -16,7 +16,9 @@ export default function GlobalHeader({ user }: { user: User }) {
   return (
     <header className="flex items-center justify-between py-2 px-8 shadow bg-lime-600 fixed z-50 w-full">
       <h1 className={`${spartan.className} text-white text-2xl font-bold`}>
-        PERFMATE
+        <Link href='/app'>
+          PERFMATE
+        </Link>
       </h1>
       <Button
         type="button"

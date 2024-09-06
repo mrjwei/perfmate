@@ -2,7 +2,7 @@ import React from 'react'
 import Link from "next/link"
 import clsx from "clsx"
 import { PencilIcon } from "@heroicons/react/24/outline"
-import { generatePaddedRecordsForMonth } from "@/app/lib/helpers"
+import { generatePaddedRecordsForMonth, isSaturday, isSunday, isNationalHoliday } from "@/app/lib/helpers"
 import { IPaddedRecord, IRecord } from "@/app/lib/types"
 import DeleteButton from '@/app/ui/records/delete-button'
 
@@ -28,7 +28,7 @@ export default function Table({
       </thead>
       <tbody>
         {generatePaddedRecordsForMonth(month, records).map(
-          (record: IPaddedRecord) => {
+          async (record: IPaddedRecord) => {
             const {
               id,
               date,
@@ -37,11 +37,14 @@ export default function Table({
               totalbreakhours,
               totalworkhours,
             } = record
+            const isHoliday = await isNationalHoliday(date, 'US')
             return (
               <tr
                 key={date}
                 className={clsx("border-t-1 border-slate-200", {
                   "animate-fadeOutBackground": targetDate === date,
+                  "bg-red-100": isSunday(date) || isHoliday,
+                  "bg-blue-100": isSaturday(date)
                 })}
               >
                 <td className="py-4">{date}</td>
