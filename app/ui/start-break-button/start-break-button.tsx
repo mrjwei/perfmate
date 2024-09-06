@@ -33,7 +33,7 @@ export default function StartBreakButton({
         type="submit"
         disabled={disabled}
         name="startBreak"
-        className="text-white bg-purple-500 mr-4"
+        className="w-full text-white bg-purple-500 mr-4"
         {...props}
       >
         Start Break

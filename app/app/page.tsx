@@ -33,11 +33,11 @@ export default async function Home() {
       <div className="rounded-lg shadow bg-white py-8 mb-4">
         <Clock suppressHydrationWarning />
       </div>
-      <div className="w-full flex justify-between items-center py-8 px-8 bg-white rounded-lg shadow mb-4">
-        <Tag testid="status" className="mr-4">
+      <div className="w-full flex justify-between items-start lg:items-center py-8 px-8 bg-white rounded-lg shadow mb-4">
+        <Tag testid="status" className="mr-2 text-xl lg:text-2xl lg:mr-8">
           {status}
         </Tag>
-        <div className="flex justify-between">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StartWorkingButton
             userid={user.id!}
             disabled={status !== "BEFORE-WORK"}

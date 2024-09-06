@@ -34,7 +34,7 @@ export default function EndWorkingButton({
         type="submit"
         disabled={disabled}
         name="endWorking"
-        className="text-white bg-red-500"
+        className="w-full text-white bg-red-500"
         {...props}
       >
         End Working

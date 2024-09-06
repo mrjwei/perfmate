@@ -33,7 +33,7 @@ export default function EndBreakButton({
         type="submit"
         disabled={disabled}
         name="endBreak"
-        className="text-white bg-purple-500 mr-4"
+        className="w-full text-white bg-purple-500 mr-4"
         {...props}
       >
         End Break

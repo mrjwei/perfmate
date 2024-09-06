@@ -26,7 +26,7 @@ export default function StartWorkingButton({
         type="submit"
         disabled={disabled}
         name="startWorking"
-        className="text-white bg-lime-600 mr-4"
+        className="w-full text-white bg-lime-600 mr-4"
         {...props}
       >
         Start Working

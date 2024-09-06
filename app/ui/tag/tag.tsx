@@ -7,7 +7,7 @@ export default function Tag({testid, children, className}: {testid?: string, chi
   return (
     <div data-testid={testid} className={
       clsx(
-        'px-4 py-2 text-2xl font-bold whitespace-nowrap',
+        'px-4 py-2 font-bold whitespace-nowrap',
         {
           'text-slate-400': children === 'BEFORE-WORK',
           'text-lime-600': children === 'IN-WORK',

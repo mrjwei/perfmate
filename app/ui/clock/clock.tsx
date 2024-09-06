@@ -20,23 +20,13 @@ export default function Clock({suppressHydrationWarning}: {suppressHydrationWarn
   }, [time])
 
   return (
-    <div className="w-full font-bold relative" suppressHydrationWarning={suppressHydrationWarning}>
-      <div className="absolute left-1/3">
-        <span className="block text-6xl">
-            {time?.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false})}
-          </span>
-          <span className="block text-2xl">
-            {time && `${year}-${month}-${day} (${weekday})`}
-          </span>
-      </div>
-      <div className="opacity-0">
-        <span className="block text-6xl">
-            {time?.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false})}
-          </span>
-          <span className="block text-2xl">
-            {time && `${year}-${month}-${day} (${weekday})`}
-          </span>
-      </div>
+    <div className="w-full relative" suppressHydrationWarning={suppressHydrationWarning}>
+      <p className="font-bold mx-auto mb-1 w-[160px] text-4xl lg:w-[264px] lg:text-6xl">
+        {time?.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false})}
+      </p>
+      <p className="text-slate-600 text-lg font-semibold lg:text-2xl lg:font-bold text-center">
+        {time && `${year}-${month}-${day} (${weekday})`}
+      </p>
     </div>
   )
 }
