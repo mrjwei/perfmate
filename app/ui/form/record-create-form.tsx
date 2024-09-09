@@ -2,7 +2,7 @@
 
 import React, { useState, useActionState } from "react"
 import Link from "next/link"
-import {useSession} from 'next-auth/react'
+import { useSession } from "next-auth/react"
 import clsx from "clsx"
 import { PlusIcon } from "@heroicons/react/24/outline"
 import { v4 as uuidv4 } from "uuid"
@@ -15,11 +15,7 @@ import { creationForm } from "@/app/lib/actions"
 import { dateToMonthStr } from "@/app/lib/helpers"
 
 export default function RecordCreateForm() {
-  const {data: session} = useSession()
-  console.log(session)
-  if (!session?.user?.id) {
-    return <p>Loading...</p>
-  }
+  const { data: session } = useSession()
 
   const searchParams = useSearchParams()
   const date = searchParams.get("date") as string
@@ -43,12 +39,15 @@ export default function RecordCreateForm() {
   }
 
   const initialState: any = {
-    message: '',
-    errors: {}
+    message: "",
+    errors: {},
   }
 
-  const creationFormAction = creationForm.bind(null, session.user.id, month)
-  const [state, formAction] = useActionState(creationFormAction, initialState)
+  const creationFormAction = creationForm.bind(null, session?.user.id!, month)
+  const [state, formAction, isPending] = useActionState(
+    creationFormAction,
+    initialState
+  )
 
   return (
     <form action={formAction}>
@@ -64,7 +63,7 @@ export default function RecordCreateForm() {
           name="date"
           value={date}
           readOnly
-          className='col-span-8 border-1 border-slate-400 bg-slate-100 p-2 mx-4 mb-2'
+          className="col-span-8 border-1 border-slate-400 bg-slate-100 p-2 mx-4 mb-2"
         />
       </FormControl>
       <FormControl
@@ -77,16 +76,18 @@ export default function RecordCreateForm() {
           type="time"
           id="starttime"
           name="starttime"
-          className={clsx(
-            'col-span-8 border-1 p-2 mx-4 mb-2',
-            {
-              'border-slate-400': !state.errors?.starttime,
-              'border-red-500': state.errors?.starttime,
-            }
-          )}
+          className={clsx("col-span-8 border-1 p-2 mx-4 mb-2", {
+            "border-slate-400": !state.errors?.starttime,
+            "border-red-500": state.errors?.starttime,
+          })}
           aria-describedby="starttime-error"
         />
-        <div id="starttime-error" className="col-span-12" aria-live="polite" aria-atomic="true">
+        <div
+          id="starttime-error"
+          className="col-span-12"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {state.errors?.starttime && (
             <p className="text-red-500" key={state.errors?.starttime.message}>
               {state.errors?.starttime.message}
@@ -105,16 +106,25 @@ export default function RecordCreateForm() {
               key={b.id}
               b={b}
               index={i}
-              isStarttimeError={state.errors?.breaks?.errors?.find((error: any) => error.id === b.id && error.fieldName === 'starttime')}
-              isEndtimeError={state.errors?.breaks?.errors?.find((error: any) => error.id === b.id && error.fieldName === 'endtime')}
+              isStarttimeError={state.errors?.breaks?.errors?.find(
+                (error: any) =>
+                  error.id === b.id && error.fieldName === "starttime"
+              )}
+              isEndtimeError={state.errors?.breaks?.errors?.find(
+                (error: any) =>
+                  error.id === b.id && error.fieldName === "endtime"
+              )}
               handleRemoveBreak={handleRemoveBreak}
             />
-            <div id='break-error' aria-live="polite" aria-atomic="true">
-              {state.errors?.breaks && state.errors?.breaks?.errors?.find((error: any) => error.id === b.id) && (
-                <p className="text-red-500" key={b.id}>
-                  {state.errors.breaks.message}
-                </p>
-              )}
+            <div id="break-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.breaks &&
+                state.errors?.breaks?.errors?.find(
+                  (error: any) => error.id === b.id
+                ) && (
+                  <p className="text-red-500" key={b.id}>
+                    {state.errors.breaks.message}
+                  </p>
+                )}
             </div>
           </div>
         ))}
@@ -139,16 +149,18 @@ export default function RecordCreateForm() {
           type="time"
           id="endtime"
           name="endtime"
-          className={clsx(
-            'col-span-8 border-1 p-2 mx-4 mb-2',
-            {
-              'border-slate-400': !state.errors?.starttime,
-              'border-red-500': state.errors?.starttime,
-            }
-          )}
+          className={clsx("col-span-8 border-1 p-2 mx-4 mb-2", {
+            "border-slate-400": !state.errors?.starttime,
+            "border-red-500": state.errors?.starttime,
+          })}
           aria-describedby="endtime-error"
         />
-        <div id="endtime-error" className="col-span-12" aria-live="polite" aria-atomic="true">
+        <div
+          id="endtime-error"
+          className="col-span-12"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {state.errors?.endtime && (
             <p className="text-red-500" key={state.errors?.endtime.message}>
               {state.errors?.endtime.message}
@@ -158,7 +170,17 @@ export default function RecordCreateForm() {
       </FormControl>
       <div className="flex items-center">
         <Button type="submit" className="bg-lime-600 text-white mr-4">
-          Submit
+          {isPending ? (
+            <div className="flex items-center">
+              <div className="relative flex justify-center items-center h-6 w-6 mr-2">
+                <div className="absolute rounded-full h-6 w-6 border-4 border-white opacity-50"></div>
+                <div className="absolute animate-spin rounded-full h-6 w-6 border-4 border-t-white border-transparent"></div>
+              </div>
+              <span>Processing</span>
+            </div>
+          ) : (
+            "Submit"
+          )}
         </Button>
         <Link
           href={`/app/records?month=${dateToMonthStr(new Date(date))}`}

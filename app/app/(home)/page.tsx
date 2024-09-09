@@ -12,6 +12,7 @@ import { TStatus } from "@/app/lib/types"
 import { returnStatus, getFormattedTotalWorkHours } from "@/app/lib/helpers"
 import { fetchLastRecord, fetchUserByEmail } from "@/app/lib/api"
 import { auth } from "@/auth"
+import clsx from "clsx"
 
 const Clock = dynamic(() => import("@/app/ui/clock/clock"), { ssr: false })
 
@@ -30,9 +31,7 @@ export default async function Home() {
 
   return (
     <>
-      <div className="rounded-lg shadow bg-white py-8 mb-4">
-        <Clock suppressHydrationWarning />
-      </div>
+      <Clock suppressHydrationWarning />
       <div className="w-full flex justify-between items-start lg:items-center py-8 px-8 bg-white rounded-lg shadow mb-4">
         <Tag testid="status" className="mr-2 text-xl lg:text-2xl lg:mr-8">
           {status}
@@ -53,7 +52,7 @@ export default async function Home() {
         }`}
       >
         {record && record.starttime && (
-          <li className="py-4">
+          <li className="py-4 border-b-2 border-gray-100">
             <TimeStamp heading="Started work at" timeStamp={record.starttime} />
           </li>
         )}
@@ -62,7 +61,12 @@ export default async function Home() {
             {record &&
               record.breaks.map((b: any, i: number) => (
                 <li
-                  className="border-t-2 border-gray-100 py-2"
+                  className={clsx(
+                    'py-2',
+                    {
+                      'border-b-2 border-gray-100': i !== record.breaks.length -  1
+                    }
+                  )}
                   key={`${b.starttime}-${i}`}
                 >
                   <BreakUnit

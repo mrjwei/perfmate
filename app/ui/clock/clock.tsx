@@ -20,7 +20,7 @@ export default function Clock({suppressHydrationWarning}: {suppressHydrationWarn
   }, [time])
 
   return (
-    <div className="w-full relative" suppressHydrationWarning={suppressHydrationWarning}>
+    <div className="w-full relative rounded-lg shadow bg-white py-8 mb-4" suppressHydrationWarning={suppressHydrationWarning}>
       <p className="font-bold mx-auto mb-1 w-[160px] text-4xl lg:w-[264px] lg:text-6xl">
         {time?.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false})}
       </p>

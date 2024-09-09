@@ -382,6 +382,7 @@ export async function creationForm(
   try {
     if (validatedStarttime) {
       const endtime = validatedEndtime ? validatedEndtime : null
+
       const data = await createRecord(
         userId,
         validatedDate,

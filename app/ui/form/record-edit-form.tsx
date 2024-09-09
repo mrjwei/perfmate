@@ -2,7 +2,7 @@
 
 import React, { useState, useActionState } from "react"
 import Link from "next/link"
-import clsx from 'clsx'
+import clsx from "clsx"
 import { PlusIcon } from "@heroicons/react/24/outline"
 import { v4 as uuidv4 } from "uuid"
 import { useSearchParams } from "next/navigation"
@@ -35,10 +35,13 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
 
   const editFormAction = editForm.bind(null, record.id, month)
   const initialState: any = {
-    message: '',
-    errors: {}
+    message: "",
+    errors: {},
   }
-  const [state, formAction] = useActionState(editFormAction, initialState)
+  const [state, formAction, isPending] = useActionState(
+    editFormAction,
+    initialState
+  )
 
   return (
     <form action={formAction}>
@@ -70,7 +73,7 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
           name="date"
           value={record.date}
           readOnly
-          className='col-span-8 border-1 border-slate-400 bg-slate-100 p-2 mx-4 mb-2'
+          className="col-span-8 border-1 border-slate-400 bg-slate-100 p-2 mx-4 mb-2"
         />
       </FormControl>
       <FormControl
@@ -84,16 +87,18 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
           id="starttime"
           name="starttime"
           defaultValue={record.starttime}
-          className={clsx(
-            'col-span-8 border-1 p-2 mx-4 mb-2',
-            {
-              'border-slate-400': !state.errors?.starttime,
-              'border-red-500': state.errors?.starttime,
-            }
-          )}
+          className={clsx("col-span-8 border-1 p-2 mx-4 mb-2", {
+            "border-slate-400": !state.errors?.starttime,
+            "border-red-500": state.errors?.starttime,
+          })}
           aria-describedby="starttime-error"
         />
-        <div id="starttime-error" className="col-span-12" aria-live="polite" aria-atomic="true">
+        <div
+          id="starttime-error"
+          className="col-span-12"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {state.errors?.starttime && (
             <p className="text-red-500" key={state.errors?.starttime.message}>
               {state.errors?.starttime.message}
@@ -101,28 +106,36 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
           )}
         </div>
       </FormControl>
-      <div className={clsx(
-        'border-slate-200',
-        {
-          'border-y-1 py-8 mb-8': breaks.length > 0
-        }
-      )}>
+      <div
+        className={clsx("border-slate-200", {
+          "border-y-1 py-8 mb-8": breaks.length > 0,
+        })}
+      >
         {breaks.map((b, i) => (
           <div className="mb-6" key={b.id}>
             <BreakField
               key={b.id}
               b={b}
               index={i}
-              isStarttimeError={state.errors?.breaks?.errors?.find((error: any) => error.id === b.id && error.fieldName === 'starttime')}
-              isEndtimeError={state.errors?.breaks?.errors?.find((error: any) => error.id === b.id && error.fieldName === 'endtime')}
+              isStarttimeError={state.errors?.breaks?.errors?.find(
+                (error: any) =>
+                  error.id === b.id && error.fieldName === "starttime"
+              )}
+              isEndtimeError={state.errors?.breaks?.errors?.find(
+                (error: any) =>
+                  error.id === b.id && error.fieldName === "endtime"
+              )}
               handleRemoveBreak={handleRemoveBreak}
             />
-            <div id='break-error' aria-live="polite" aria-atomic="true">
-              {state.errors?.breaks && state.errors?.breaks?.errors?.find((error: any) => error.id === b.id) && (
-                <p className="text-red-500" key={b.id}>
-                  {state.errors.breaks.message}
-                </p>
-              )}
+            <div id="break-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.breaks &&
+                state.errors?.breaks?.errors?.find(
+                  (error: any) => error.id === b.id
+                ) && (
+                  <p className="text-red-500" key={b.id}>
+                    {state.errors.breaks.message}
+                  </p>
+                )}
             </div>
           </div>
         ))}
@@ -148,16 +161,18 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
           id="endtime"
           name="endtime"
           defaultValue={record.endtime ? record.endtime : undefined}
-          className={clsx(
-            'col-span-8 border-1 p-2 mx-4 mb-2',
-            {
-              'border-slate-400': !state.errors?.starttime,
-              'border-red-500': state.errors?.starttime,
-            }
-          )}
+          className={clsx("col-span-8 border-1 p-2 mx-4 mb-2", {
+            "border-slate-400": !state.errors?.starttime,
+            "border-red-500": state.errors?.starttime,
+          })}
           aria-describedby="endtime-error"
         />
-        <div id="endtime-error" className="col-span-12" aria-live="polite" aria-atomic="true">
+        <div
+          id="endtime-error"
+          className="col-span-12"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {state.errors?.endtime && (
             <p className="text-red-500" key={state.errors?.endtime.message}>
               {state.errors?.endtime.message}
@@ -167,7 +182,17 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
       </FormControl>
       <div className="flex items-center">
         <Button type="submit" className="bg-lime-600 text-white mr-4">
-          Submit
+          {isPending ? (
+            <div className="flex items-center">
+              <div className="relative flex justify-center items-center h-6 w-6 mr-2">
+                <div className="absolute rounded-full h-6 w-6 border-4 border-white opacity-50"></div>
+                <div className="absolute animate-spin rounded-full h-6 w-6 border-4 border-t-white border-transparent"></div>
+              </div>
+              <span>Processing</span>
+            </div>
+          ) : (
+            "Submit"
+          )}
         </Button>
         <Link
           href={`/app/records?month=${month}`}
