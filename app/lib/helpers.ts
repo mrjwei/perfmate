@@ -181,6 +181,16 @@ export const getMonthIndex = (month: string, uniqueMonths: string[]) => {
   return uniqueMonths.indexOf(month) + 1
 }
 
+export const getWeekdayName = (date: string | Date, locale: string = 'en-US', isShort: boolean = true) => {
+  let d
+  if (typeof date === 'string') {
+    d = new Date(date)
+  } else {
+    d = date
+  }
+  return d.toLocaleDateString(locale, {weekday: isShort ? 'short' : 'long'})
+}
+
 export const createPageURL = (
   pathname: string,
   searchParams: ReadonlyURLSearchParams,

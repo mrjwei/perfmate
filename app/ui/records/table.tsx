@@ -2,7 +2,7 @@ import React from 'react'
 import Link from "next/link"
 import clsx from "clsx"
 import { PencilIcon } from "@heroicons/react/24/outline"
-import { generatePaddedRecordsForMonth, isSaturday, isSunday, isNationalHoliday } from "@/app/lib/helpers"
+import { generatePaddedRecordsForMonth, isSaturday, isSunday, isNationalHoliday, getWeekdayName } from "@/app/lib/helpers"
 import { IPaddedRecord, IRecord } from "@/app/lib/types"
 import DeleteButton from '@/app/ui/records/delete-button'
 
@@ -37,7 +37,7 @@ export default function Table({
               totalbreakhours,
               totalworkhours,
             } = record
-            const isHoliday = await isNationalHoliday(date, 'US')
+            const isHoliday = await isNationalHoliday(date, 'JP')
             return (
               <tr
                 key={date}
@@ -47,7 +47,14 @@ export default function Table({
                   "bg-blue-100": isSaturday(date)
                 })}
               >
-                <td className="py-4">{date}</td>
+                <td className="py-4">
+                  <span className="mr-2">
+                    {date}
+                  </span>
+                  <span className="">
+                    ({getWeekdayName(date)})
+                  </span>
+                </td>
                 <td className="py-4">{starttime}</td>
                 <td className="py-4">{endtime ? endtime : "--:--"}</td>
                 <td className="py-4">{totalbreakhours}</td>
