@@ -5,7 +5,7 @@ import { SessionProvider } from "next-auth/react"
 import { auth } from "@/auth"
 import Sidebar from "@/app/ui/sidebar/sidebar"
 import GlobalHeader from "@/app/ui/global-header/global-header"
-import { fetchUserByEmail } from "../lib/api"
+import { fetchUserByEmail } from "@/app/lib/api"
 
 export default async function RootLayout({
   children,
