@@ -53,6 +53,15 @@ export type TSignupProps = {
   }
 }
 
+export type TNotificationType = 'empty break end time' | 'empty work end time'
+
+export interface INotification {
+  type: TNotificationType
+  navigateToPath: string
+  text: string
+  isUrgent: boolean
+}
+
 // export type TActionState = {
 //   message: string
 //   errors: {

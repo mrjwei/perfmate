@@ -20,15 +20,15 @@ const LINKS = [
 export default function Sidebar() {
   const pathname = usePathname()
   return (
-    <div className="self-stretch bg-white text-white p-3 shadow-md fixed top-[56px] h-full z-10">
+    <div className="self-stretch bg-slate-800 p-3 shadow-md fixed top-[56px] h-full z-10">
       <ul>
         {LINKS.map((l: typeof LINKS[0]) => {
           const {href, children, outlineIcon, solidIcon } = l
           return (
             <li key={href} className="mb-2">
               <LinkItem href={href} className={{
-                'rounded-lg text-slate-800 bg-lime-200/75 hover:bg-lime-bg-lime-50': href === pathname,
-                'rounded-lg text-slate-600 hover:text-slate-800 hover:bg-lime-200/75': href !== pathname
+                'rounded-lg text-slate-800 bg-white hover:text-slate-600': href === pathname,
+                'rounded-lg text-white hover:bg-white/10': href !== pathname
               }}>
                 <span className="mr-2">{href === pathname ? solidIcon : outlineIcon}</span>
                 <span>{children}</span>

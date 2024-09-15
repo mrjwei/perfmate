@@ -4,6 +4,7 @@ import clsx from 'clsx'
 interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   className?: string
+  ref?: any
 }
 
 export default function Button({children, className, ...rest}: IButtonProps) {

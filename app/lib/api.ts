@@ -63,6 +63,36 @@ export const fetchPaginatedRecords = async (userId: string, month: string) => {
   }
 }
 
+export const fetchRecordsToNoticify = async (userId: string) => {
+  noStore()
+  try {
+    const data = await sql`
+      SELECT * FROM records
+      WHERE userid = ${userId} AND endtime IS NULL;
+    `
+    const recordsWithBreaks = await Promise.all(data.rows.map(async record => {
+      const breaks = await fetchBreaksByRecordId(record.id)
+      return {
+        id: record.id,
+        userid: record.userid,
+        date: getFormattedDateString(record.date),
+        starttime: getFormattedTimeString(record.starttime),
+        breaks: breaks.map(b => ({
+          id: b.id,
+          recordId: record.id,
+          starttime: getFormattedTimeString(b.starttime),
+          endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
+        })),
+        endtime: record.endtime ? getFormattedTimeString(record.endtime) : null
+      }
+    }))
+    return recordsWithBreaks
+  } catch (error) {
+    console.error(`Database error: ${error}`);
+    return null
+  }
+}
+
 export const fetchBreaksByRecordId = async (recordId: string) => {
   noStore()
   try {

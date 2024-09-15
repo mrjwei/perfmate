@@ -5,6 +5,7 @@ import {
   IBreak,
   TDateIndexedRecords,
   IPaddedRecord,
+  TNotificationType,
 } from "@/app/lib/types"
 
 export const placeholder = "--:--"
@@ -177,6 +178,10 @@ export const monthStrToDate = (monthStr: string) => {
   return new Date(year, month - 1, 1)
 }
 
+const dateStrToMonthStr = (date: string) => {
+  return date.split("-").slice(0, 2).join("-")
+}
+
 export const getMonthIndex = (month: string, uniqueMonths: string[]) => {
   return uniqueMonths.indexOf(month) + 1
 }
@@ -333,4 +338,23 @@ export const isNationalHoliday = async (date: string | Date, countryCode: string
   const dateStr = typeof date === 'string' ? date : getFormattedDateString(date)
   const data = await fetchNationalHolidays(year, countryCode)
   return !!data.map((obj: any) => obj.date).find((date: string) => date === dateStr)
+}
+
+export const mapRecordsToNoticifications = (records: IRecord[]) => {
+  return records.map(record => ([
+    {
+      type: 'empty work end time' as TNotificationType,
+      navigateToPath: `/app/records/${record.id}/edit?month=${dateStrToMonthStr(record.date)}`,
+      text: `Work not ended on ${record.date}`,
+      isUrgent: true
+    },
+    ...record.breaks.map((_) => ({
+      type: 'empty break end time' as TNotificationType,
+      navigateToPath: `/app/records/${record.id}/edit?month=${dateStrToMonthStr(record.date)}`,
+      text: `Break not ended on ${record.date}`,
+      isUrgent: true
+    }))
+  ])).reduce((acc, curr) => {
+    return [...acc, ...curr]
+  }, [])
 }
