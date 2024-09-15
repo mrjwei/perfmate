@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { User } from "next-auth"
 import Link from 'next/link'
 import { League_Spartan } from "next/font/google";
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline"
+import { ChevronDownIcon, ChevronUpIcon, ArrowRightIcon } from "@heroicons/react/24/outline"
 import Button from "@/app/ui/button/button"
 import LinkItem from "@/app/ui/link-item/link-item"
 import { signOut } from '@/app/lib/actions'
@@ -64,7 +64,7 @@ export default function GlobalHeader({ user, notifications }: { user: User, noti
       {isProfileMenuOpen && (
         <ul className="absolute right-8 top-[68px] bg-white shadow-md rounded-lg p-2">
           <li>
-            <LinkItem href="/app/setting" className="rounded-lg hover:bg-lime-200/75">Setting</LinkItem>
+            <LinkItem href="/app/setting" className="px-8 py-2 rounded-lg hover:bg-lime-200/75">Setting</LinkItem>
           </li>
           <li>
             <form action={signOut}>
@@ -73,12 +73,16 @@ export default function GlobalHeader({ user, notifications }: { user: User, noti
           </li>
         </ul>
       )}
-      {notifications && isNotificationMenuOpen && (
-        <ul className="absolute right-8 top-[68px] bg-white shadow-md rounded-lg p-2">
+      {(notifications && notifications.length > 0 && isNotificationMenuOpen) && (
+        <ul className="absolute right-8 top-[68px] bg-white shadow-md rounded-lg py-2 px-4">
           {notifications.map(n => {
             return (
-              <li key={n.navigateToPath}>
-                <LinkItem href={n.navigateToPath} className="rounded-lg hover:bg-lime-200/75">{n.text}</LinkItem>
+              <li key={n.navigateToPath} className="flex items-center justify-between">
+                <span className="whitespace-nowrap">{n.text}</span>
+                <LinkItem href={n.navigateToPath} className="p-2 flex items-center justify-end rounded-lg text-blue-600 text-sm text-right hover:text-blue-400">
+                  <span className="mr-1">Edit Now</span>
+                  <ArrowRightIcon className="w-4"/>
+                </LinkItem>
               </li>
             )
           })}

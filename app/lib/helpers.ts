@@ -345,13 +345,13 @@ export const mapRecordsToNoticifications = (records: IRecord[]) => {
     {
       type: 'empty work end time' as TNotificationType,
       navigateToPath: `/app/records/${record.id}/edit?month=${dateStrToMonthStr(record.date)}`,
-      text: `Work not ended on ${record.date}`,
+      text: `${record.date}: work not ended`,
       isUrgent: true
     },
     ...record.breaks.map((_) => ({
       type: 'empty break end time' as TNotificationType,
       navigateToPath: `/app/records/${record.id}/edit?month=${dateStrToMonthStr(record.date)}`,
-      text: `Break not ended on ${record.date}`,
+      text: `${record.date}: break not ended`,
       isUrgent: true
     }))
   ])).reduce((acc, curr) => {

@@ -27,8 +27,8 @@ export default function Sidebar() {
           return (
             <li key={href} className="mb-2">
               <LinkItem href={href} className={{
-                'rounded-lg text-slate-800 bg-white hover:text-slate-600': href === pathname,
-                'rounded-lg text-white hover:bg-white/10': href !== pathname
+                'px-8 py-2 rounded-lg text-slate-800 bg-white hover:text-slate-600': href === pathname,
+                'px-8 py-2 rounded-lg text-white hover:bg-white/10': href !== pathname
               }}>
                 <span className="mr-2">{href === pathname ? solidIcon : outlineIcon}</span>
                 <span>{children}</span>
