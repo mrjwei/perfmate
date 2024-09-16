@@ -429,7 +429,7 @@ export async function authenticate(prevState: any, formData: FormData) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
-          return "Invalid credentials"
+          return "Wrong email or password"
         default:
           return "Something went wrong"
       }
@@ -440,6 +440,11 @@ export async function authenticate(prevState: any, formData: FormData) {
 
 export async function createUser(data: Omit<IUser, "id">) {
   const { name, email, password, hourlywages, currency, taxincluded } = data
+
+  const existingUser = await fetchUserByEmail(email)
+  if (existingUser) {
+    return
+  }
 
   try {
     const data = await sql`
@@ -501,6 +506,9 @@ export async function signup(prevState: any, formData: FormData) {
       currency: "JP yen",
       taxincluded: false,
     })
+    if (!email) {
+      return "Email address unavailable. Please use another one."
+    }
   } catch (error: any) {
     if (error instanceof AuthError) {
       switch (error.type) {
