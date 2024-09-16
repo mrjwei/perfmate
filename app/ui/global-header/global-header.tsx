@@ -18,13 +18,15 @@ export default function GlobalHeader({ user, notifications }: { user: User, noti
 
   const profileRef = useRef<HTMLButtonElement>(null)
   const notificationRef = useRef<HTMLButtonElement>(null)
+  const profileMenuRef = useRef<HTMLUListElement>(null)
+  const notificationMenuRef = useRef<HTMLUListElement>(null)
 
   useEffect(() => {
     const handleClickOnWindow = (event: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+      if (profileRef.current && profileMenuRef.current && !profileRef.current.contains(event.target as Node) && !profileMenuRef.current.contains(event.target as Node)) {
         setIsProfileMenuOpen(false)
       }
-      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+      if (notificationRef.current && notificationMenuRef.current && !notificationRef.current.contains(event.target as Node) && !notificationMenuRef.current.contains(event.target as Node)) {
         setIsNotificationMenuOpen(false)
       }
     }
@@ -42,7 +44,7 @@ export default function GlobalHeader({ user, notifications }: { user: User, noti
       <div className="flex items-center">
         <Button
           type="button"
-          className=""
+          className={isNotificationMenuOpen ? 'bg-slate-100' : ''}
           onClick={() => setIsNotificationMenuOpen(!isNotificationMenuOpen)}
           ref={notificationRef}
         >
@@ -53,7 +55,7 @@ export default function GlobalHeader({ user, notifications }: { user: User, noti
         </Button>
         <Button
           type="button"
-          className="flex items-center text-slate-800"
+          className={`flex items-center text-slate-800 ${isProfileMenuOpen ? 'bg-slate-100' : ''}`}
           onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
           ref={profileRef}
         >
@@ -62,7 +64,7 @@ export default function GlobalHeader({ user, notifications }: { user: User, noti
         </Button>
       </div>
       {isProfileMenuOpen && (
-        <ul className="absolute right-8 top-[68px] bg-white shadow-md rounded-lg p-2">
+        <ul className="absolute right-8 top-[68px] bg-white shadow-md rounded-lg p-2" ref={profileMenuRef}>
           <li>
             <LinkItem href="/app/setting" className="px-8 py-2 rounded-lg hover:bg-lime-200/75">Setting</LinkItem>
           </li>
@@ -73,19 +75,23 @@ export default function GlobalHeader({ user, notifications }: { user: User, noti
           </li>
         </ul>
       )}
-      {(notifications && notifications.length > 0 && isNotificationMenuOpen) && (
-        <ul className="absolute right-8 top-[68px] bg-white shadow-md rounded-lg py-2 px-4">
-          {notifications.map(n => {
-            return (
-              <li key={n.navigateToPath} className="flex items-center justify-between">
-                <span className="whitespace-nowrap">{n.text}</span>
-                <LinkItem href={n.navigateToPath} className="p-2 flex items-center justify-end rounded-lg text-blue-600 text-sm text-right hover:text-blue-400">
-                  <span className="mr-1">Edit Now</span>
-                  <ArrowRightIcon className="w-4"/>
-                </LinkItem>
-              </li>
-            )
-          })}
+      {(notifications && isNotificationMenuOpen) && (
+        <ul className="absolute right-8 top-[68px] bg-white shadow-md rounded-lg py-2 px-4" ref={notificationMenuRef}>
+          {notifications.length > 0 ? (
+            notifications.map(n => {
+              return (
+                <li key={n.navigateToPath} className="flex items-center justify-between">
+                  <span className="whitespace-nowrap">{n.text}</span>
+                  <LinkItem href={n.navigateToPath} className="p-2 flex items-center justify-end rounded-lg text-blue-600 text-sm text-right hover:text-blue-400">
+                    <span className="mr-1">Edit Now</span>
+                    <ArrowRightIcon className="w-4"/>
+                  </LinkItem>
+                </li>
+              )
+            })
+          ) : (
+            <li className="text-slate-400">No notification</li>
+          )}
         </ul>
       )}
     </header>
