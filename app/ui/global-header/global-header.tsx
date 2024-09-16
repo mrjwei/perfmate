@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { User } from "next-auth"
 import Link from 'next/link'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { League_Spartan } from "next/font/google";
 import { ChevronDownIcon, ChevronUpIcon, ArrowRightIcon } from "@heroicons/react/24/outline"
 import Button from "@/app/ui/button/button"
@@ -13,6 +14,9 @@ import { INotification } from "@/app/lib/types"
 const spartan = League_Spartan({ subsets: ["latin"] });
 
 export default function GlobalHeader({ user, notifications }: { user: User, notifications: INotification[] | null }) {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false)
 
@@ -33,6 +37,11 @@ export default function GlobalHeader({ user, notifications }: { user: User, noti
     document.addEventListener('click', handleClickOnWindow)
     return () => document.removeEventListener('click', handleClickOnWindow)
   }, [])
+
+  useEffect(() => {
+    setIsProfileMenuOpen(false)
+    setIsNotificationMenuOpen(false)
+  }, [pathname, searchParams]);
 
   return (
     <header className="flex items-center justify-between py-2 px-8 shadow bg-white fixed z-50 w-full">
@@ -66,11 +75,11 @@ export default function GlobalHeader({ user, notifications }: { user: User, noti
       {isProfileMenuOpen && (
         <ul className="absolute right-8 top-[68px] bg-white shadow-md rounded-lg p-2" ref={profileMenuRef}>
           <li>
-            <LinkItem href="/app/setting" className="px-8 py-2 rounded-lg hover:bg-lime-200/75">Setting</LinkItem>
+            <LinkItem href="/app/setting" className="w-full px-8 py-2 rounded-lg hover:bg-slate-100">Setting</LinkItem>
           </li>
           <li>
             <form action={signOut}>
-              <Button type="submit" className="w-full px-8 py-2 flex items-center rounded-lg font-medium hover:bg-lime-200/75">Sign Out</Button>
+              <Button type="submit" className="w-full px-8 py-2 flex items-center rounded-lg font-medium hover:bg-slate-100">Sign Out</Button>
             </form>
           </li>
         </ul>
@@ -82,7 +91,7 @@ export default function GlobalHeader({ user, notifications }: { user: User, noti
               return (
                 <li key={n.navigateToPath} className="flex items-center justify-between">
                   <span className="whitespace-nowrap">{n.text}</span>
-                  <LinkItem href={n.navigateToPath} className="p-2 flex items-center justify-end rounded-lg text-blue-600 text-sm text-right hover:text-blue-400">
+                  <LinkItem href={n.navigateToPath} className="w-full p-2 flex items-center justify-end rounded-lg text-blue-600 text-sm text-right hover:text-blue-400">
                     <span className="mr-1">Edit Now</span>
                     <ArrowRightIcon className="w-4"/>
                   </LinkItem>
