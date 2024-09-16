@@ -47,6 +47,7 @@ export default function Table({
             return (
               <tr
                 key={date}
+                id={date === getFormattedDateString(new Date()) ? 'today' : ''}
                 className={clsx("box-border", {
                   "animate-fadeOutBackground": targetDate === date,
                   "bg-red-50": isSunday(date) || isHoliday,

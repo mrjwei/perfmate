@@ -178,7 +178,7 @@ export const monthStrToDate = (monthStr: string) => {
   return new Date(year, month - 1, 1)
 }
 
-const dateStrToMonthStr = (date: string) => {
+export const dateStrToMonthStr = (date: string) => {
   return date.split("-").slice(0, 2).join("-")
 }
 

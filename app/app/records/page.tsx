@@ -5,6 +5,7 @@ import { auth } from "@/auth"
 import Table from '@/app/ui/records/table'
 import MonthPicker from '@/app/ui/records/monthpicker'
 import Aggregates from '@/app/ui/records/aggregates'
+import LinkItem from '@/app/ui/link-item/link-item'
 import { dateToMonthStr } from "@/app/lib/helpers"
 import {TRecordsProps} from '@/app/lib/types'
 
@@ -19,7 +20,12 @@ export default async function Records({searchParams}: TRecordsProps) {
     <div className="pb-8">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold">Records</h2>
-        <MonthPicker />
+        <div className="flex items-center">
+          <LinkItem href="/app/records#today" className="px-4 py-2 text-blue-500 mr-4 border-2 border-blue-500 rounded-lg">
+            Back to Today
+          </LinkItem>
+          <MonthPicker />
+        </div>
       </div>
       <div className="py-8 px-8 bg-white rounded-lg shadow">
         <Aggregates records={records} user={user} month={month} />
