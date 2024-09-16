@@ -85,7 +85,7 @@ export default function LoginForm() {
           <span className="whitespace-nowrap mr-4">New to Perfmate?</span>
           <LinkItem
             href="/signup/step-1"
-            className="text-blue-600 hover:text-blue-400"
+            className="text-blue-500 hover:text-blue-400"
           >
             <span className="whitespace-nowrap mr-2">Sign Up</span>
             <ArrowRightIcon className="w-5" />

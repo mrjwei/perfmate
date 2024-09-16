@@ -66,8 +66,8 @@ export default function Aggregates({
           }
           return timeStringToMins(r.totalworkhours)
         }),
-        backgroundColor: "rgba(101, 163, 13, 1)",
-        borderColor: "rgba(101, 163, 13, 1)",
+        backgroundColor: "#1e293b",
+        borderColor: "#1e293b",
         borderWidth: 2,
         pointRadius: 4,
       },
@@ -118,8 +118,8 @@ export default function Aggregates({
           }
           return [0, 0]
         }),
-        backgroundColor: "rgba(101, 163, 13, 1)",
-        borderColor: "rgba(101, 163, 13, 1)",
+        backgroundColor: "#1e293b",
+        borderColor: "#1e293b",
         borderWidth: 2,
       },
     ],
@@ -175,8 +175,8 @@ export default function Aggregates({
           }
           return 0
         }),
-        backgroundColor: "rgba(101, 163, 13, 1)",
-        borderColor: "rgba(101, 163, 13, 1)",
+        backgroundColor: "#1e293b",
+        borderColor: "#1e293b",
         borderWidth: 2,
       },
     ],
@@ -201,7 +201,7 @@ export default function Aggregates({
 
   return (
     <div className="mb-4">
-      <div className="flex items-center justify-between p-4 bg-lime-100 mb-2 rounded-md">
+      <div className="flex items-center justify-between p-4 bg-slate-100 mb-2 rounded-md">
         <div className="flex">
           <div className="flex items-center mr-8">
             <p className="mr-2">Total Hours: </p>
@@ -222,7 +222,7 @@ export default function Aggregates({
         </div>
         <Button
           type="button"
-          className="flex items-center text-blue-500"
+          className={`flex items-center text-blue-500 ${isDetailsOpen ? "bg-slate-200" : ""}`}
           onClick={() => setIsDetailsOpen(!isDetailsOpen)}
         >
           <span className="mr-2">Show details</span>
@@ -239,7 +239,7 @@ export default function Aggregates({
             <Button
               type="button"
               className={clsx("rounded-none border-b-2", {
-                "text-blue-600 border-blue-600": activeTab === "work hours",
+                "text-blue-500 border-blue-500": activeTab === "work hours",
                 "text-blue-400 border-transparent": activeTab !== "work hours",
               })}
               onClick={() => setActiveTab("work hours")}
@@ -249,7 +249,7 @@ export default function Aggregates({
             <Button
               type="button"
               className={clsx("rounded-none border-b-2", {
-                "text-blue-600 border-blue-600":
+                "text-blue-500 border-blue-500":
                   activeTab === "work start and end times",
                 "text-blue-400 border-transparent":
                   activeTab !== "work start and end times",
@@ -261,7 +261,7 @@ export default function Aggregates({
             <Button
               type="button"
               className={clsx("rounded-none border-b-2", {
-                "text-blue-600 border-blue-600": activeTab === "wages",
+                "text-blue-500 border-blue-500": activeTab === "wages",
                 "text-blue-400 border-transparent": activeTab !== "wages",
               })}
               onClick={() => setActiveTab("wages")}

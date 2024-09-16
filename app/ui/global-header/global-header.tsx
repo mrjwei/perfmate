@@ -91,7 +91,7 @@ export default function GlobalHeader({ user, notifications }: { user: User, noti
               return (
                 <li key={n.navigateToPath} className="flex items-center justify-between">
                   <span className="whitespace-nowrap">{n.text}</span>
-                  <LinkItem href={n.navigateToPath} className="w-full p-2 flex items-center justify-end rounded-lg text-blue-600 text-sm text-right hover:text-blue-400">
+                  <LinkItem href={n.navigateToPath} className="w-full p-2 flex items-center justify-end rounded-lg text-blue-500 text-sm text-right hover:text-blue-400">
                     <span className="mr-1">Edit Now</span>
                     <ArrowRightIcon className="w-4"/>
                   </LinkItem>

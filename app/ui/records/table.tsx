@@ -2,7 +2,7 @@ import React from 'react'
 import Link from "next/link"
 import clsx from "clsx"
 import { PencilIcon } from "@heroicons/react/24/outline"
-import { generatePaddedRecordsForMonth, isSaturday, isSunday, isNationalHoliday, getWeekdayName } from "@/app/lib/helpers"
+import { generatePaddedRecordsForMonth, isSaturday, isSunday, isNationalHoliday, getWeekdayName, getFormattedDateString } from "@/app/lib/helpers"
 import { IPaddedRecord, IRecord } from "@/app/lib/types"
 import DeleteButton from '@/app/ui/records/delete-button'
 
@@ -19,11 +19,17 @@ export default function Table({
     <table className="w-full border-collapse">
       <thead>
         <tr>
-          <th className="text-left pb-2">Date</th>
-          <th className="text-left">Start Time</th>
-          <th className="text-left">End Time</th>
-          <th className="text-left">Total Break Hours</th>
-          <th className="text-left">Total Work Hours</th>
+          <th className="text-left pl-4 pr-1 pb-2">Date</th>
+          <th className="text-left px-1">Start</th>
+          <th className="text-left px-1">End</th>
+          <th className="text-left px-1">Break Hours</th>
+          <th className="text-left px-1">Work Hours</th>
+          <th className="text-left pl-1 pr-4">
+            <div className="flex items-center justify-end text-blue-500 text-sm">
+              <div className="w-3 h-3 bg-blue-500 mr-2"></div>
+              <p>Today</p>
+            </div>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -41,13 +47,15 @@ export default function Table({
             return (
               <tr
                 key={date}
-                className={clsx("border-t-1 border-slate-200", {
+                className={clsx("box-border", {
                   "animate-fadeOutBackground": targetDate === date,
-                  "bg-red-100": isSunday(date) || isHoliday,
-                  "bg-blue-100": isSaturday(date)
+                  "bg-red-50": isSunday(date) || isHoliday,
+                  "bg-blue-50": isSaturday(date),
+                  "border-l-8 border-2 border-blue-500": date === getFormattedDateString(new Date()),
+                  "border-t-1 border-slate-200 first:border-none": date !== getFormattedDateString(new Date())
                 })}
               >
-                <td className="py-4">
+                <td className="py-4 pl-4">
                   <span className="mr-2">
                     {date}
                   </span>
