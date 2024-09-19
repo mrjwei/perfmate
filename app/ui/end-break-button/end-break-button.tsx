@@ -11,13 +11,13 @@ import {
 export default function EndBreakButton({
   record,
   disabled,
+  endtimeStr,
   ...props
 }: {
   record: IRecord | null
   disabled: boolean
+  endtimeStr: string
 }) {
-  const endtime = getFormattedTimeString(new Date())
-
   let recordId
 
   if (!record) {
@@ -26,7 +26,7 @@ export default function EndBreakButton({
     recordId = record.id
   }
 
-  const endBreakAction = endBreak.bind(null, recordId, endtime)
+  const endBreakAction = endBreak.bind(null, recordId, endtimeStr)
   const [state, formAction, isPending] = useActionState(endBreakAction, null)
 
   return (

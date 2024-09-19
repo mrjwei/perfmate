@@ -1,11 +1,8 @@
 import React from "react"
 import dynamic from "next/dynamic"
 import type { User } from "next-auth"
-import StartWorkingButton from "@/app/ui/start-working-button/start-working-button"
-import EndWorkingButton from "@/app/ui/end-working-button/end-working-button"
-import StartBreakButton from "@/app/ui/start-break-button/start-break-button"
-import EndBreakButton from "@/app/ui/end-break-button/end-break-button"
 import Tag from "@/app/ui/tag/tag"
+import ButtonGroup from "@/app/ui/home/button-group"
 import BreakUnit from "@/app/ui/break-unit/break-unit"
 import TimeStamp from "@/app/ui/time-stamp/time-stamp"
 import { TStatus } from "@/app/lib/types"
@@ -36,15 +33,7 @@ export default async function Home() {
         <Tag testid="status" className="mr-2 text-xl lg:text-2xl lg:mr-8">
           {status}
         </Tag>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StartWorkingButton
-            userid={user.id!}
-            disabled={status !== "BEFORE-WORK"}
-          />
-          <StartBreakButton record={record} disabled={status !== "IN-WORK"} />
-          <EndBreakButton record={record} disabled={status !== "IN-BREAK"} />
-          <EndWorkingButton record={record} disabled={status !== "IN-WORK"} />
-        </div>
+        <ButtonGroup user={user} record={record} status={status} />
       </div>
       <ul
         className={`px-8 py-8 bg-white rounded-lg shadow mb-4 ${

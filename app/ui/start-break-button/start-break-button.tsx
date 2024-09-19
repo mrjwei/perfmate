@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useActionState} from "react"
+import React, {useState, useEffect, useActionState} from "react"
 import Button from "@/app/ui/button/button"
 import { startBreak } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
@@ -11,13 +11,13 @@ import {
 export default function StartBreakButton({
   record,
   disabled,
+  starttimeStr,
   ...props
 }: {
   record: IRecord | null
   disabled: boolean
+  starttimeStr: string
 }) {
-  const starttime = getFormattedTimeString(new Date())
-
   let recordId
 
   if (!record) {
@@ -26,7 +26,7 @@ export default function StartBreakButton({
     recordId = record.id
   }
 
-  const startBreakAction = startBreak.bind(null, recordId, starttime)
+  const startBreakAction = startBreak.bind(null, recordId, starttimeStr)
   const [state, formAction, isPending] = useActionState(startBreakAction, null)
   return (
     <form action={formAction}>

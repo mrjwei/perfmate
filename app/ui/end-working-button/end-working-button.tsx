@@ -11,14 +11,13 @@ import {
 export default function EndWorkingButton({
   record,
   disabled,
+  endtimeStr,
   ...props
 }: {
   record: IRecord | null
   disabled: boolean
+  endtimeStr: string
 }) {
-  // record timestamp on client side to avoid time zone mismatch
-  const endtime = getFormattedTimeString(new Date())
-
   let recordId
 
   if (!record) {
@@ -27,7 +26,7 @@ export default function EndWorkingButton({
     recordId = record.id
   }
 
-  const endWorkingAction = endWorking.bind(null, recordId, endtime)
+  const endWorkingAction = endWorking.bind(null, recordId, endtimeStr)
   const [state, formAction, isPending] = useActionState(endWorkingAction, null)
   return (
     <form action={formAction}>

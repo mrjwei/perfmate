@@ -3,23 +3,21 @@
 import React, {useActionState} from "react"
 import Button from "@/app/ui/button/button"
 import { startWorking } from "@/app/lib/actions"
-import {
-  getFormattedDateString,
-  getFormattedTimeString
-} from '@/app/lib/helpers'
+
 
 export default function StartWorkingButton({
   userid,
   disabled,
+  dateStr,
+  starttimeStr,
   ...props
 }: {
   userid: string
   disabled: boolean
+  dateStr: string
+  starttimeStr: string
 }) {
-  const d = new Date()
-  const date = getFormattedDateString(d)
-  const starttime = getFormattedTimeString(d)
-  const startWorkingAction = startWorking.bind(null, userid, date, starttime)
+  const startWorkingAction = startWorking.bind(null, userid, dateStr, starttimeStr)
   const [state, formAction, isPending] = useActionState(startWorkingAction, null)
   return (
     <form action={formAction}>
