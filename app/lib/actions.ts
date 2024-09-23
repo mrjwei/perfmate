@@ -90,6 +90,7 @@ export async function createRecord(
     console.log('record data: ', JSON.stringify(data))
     return data
   } catch (error) {
+    console.error('oops error: ', error)
     return {
       message: "Database error: failed to create record",
     }
