@@ -71,6 +71,7 @@ export async function createRecord(
   starttime: string,
   endtime?: string | null
 ) {
+  console.log('create record')
   try {
     let data
     if (endtime && endtime !== null) {
@@ -86,6 +87,7 @@ export async function createRecord(
         RETURNING id;
       `
     }
+    console.log('record data: ', JSON.stringify(data))
     return data
   } catch (error) {
     return {
