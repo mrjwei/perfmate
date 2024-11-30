@@ -3,7 +3,7 @@
 import React from "react"
 import { TrashIcon } from "@heroicons/react/24/outline"
 import FormControl from "@/app/ui/form/form-control"
-import Button from "@/app/ui/button/button"
+import Button from "@/app/ui/common/button/button"
 import { IGenericBreak } from "@/app/lib/types"
 import clsx from "clsx"
 

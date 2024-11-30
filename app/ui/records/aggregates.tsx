@@ -17,7 +17,7 @@ import {
 import { User } from "next-auth"
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline"
 import { IRecord } from "@/app/lib/types"
-import Button from "@/app/ui/button/button"
+import Button from "@/app/ui/common/button/button"
 import {
   placeholder,
   calculateMonthlyTotalWorkMins,

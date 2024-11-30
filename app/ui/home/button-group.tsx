@@ -2,8 +2,8 @@
 
 import React, {useState, useEffect, useMemo} from "react"
 import type { User } from "next-auth"
-import StartWorkingButton from "@/app/ui/start-working-button/start-working-button"
-import EndWorkingButton from "@/app/ui/end-working-button/end-working-button"
+import StartWorkingButton from "@/app/ui/home/start-working-button"
+import EndWorkingButton from "@/app/ui/home/end-working-button"
 import StartBreakButton from "@/app/ui/start-break-button/start-break-button"
 import EndBreakButton from "@/app/ui/end-break-button/end-break-button"
 import { IRecord, TStatus } from "@/app/lib/types"

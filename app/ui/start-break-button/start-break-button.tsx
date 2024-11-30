@@ -1,7 +1,7 @@
 "use client"
 
 import React, {useState, useEffect, useActionState} from "react"
-import Button from "@/app/ui/button/button"
+import Button from "@/app/ui/common/button/button"
 import { startBreak } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
 import {

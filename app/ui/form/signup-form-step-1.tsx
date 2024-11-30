@@ -6,7 +6,7 @@ import {
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline"
 import { ArrowRightIcon } from "@heroicons/react/20/solid"
-import Button from "@/app/ui/button/button"
+import Button from "@/app/ui/common/button/button"
 import FormControl from "@/app/ui/form/form-control"
 
 export default function SignupStepOneForm() {
