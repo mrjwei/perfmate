@@ -17,6 +17,9 @@ describe('StartWorkingButton', () => {
   const renderEl = (status: string = "BEFORE-WORK") => {
     render(<StartWorkingButton userid="userid" dateStr="2024-11-20" starttimeStr="10:00" disabled={status !== "BEFORE-WORK"} />)
   }
+  const getButton = (name: string) => {
+    return screen.getByRole('button', {name})
+  }
 
   afterEach(() => {
     vi.restoreAllMocks()
@@ -32,41 +35,37 @@ describe('StartWorkingButton', () => {
   it('renders a button inside the form', () => {
     renderEl()
     const form = document.querySelector('form')
-    const button = screen.getByRole('button', {name: 'Start Working'})
+    const button = getButton('Start Working')
     expect(button).toBeInTheDocument()
     expect(button.parentElement).toBe(form)
   })
 
-  it('is not disabled initially before work', () => {
-    renderEl()
-    const button = screen.getByRole('button', {name: 'Start Working'})
-    expect(button).not.toBeDisabled()
+  it('is not disabled when status is "BEFORE-WORK"', () => {
+    renderEl("BEFORE-WORK")
+    expect(getButton('Start Working')).not.toBeDisabled()
   })
 
-  it('becomes disabled when status is not "BEFORE-WORK" ', () => {
+  it('is disabled when status is not "BEFORE-WORK" ', () => {
     renderEl("IN-WORK")
-    expect(screen.getByRole('button', {name: 'Start Working'})).toBeDisabled()
+    expect(getButton('Start Working')).toBeDisabled()
   })
 
   it('has a label saying "Start Working" by default', () => {
     renderEl()
-    const button = screen.getByRole('button', {name: 'Start Working'})
-    expect(button.textContent).toBe('Start Working')
+    expect(getButton('Start Working').textContent).toBe('Start Working')
   })
 
   it('has an expected class name for background color', () => {
     renderEl()
-    const button = screen.getByRole('button', {name: 'Start Working'})
-    expect(button).toHaveClass('bg-lime-600')
+    expect(getButton('Start Working')).toHaveClass('bg-lime-600')
   })
 
-  it('changes label to "Processing" during submission', async () => {
+  it('changes label to "Processing" during submission and reverts to "Start Working" when completed', async () => {
     vi.spyOn(actions, 'startWorking').mockResolvedValue()
     renderEl()
-    const button = screen.getByRole('button', {name: 'Start Working'})
-    fireEvent.click(button)
-    expect(screen.getByRole('button', { name: 'Processing' })).toBeInTheDocument()
+    fireEvent.click(getButton('Start Working'))
+    expect(getButton('Processing')).toBeInTheDocument()
     expect(actions.startWorking).toBeCalledTimes(1)
-    await waitFor(() => expect(screen.getByRole('button', {name: 'Start Working'})).toBeInTheDocument())
+    await waitFor(() => expect(getButton('Start Working')).toBeInTheDocument())
   });
 })

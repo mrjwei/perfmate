@@ -1,12 +1,9 @@
 "use client"
 
 import React, {useActionState} from "react"
-import Button from "@/app/ui/button/button"
+import Button from "@/app/ui/common/button/button"
 import { endWorking } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
-import {
-  getFormattedTimeString
-} from '@/app/lib/helpers'
 
 export default function EndWorkingButton({
   record,
