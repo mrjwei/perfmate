@@ -1,7 +1,7 @@
 import React from 'react'
 import {describe, it, afterEach, vi, expect} from 'vitest'
 import {render, screen, waitFor, cleanup, fireEvent} from '@testing-library/react'
-import EndWorkingButton from './end-working-button'
+import EndWorkingButton from './EndWorkingButton'
 import * as actions from '@/app/lib/actions'
 
 describe('EndWorkingButton', () => {
