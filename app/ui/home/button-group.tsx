@@ -2,10 +2,10 @@
 
 import React, {useState, useEffect, useMemo} from "react"
 import type { User } from "next-auth"
-import StartWorkingButton from "@/app/ui/home/start-working-button"
-import EndWorkingButton from "@/app/ui/home/end-working-button"
-import StartBreakButton from "@/app/ui/start-break-button/start-break-button"
-import EndBreakButton from "@/app/ui/end-break-button/end-break-button"
+import StartWorkingButton from "@/app/ui/Button/variants/StartWorkingButton"
+import EndWorkingButton from "@/app/ui/Button/variants/EndWorkingButton"
+import StartBreakButton from "@/app/ui/Button/variants/StartBreakButton"
+import EndBreakButton from "@/app/ui/Button/variants/EndBreakButton"
 import { IRecord, TStatus } from "@/app/lib/types"
 import {
   getFormattedDateString,

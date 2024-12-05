@@ -4,7 +4,7 @@ import React, { useActionState } from "react"
 import { authenticate } from "@/app/lib/actions"
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline"
 import { ArrowRightIcon } from "@heroicons/react/20/solid"
-import Button from "@/app/ui/common/button/button"
+import Button from "@/app/ui/Button/Button"
 import FormControl from "@/app/ui/form/form-control"
 import LinkItem from "@/app/ui/link-item/link-item"
 

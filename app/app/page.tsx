@@ -11,7 +11,7 @@ import { fetchLastRecord, fetchUserByEmail } from "@/app/lib/api"
 import { auth } from "@/auth"
 import clsx from "clsx"
 
-const Clock = dynamic(() => import("@/app/ui/clock/clock"), { ssr: false })
+const Clock = dynamic(() => import("@/app/ui/Clock/Clock"), { ssr: false })
 
 export default async function Home() {
   const session = await auth()

@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from "uuid"
 import { useSearchParams } from "next/navigation"
 import FormControl from "@/app/ui/form/form-control"
 import BreakField from "@/app/ui/form/break-field"
-import Button from "@/app/ui/common/button/button"
+import Button from "@/app/ui/Button/Button"
 import { IGenericBreak, IRecord } from "@/app/lib/types"
 import { deleteBreak, editForm } from "@/app/lib/actions"
 

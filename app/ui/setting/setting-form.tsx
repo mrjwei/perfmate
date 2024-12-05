@@ -3,7 +3,7 @@
 import React, { useActionState } from "react"
 import { User } from "next-auth"
 import FormControl from "@/app/ui/form/form-control"
-import Button from "@/app/ui/common/button/button"
+import Button from "@/app/ui/Button/Button"
 import {updateUserInfo} from '@/app/lib/actions'
 import clsx from "clsx"
 
