@@ -10,9 +10,32 @@ import {
 
 export const placeholder = "--:--"
 
+export const formatter = new Intl.DateTimeFormat("en-US", {
+  weekday: "short",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: "Asia/Tokyo" // TODO: move this to user settings
+})
+
+export const mapStatusToHumanReadableString = (status: TStatus | null) => {
+  switch (status) {
+    case "BEFORE-WORK":
+      return "Ready to Start"
+    case "IN-WORK":
+      return "At Work"
+    case "IN-BREAK":
+      return "On Break"
+    case "AFTER-WORK":
+      return "Work Over"
+    default:
+      return ""
+  }
+}
+
 export const returnStatus = (record: IRecord) => {
   if (areSameDay(new Date(), new Date(record.date))) {
-    // If today's record exists.
+    // If today's record exists
     if (record.endtime) {
       return "AFTER-WORK"
     } else {
@@ -27,23 +50,8 @@ export const returnStatus = (record: IRecord) => {
       }
     }
   } else {
-    // If today's record does not exist.
+    // Otherwise
     return "BEFORE-WORK"
-  }
-}
-
-export const mapStatusToHumanReadableString = (status: TStatus | null) => {
-  switch (status) {
-    case "BEFORE-WORK":
-      return "Ready to Start"
-    case "IN-WORK":
-      return "At Work"
-    case "IN-BREAK":
-      return "On Break"
-    case "AFTER-WORK":
-      return "Work Over"
-    default:
-      return ""
   }
 }
 
@@ -105,19 +113,12 @@ export const zip = (fillna: any, ...arrays: any) => {
 }
 
 export const areSameDay = (d1: Date, d2: Date) => {
-  return (
-    d1.getFullYear() === d2.getFullYear() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getDate() === d2.getDate()
-  )
+  const {year: year1, month: month1, day: day1} = extractDateParts(d1)
+  const {year: year2, month: month2, day: day2} = extractDateParts(d2)
+  const d1Str = `${year1}-${month1}-${day1}`
+  const d2Str = `${year2}-${month2}-${day2}`
+  return d1Str === d2Str
 }
-
-const formatter = new Intl.DateTimeFormat("en-US", {
-  weekday: "short",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-})
 
 export const extractDateParts = (date: Date) => {
   const [
