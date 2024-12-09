@@ -1,5 +1,11 @@
 import {describe, it, expect} from 'vitest'
-import {extractDateParts, areSameDay, returnStatus} from '@/app/lib/helpers'
+import {
+  extractDateParts,
+  areSameDay,
+  returnStatus,
+  dateStrOneMonthOffset,
+  dateToStr
+} from '@/app/lib/helpers'
 import {
   todayRecord,
   todayRecordWithNullEndtime,
@@ -54,4 +60,37 @@ describe('Function returnStatus', () => {
     expect(returnStatus(todayRecordWithNullEndtime)).toBe("IN-WORK")
   })
 });
+
+describe('Function dateStrOneMonthOffset', () => {
+  it.each([
+    ['2024-12-06', 'next', '2025-01'],
+    ['2024-01-31', 'next', '2024-02'],
+    ['2024-06-15', 'next', '2024-07'],
+    ['2024-01-31', 'prev', '2023-12'],
+    ['2024-02-28', 'prev', '2024-01'],
+    ['2024-06-15', 'prev', '2024-05'],
+  ])('return correct date string', (dateStr, offset, expectedStr) => {
+    const date = new Date(dateStr)
+    const str = dateStrOneMonthOffset(date, offset as 'prev' | 'next')
+    expect(str).toBe(expectedStr)
+  })
+});
+
+describe('Function dateToStr', () => {
+  it.each([
+    ['2024-12-06', 'yyyy-mm-dd', '2024-12-06'],
+    ['2023-06-15', 'yyyy-mm-dd', '2023-06-15'],
+    ['2024-12-06', 'yyyy-mm', '2024-12'],
+    ['2023-06-15', 'yyyy-mm', '2023-06'],
+    ['2024-12-06', 'mm-dd', '12-06'],
+    ['2023-06-15', 'mm-dd', '06-15'],
+    ['2024-12-06', 'yyyy-mm-dd (w)', '2024-12-06 (Fri)'],
+    ['2023-06-15', 'yyyy-mm-dd (w)', '2023-06-15 (Thu)'],
+  ])('return correct date string', (dateStr, format, expectedStr) => {
+    const date = new Date(dateStr)
+    const str = dateToStr(date, format as 'yyyy-mm-dd' | 'yyyy-mm' | 'mm-dd' | 'yyyy-mm-dd (w)')
+    expect(str).toBe(expectedStr)
+  })
+});
+
 

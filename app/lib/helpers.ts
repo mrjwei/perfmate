@@ -160,23 +160,42 @@ export const generatePageIndexes = (
   ]
 }
 
-export const getLastMonth = (date: Date): Date => {
-  date.setMonth(date.getMonth() - 1)
-  return date
+export const dateStrOneMonthOffset = (date: Date, offset: 'prev' | 'next') => {
+  const {year, month} = extractDateParts(date)
+  let newYear = year
+  let newMonth = month
+  if (offset === 'prev') {
+    if (month === '01') {
+      newYear = String(Number(year) - 1)
+      newMonth = "12"
+    } else {
+      newMonth = String(Number(month) - 1).padStart(2, '0')
+    }
+  } else {
+    if (month === '12') {
+      newYear = String(Number(year) + 1)
+      newMonth = "01"
+    } else {
+      newMonth = String(Number(month) + 1).padStart(2, '0')
+    }
+  }
+  return `${newYear}-${newMonth}`
 }
 
-export const getNextMonth = (date: Date): Date => {
-  date.setMonth(date.getMonth() + 1)
-  return date
-}
-
-export const dateToMonthStr = (date: Date) => {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
-}
-
-export const monthStrToDate = (monthStr: string) => {
-  const [year, month] = monthStr.split("-").map(Number)
-  return new Date(year, month - 1, 1)
+export const dateToStr = (date: Date, format: 'yyyy-mm-dd' | 'yyyy-mm' | 'mm-dd' | 'yyyy-mm-dd (w)' =  'yyyy-mm-dd') => {
+  const {weekday, year, month, day} = extractDateParts(date)
+  switch (format) {
+    case 'yyyy-mm-dd':
+      return `${year}-${month}-${day}`
+    case 'yyyy-mm':
+      return `${year}-${month}`
+    case 'mm-dd':
+      return `${month}-${day}`
+    case 'yyyy-mm-dd (w)':
+      return `${year}-${month}-${day} (${weekday})`
+    default:
+      return `${year}-${month}-${day}`
+  }
 }
 
 export const dateStrToMonthStr = (date: string) => {

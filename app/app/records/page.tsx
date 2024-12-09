@@ -6,13 +6,13 @@ import Table from '@/app/ui/records/table'
 import MonthPicker from '@/app/ui/records/monthpicker'
 import Aggregates from '@/app/ui/records/aggregates'
 import LinkItem from '@/app/ui/link-item/link-item'
-import { dateToMonthStr } from "@/app/lib/helpers"
+import { dateToStr } from "@/app/lib/helpers"
 import {TRecordsProps} from '@/app/lib/types'
 
 export default async function Records({searchParams}: TRecordsProps) {
   const session = await auth()
   const user = await fetchUserByEmail(session?.user.email!) as User
-  const month = searchParams?.month ? searchParams?.month : dateToMonthStr(new Date())
+  const month = searchParams?.month ? searchParams?.month : dateToStr(new Date(), 'yyyy-mm')
   const records = await fetchPaginatedRecords(user.id!, month)
   const targetDate = searchParams?.date ? searchParams?.date : undefined
 

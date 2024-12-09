@@ -12,7 +12,7 @@ import BreakField from "@/app/ui/form/break-field"
 import Button from "@/app/ui/Button/Button"
 import { IGenericBreak } from "@/app/lib/types"
 import { creationForm } from "@/app/lib/actions"
-import { dateToMonthStr } from "@/app/lib/helpers"
+import { dateToStr } from "@/app/lib/helpers"
 
 export default function RecordCreateForm() {
   const { data: session } = useSession()
@@ -183,7 +183,7 @@ export default function RecordCreateForm() {
           )}
         </Button>
         <Link
-          href={`/app/records?month=${dateToMonthStr(new Date(date))}`}
+          href={`/app/records?month=${dateToStr(new Date(date), 'yyyy-mm')}`}
           className="box-border px-4 py-2 font-medium rounded-lg disabled:bg-slate-300 whitespace-nowrap  border-2 border-slate-800"
         >
           Cancel
