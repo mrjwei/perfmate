@@ -22,7 +22,7 @@ import {
   placeholder,
   calculateMonthlyTotalWorkMins,
   getFormattedTimeString,
-  calculateWagesFromMins,
+  calculateWageFromMins,
   mapCurrencyToMark,
   generatePaddedRecordsForMonth,
   timeStringToMins,
@@ -168,7 +168,7 @@ export default function Aggregates({
             r.endtime &&
             r.endtime !== placeholder
           ) {
-            return calculateWagesFromMins(
+            return calculateWageFromMins(
               timeStringToMins(r.totalworkhours),
               user.hourlywages
             )
@@ -212,7 +212,7 @@ export default function Aggregates({
             <p>
               <span>{mapCurrencyToMark(user.currency)} </span>
               <strong>
-                {calculateWagesFromMins(
+                {calculateWageFromMins(
                   monthlyTotalWorkMins,
                   user.hourlywages
                 ).toLocaleString()}

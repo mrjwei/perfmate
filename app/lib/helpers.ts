@@ -309,8 +309,8 @@ export const mapCurrencyToMark = (currency: string) => {
   }
 }
 
-export const calculateWagesFromMins = (mins: number, hourlyWages: number) => {
-  return Math.round(Number((mins / 60).toFixed(1)) * hourlyWages)
+export const calculateWageFromMins = (mins: number, hourlyWage: number) => {
+  return Math.round(mins) / 60 * hourlyWage
 }
 
 export const fetchNationalHolidays = async (year: string | number, countryCode: string) => {

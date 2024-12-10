@@ -7,7 +7,8 @@ import {
   dateToStr,
   isNationalHoliday,
   isSaturday,
-  isSunday
+  isSunday,
+  calculateWageFromMins
 } from '@/app/lib/helpers'
 import {
   todayRecord,
@@ -121,6 +122,18 @@ describe('Function isSunday', () => {
     const result2 = isSunday(new Date('2024-12-09'))
     expect(result1).toBeTruthy()
     expect(result2).toBeFalsy()
+  })
+})
+
+describe('Function calculateWageFromMins', () => {
+  it.each([
+    [5, 600, 50],
+    [5.4, 600, 50],
+    [5.5, 600, 60],
+    [100, 600, 1000],
+  ])('returns correct values', (mins, hourlyWage, expectedWage) => {
+    const wage = calculateWageFromMins(mins, hourlyWage)
+    expect(wage).toBe(expectedWage)
   })
 })
 
