@@ -8,14 +8,14 @@ import StartBreakButton from "@/app/ui/Button/variants/StartBreakButton"
 import EndBreakButton from "@/app/ui/Button/variants/EndBreakButton"
 import { IRecord, TStatus } from "@/app/lib/types"
 import {
-  getFormattedDateString,
+  dateToStr,
   getFormattedTimeString
 } from '@/app/lib/helpers'
 
 export default function ButtonGroup({user, record, status}: {user: User, record: IRecord | null, status: TStatus}) {
   const [date, setDate] = useState(new Date())
 
-  const dateStr = useMemo(() => getFormattedDateString(date), [date])
+  const dateStr = useMemo(() => dateToStr(date), [date])
   const timeStr = useMemo(() => getFormattedTimeString(date), [date])
 
   useEffect(() => {

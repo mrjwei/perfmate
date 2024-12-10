@@ -1,6 +1,6 @@
 import {unstable_noStore as noStore} from 'next/cache'
 import {sql} from '@vercel/postgres'
-import { getFormattedDateString, getFormattedTimeString } from "./helpers"
+import { dateToStr, getFormattedTimeString } from "@/app/lib/helpers"
 
 export const fetchRecordById = async (id: string) => {
   noStore()
@@ -15,7 +15,7 @@ export const fetchRecordById = async (id: string) => {
     return {
       id: record.id,
       userid: record.userid,
-      date: getFormattedDateString(record.date),
+      date: dateToStr(record.date),
       starttime: getFormattedTimeString(record.starttime),
       breaks: breaks.map(b => ({
         id: b.id,
@@ -45,7 +45,7 @@ export const fetchPaginatedRecords = async (userId: string, month: string) => {
       return {
         id: record.id,
         userid: record.userid,
-        date: getFormattedDateString(record.date),
+        date: dateToStr(record.date),
         starttime: getFormattedTimeString(record.starttime),
         breaks: breaks.map(b => ({
           id: b.id,
@@ -68,14 +68,14 @@ export const fetchRecordsToNotify = async (userId: string) => {
   try {
     const data = await sql`
       SELECT * FROM records
-      WHERE userid = ${userId} AND date != ${getFormattedDateString(new Date())} AND endtime IS NULL;
+      WHERE userid = ${userId} AND date != ${dateToStr(new Date())} AND endtime IS NULL;
     `
     const recordsWithBreaks = await Promise.all(data.rows.map(async record => {
       const breaks = await fetchBreaksByRecordId(record.id)
       return {
         id: record.id,
         userid: record.userid,
-        date: getFormattedDateString(record.date),
+        date: dateToStr(record.date),
         starttime: getFormattedTimeString(record.starttime),
         breaks: breaks.filter(b => !b.endtime).map(b => ({
           id: b.id,
@@ -127,7 +127,7 @@ export const fetchLastRecord = async (userId: string) => {
     return {
       id: record.id,
       userid: record.userid,
-      date: getFormattedDateString(record.date),
+      date: dateToStr(record.date),
       starttime: getFormattedTimeString(record.starttime),
       breaks: breaks.map(b => ({
         id: b.id,
