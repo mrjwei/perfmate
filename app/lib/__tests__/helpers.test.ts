@@ -4,15 +4,17 @@ import {
   areSameDay,
   returnStatus,
   dateStrOneMonthOffset,
-  dateToStr
+  dateToStr,
+  isNationalHoliday
 } from '@/app/lib/helpers'
 import {
   todayRecord,
   todayRecordWithNullEndtime,
   todayRecordWithNullEndtimeBreaks,
   todayRecordWithNonNullEndtimeBreaks,
-  recordOfAnotherDay
-} from '@/app/lib/test-utils/mock-date';
+  recordOfAnotherDay,
+  holidays
+} from '@/app/lib/test-utils/mock-data';
 
 describe('Function extractDateParts', () => {
   it.each([
@@ -92,5 +94,15 @@ describe('Function dateToStr', () => {
     expect(str).toBe(expectedStr)
   })
 });
+
+describe('Function isNationalHoliday', () => {
+  it('returns true if a given day is a national nationalHolidays and false otherwise', () => {
+    const result1 = isNationalHoliday('2024-11-23', holidays)
+    const result2 = isNationalHoliday('2024-11-22', holidays)
+    expect(result1).toBeTruthy()
+    expect(result2).toBeFalsy()
+  })
+})
+
 
 

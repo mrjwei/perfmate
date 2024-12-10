@@ -4,7 +4,7 @@ import React from 'react'
 import Link from "next/link"
 import clsx from "clsx"
 import { PencilIcon } from "@heroicons/react/24/outline"
-import { generatePaddedRecordsForMonth, isSaturday, isSunday, isNationalHoliday, getWeekdayName, getFormattedDateString } from "@/app/lib/helpers"
+import { generatePaddedRecordsForMonth, isSaturday, isSunday, isNationalHoliday, getWeekdayName, dateToStr, fetchNationalHolidays } from "@/app/lib/helpers"
 import { IPaddedRecord, IRecord } from "@/app/lib/types"
 import DeleteButton from '@/app/ui/records/delete-button'
 
@@ -17,6 +17,24 @@ export default function Table({
   month: string
   targetDate?: string
 }) {
+  const [holidays, setHolidays] = React.useState([])
+
+  React.useEffect(() => {
+    const data = localStorage.getItem('holidays')
+    if (data) {
+      const {timestamp, holidays} = JSON.parse(data)
+      if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+        setHolidays(holidays)
+        return
+      }
+    }
+    fetchNationalHolidays(month.substring(0, 4), 'JP').then((holidays) => {
+      setHolidays(holidays)
+      localStorage.setItem('holidays', JSON.stringify({timestamp: Date.now(), holidays}))
+      console.log('fetch called')
+    }).catch((err) => console.error(err))
+  }, [])
+
   return (
     <table className="w-full border-collapse">
       <thead>
@@ -45,17 +63,17 @@ export default function Table({
               totalbreakhours,
               totalworkhours,
             } = record
-            const isHoliday = await isNationalHoliday(date, 'JP')
+            const isHoliday = await isNationalHoliday(date, holidays)
             return (
               <tr
                 key={date}
-                id={date === getFormattedDateString(new Date()) ? 'today' : ''}
+                id={date === dateToStr(new Date()) ? 'today' : ''}
                 className={clsx("box-border", {
                   "animate-fadeOutBackground": targetDate === date,
                   "bg-red-50": isSunday(date) || isHoliday,
                   "bg-blue-50": isSaturday(date),
-                  "border-l-8 border-2 border-blue-500": date === getFormattedDateString(new Date()),
-                  "border-t-1 border-slate-200 first:border-none": date !== getFormattedDateString(new Date())
+                  "border-l-8 border-2 border-blue-500": date === dateToStr(new Date()),
+                  "border-t-1 border-slate-200 first:border-none": date !== dateToStr(new Date())
                 })}
               >
                 <td className="py-4 pl-4">

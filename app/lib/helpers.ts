@@ -348,16 +348,8 @@ export const isSunday = (date: string | Date) => {
   return day === 0
 }
 
-export const isNationalHoliday = async (date: string | Date, countryCode: string = 'US') => {
-  let year
-  if (typeof date === 'string') {
-    year = date.substring(0, 4)
-  } else {
-    year = date.getFullYear()
-  }
-  const dateStr = typeof date === 'string' ? date : getFormattedDateString(date)
-  const data = await fetchNationalHolidays(year, countryCode)
-  return !!data.map((obj: any) => obj.date).find((date: string) => date === dateStr)
+export const isNationalHoliday = (date: string, nationalHolidays: any[]) => {
+  return !!nationalHolidays.map((obj: any) => obj.date).find((d: string) => d === date)
 }
 
 export const mapRecordsToNoticifications = (records: IRecord[]) => {

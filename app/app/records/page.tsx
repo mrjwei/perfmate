@@ -1,13 +1,15 @@
 import React from 'react'
 import type {User} from 'next-auth'
+import dynamic from 'next/dynamic'
 import { fetchPaginatedRecords, fetchUserByEmail } from "@/app/lib/api"
 import { auth } from "@/auth"
-import Table from '@/app/ui/records/table'
 import MonthPicker from '@/app/ui/records/monthpicker'
 import Aggregates from '@/app/ui/records/aggregates'
 import LinkItem from '@/app/ui/link-item/link-item'
 import { dateToStr } from "@/app/lib/helpers"
 import {TRecordsProps} from '@/app/lib/types'
+
+const Table = dynamic(() => import('@/app/ui/records/table'), { ssr: false })
 
 export default async function Records({searchParams}: TRecordsProps) {
   const session = await auth()
