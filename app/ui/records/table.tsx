@@ -70,8 +70,8 @@ export default function Table({
                 id={date === dateToStr(new Date()) ? 'today' : ''}
                 className={clsx("box-border", {
                   "animate-fadeOutBackground": targetDate === date,
-                  "bg-red-50": isSunday(date) || isHoliday,
-                  "bg-blue-50": isSaturday(date),
+                  "bg-red-50": isSunday(new Date(date)) || isHoliday,
+                  "bg-blue-50": isSaturday(new Date(date)),
                   "border-l-8 border-2 border-blue-500": date === dateToStr(new Date()),
                   "border-t-1 border-slate-200 first:border-none": date !== dateToStr(new Date())
                 })}

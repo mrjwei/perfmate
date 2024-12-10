@@ -319,24 +319,12 @@ export const fetchNationalHolidays = async (year: string | number, countryCode: 
   return array
 }
 
-export const isSaturday = (date: string | Date) => {
-  let day
-  if (typeof date === 'string') {
-    day = new Date(date).getDay()
-  } else {
-    day = date.getDay()
-  }
-  return day === 6
+export const isSaturday = (date: Date) => {
+  return date.getDay() === 6
 }
 
-export const isSunday = (date: string | Date) => {
-  let day
-  if (typeof date === 'string') {
-    day = new Date(date).getDay()
-  } else {
-    day = date.getDay()
-  }
-  return day === 0
+export const isSunday = (date: Date) => {
+  return date.getDay() === 0
 }
 
 export const isNationalHoliday = (date: string, nationalHolidays: any[]) => {

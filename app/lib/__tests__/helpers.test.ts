@@ -5,7 +5,9 @@ import {
   returnStatus,
   dateStrOneMonthOffset,
   dateToStr,
-  isNationalHoliday
+  isNationalHoliday,
+  isSaturday,
+  isSunday
 } from '@/app/lib/helpers'
 import {
   todayRecord,
@@ -99,6 +101,24 @@ describe('Function isNationalHoliday', () => {
   it('returns true if a given day is a national nationalHolidays and false otherwise', () => {
     const result1 = isNationalHoliday('2024-11-23', holidays)
     const result2 = isNationalHoliday('2024-11-22', holidays)
+    expect(result1).toBeTruthy()
+    expect(result2).toBeFalsy()
+  })
+})
+
+describe('Function isSaturday', () => {
+  it('returns true if a given day is Saturday and false otherwise', () => {
+    const result1 = isSaturday(new Date('2024-12-07'))
+    const result2 = isSaturday(new Date('2024-12-08'))
+    expect(result1).toBeTruthy()
+    expect(result2).toBeFalsy()
+  })
+})
+
+describe('Function isSunday', () => {
+  it('returns true if a given day is Saturday and false otherwise', () => {
+    const result1 = isSunday(new Date('2024-12-08'))
+    const result2 = isSunday(new Date('2024-12-09'))
     expect(result1).toBeTruthy()
     expect(result2).toBeFalsy()
   })
