@@ -4,7 +4,7 @@ import { sql } from "@vercel/postgres"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import bcrypt from "bcrypt"
-import { getFormattedDateString, zip } from "@/app/lib/helpers"
+import { dateToStr, zip } from "@/app/lib/helpers"
 import { fetchRecordById, fetchUserByEmail } from "@/app/lib/api"
 import {
   updateSchema,
@@ -51,7 +51,7 @@ export async function deleteRecord(id: string, month?: string) {
 	    DELETE FROM records WHERE id=${id}
       RETURNING date;
 		`
-    date = getFormattedDateString(data.rows[0].date)
+    date = dateToStr(data.rows[0].date)
   } catch (error) {
     return {
       message: "Database error: failed to delete record",

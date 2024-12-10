@@ -55,14 +55,6 @@ export const returnStatus = (record: IRecord) => {
   }
 }
 
-export const getFormattedDateString = (date: Date) => {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, "0")
-  const day = String(date.getDate()).padStart(2, "0")
-
-  return `${year}-${month}-${day}`
-}
-
 export const timeStringToMins = (timeStr: string) => {
   const [hours, mins] = timeStr.split(":").map(Number)
   return hours * 60 + mins
@@ -87,7 +79,6 @@ export const getFormattedTimeString = (input: Date | number | string) => {
   } else if (typeof input === "number") {
     const hours = Math.floor(input / 60)
     const mins = input % 60
-
     return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`
   } else if (input instanceof Date) {
     return input.toLocaleTimeString("en-US", { hour12: false })
@@ -268,14 +259,14 @@ export const generatePaddedRecordsForMonth = (
 
   while (date.getMonth() === month - 1) {
     let paddedRecord: IPaddedRecord = {
-      date: getFormattedDateString(date),
+      date: dateToStr(date),
       starttime: placeholder,
       breaks: [],
       endtime: placeholder,
       totalbreakhours: placeholder,
       totalworkhours: placeholder,
     }
-    const record = dateIndexedRecords[getFormattedDateString(date)]
+    const record = dateIndexedRecords[dateToStr(date)]
     if (record) {
       paddedRecord = {
         ...record,
