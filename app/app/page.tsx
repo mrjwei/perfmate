@@ -1,7 +1,7 @@
 import React from "react"
 import dynamic from "next/dynamic"
 import type { User } from "next-auth"
-import Tag from "@/app/ui/tag/tag"
+import Tag from "@/app/ui/Tag/Tag"
 import ButtonGroup from "@/app/ui/home/button-group"
 import BreakUnit from "@/app/ui/break-unit/break-unit"
 import TimeStamp from "@/app/ui/time-stamp/time-stamp"
