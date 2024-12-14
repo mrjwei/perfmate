@@ -1,4 +1,4 @@
-# work-hour-recording-app
+# Perfmate
 
 A minimal work hour tracker designed especially for freelancers and small companies.
 
