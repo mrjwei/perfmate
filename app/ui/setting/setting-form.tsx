@@ -177,7 +177,7 @@ export default function SettingForm({ user }: { user: User }) {
         </div>
       </FormControl>
       <div className="flex items-center">
-        <Button type="submit" className="bg-lime-600 text-white mr-4">
+        <Button type="submit" className="bg-neutral-800 text-white mr-4">
           Save
         </Button>
       </div>

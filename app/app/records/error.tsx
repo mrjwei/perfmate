@@ -17,7 +17,7 @@ export default function Error({
   return (
     <div className="flex flex-col justify-center items-center h-full">
       <h2 className="text-3xl font-bold mb-12">Something went wrong</h2>
-      <Button type="button" onClick={reset} className="bg-lime-600 text-white">
+      <Button type="button" onClick={reset} className="bg-neutral-800 text-white">
         Try again
       </Button>
     </div>

@@ -142,7 +142,7 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
         <Button
           type="button"
           onClick={handleAddBreak}
-          className="text-lime-600 flex items-center -ml-4"
+          className="text-blue-500 flex items-center -ml-4"
         >
           <span className="mr-2">
             <PlusIcon className="w-6" />
@@ -181,7 +181,7 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
         </div>
       </FormControl>
       <div className="flex items-center">
-        <Button type="submit" className="bg-lime-600 text-white mr-4">
+        <Button type="submit" className="bg-neutral-800 text-white mr-4">
           {isPending ? (
             <div className="flex items-center">
               <div className="relative flex justify-center items-center h-6 w-6 mr-2">

@@ -69,7 +69,12 @@ export default function RecordCreateForm() {
       <FormControl
         label="Start Time"
         htmlFor="starttime"
-        className="items-center mb-8"
+        className={clsx(
+          "items-center",
+          {
+            "mb-8": breaks.length > 0
+          }
+        )}
         labelClassName="col-span-4 font-bold"
       >
         <input
@@ -97,7 +102,7 @@ export default function RecordCreateForm() {
       </FormControl>
       <div
         className={clsx("border-slate-200", {
-          "border-y-1 py-8 mb-8": breaks.length > 0,
+          "border-y-1 py-8": breaks.length > 0,
         })}
       >
         {breaks.map((b, i) => (
@@ -131,7 +136,12 @@ export default function RecordCreateForm() {
         <Button
           type="button"
           onClick={handleAddBreak}
-          className="text-lime-600 flex items-center -ml-4"
+          className={clsx(
+            "text-blue-500 flex items-center -ml-4",
+            {
+              "my-8": breaks.length === 0
+            }
+          )}
         >
           <span className="mr-2">
             <PlusIcon className="w-6" />
@@ -169,7 +179,7 @@ export default function RecordCreateForm() {
         </div>
       </FormControl>
       <div className="flex items-center">
-        <Button type="submit" className="bg-lime-600 text-white mr-4">
+        <Button type="submit" className="bg-neutral-800 text-white mr-4">
           {isPending ? (
             <div className="flex items-center">
               <div className="relative flex justify-center items-center h-6 w-6 mr-2">
