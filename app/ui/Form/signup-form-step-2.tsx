@@ -7,7 +7,7 @@ import { ArrowRightIcon } from "@heroicons/react/20/solid"
 import Button from "@/app/ui/Button/Button"
 import FormControl from "@/app/ui/form/form-control"
 
-export default function SignupStepTwoForm({ email }: { email: string }) {
+export default function SignupStepTwoForm() {
   const [errorMessage, formAction, isPending] = useActionState(
     setUserInfo,
     undefined
@@ -20,22 +20,6 @@ export default function SignupStepTwoForm({ email }: { email: string }) {
           <h1 className="text-center text-2xl text-slate-400 font-bold mb-12">
             Step 2: Configure user
           </h1>
-          <FormControl
-            label="Email"
-            htmlFor="email"
-            aria-hidden
-            className="hidden"
-          >
-            <input
-              className="hidden"
-              id="email"
-              type="email"
-              name="email"
-              value={email}
-              aria-hidden
-              readOnly
-            />
-          </FormControl>
           <FormControl
               label="Hourly wages (Optional)"
               htmlFor="hourlywages"

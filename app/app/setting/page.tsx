@@ -6,7 +6,7 @@ import { fetchUserByEmail } from "@/app/lib/api"
 
 export default async function Settings() {
   const session = await auth()
-  const user = await fetchUserByEmail(session?.user.email!) as User
+  const user = (await fetchUserByEmail(session?.user.email!)) as User
 
   return (
     <>

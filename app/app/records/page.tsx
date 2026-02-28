@@ -13,7 +13,7 @@ const Table = dynamic(() => import('@/app/ui/records/table'), { ssr: false })
 
 export default async function Records({searchParams}: TRecordsProps) {
   const session = await auth()
-  const user = await fetchUserByEmail(session?.user.email!) as User
+  const user = (await fetchUserByEmail(session?.user.email!)) as User
   const month = searchParams?.month ? searchParams?.month : dateToStr(new Date(), 'yyyy-mm')
   const records = await fetchPaginatedRecords(user.id!, month)
   const targetDate = searchParams?.date ? searchParams?.date : undefined

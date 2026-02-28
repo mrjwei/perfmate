@@ -13,7 +13,7 @@ import {
   userSettingsSchema,
   userUpdateSchema,
 } from "@/app/lib/schemas"
-import { signIn, signOut as authSignOut } from "@/auth"
+import { auth, signIn, signOut as authSignOut } from "@/auth"
 import { AuthError } from "next-auth"
 import { IUser } from "@/app/lib/types"
 
@@ -249,7 +249,7 @@ export async function editForm(
     }
   }
 
-  let {
+  const {
     id: validatedRecordId,
     date: validatedDate,
     starttime: validatedStarttime,
@@ -375,7 +375,7 @@ export async function creationForm(
     }
   }
 
-  let {
+  const {
     date: validatedDate,
     starttime: validatedStarttime,
     endtime: validatedEndtime,
@@ -421,14 +421,14 @@ export async function creationForm(
   }
 }
 
-export async function authenticate(prevState: any, formData: FormData) {
+export async function authenticate(prevState: unknown, formData: FormData) {
   try {
     await signIn("credentials", {
       email: formData.get("email"),
       password: formData.get("password"),
       redirectTo: "/app",
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
@@ -489,7 +489,7 @@ export async function updateUser(data: Partial<IUser>) {
   }
 }
 
-export async function signup(prevState: any, formData: FormData) {
+export async function signup(prevState: unknown, formData: FormData) {
   const validatedFields = userCreationSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -498,6 +498,7 @@ export async function signup(prevState: any, formData: FormData) {
   if (!validatedFields.success) {
     return JSON.stringify(validatedFields.error.flatten().fieldErrors)
   }
+  const plainPassword = validatedFields.data.password
   const password = await bcrypt.hash(validatedFields.data.password, 10)
 
   let email
@@ -512,7 +513,13 @@ export async function signup(prevState: any, formData: FormData) {
     if (!email) {
       return "Email address unavailable. Please use another one."
     }
-  } catch (error: any) {
+
+    await signIn("credentials", {
+      email,
+      password: plainPassword,
+      redirectTo: `/signup/step-2`,
+    })
+  } catch (error: unknown) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
@@ -523,35 +530,33 @@ export async function signup(prevState: any, formData: FormData) {
     }
     throw error
   }
-  redirect(`/signup/step-2?email=${email}`)
 }
 
-export async function setUserInfo(prevState: any, formData: FormData) {
+export async function setUserInfo(prevState: unknown, formData: FormData) {
   const validatedFields = userSettingsSchema.safeParse({
     hourlywages: formData.get("hourlywages"),
     currency: formData.get("currency"),
     taxincluded: formData.get("taxincluded"),
   })
-  console.log(validatedFields.error?.issues)
   if (!validatedFields.success) {
     return JSON.stringify(validatedFields.error.flatten().fieldErrors)
   }
-  const email = formData.get("email") as string
-  const { hourlywages, currency } = validatedFields.data
+  const { hourlywages, currency, taxincluded } = validatedFields.data
+
+  const session = await auth()
+  if (!session?.user?.id || !session.user.email) {
+    return "Not authenticated"
+  }
 
   try {
-    const user = await fetchUserByEmail(email)
     await updateUser({
-      id: user.id,
+      id: session.user.id,
       hourlywages: hourlywages ? hourlywages : undefined,
       currency: currency ? currency : undefined,
+      taxincluded: typeof taxincluded === 'boolean' ? taxincluded : undefined,
     })
-    await signIn("credentials", {
-      email: user.email,
-      password: user.password,
-      redirectTo: "/app",
-    })
-  } catch (error: any) {
+    redirect('/app')
+  } catch (error: unknown) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
@@ -568,7 +573,7 @@ export async function signOut() {
   await authSignOut({ redirectTo: "/login" })
 }
 
-export async function updateUserInfo(prevState: any, formData: FormData) {
+export async function updateUserInfo(prevState: unknown, formData: FormData) {
   const validatedFields = userUpdateSchema.safeParse({
     id: formData.get("userid"),
     name: formData.get("username"),
@@ -587,11 +592,8 @@ export async function updateUserInfo(prevState: any, formData: FormData) {
   const { id, name, hourlywages, currency, taxincluded } =
     validatedFields.data
 
-  try {
-    await updateUser({ id, name, hourlywages, currency, taxincluded })
-  } catch (error: any) {
-    throw error
-  }
+  await updateUser({ id, name, hourlywages, currency, taxincluded })
+
   revalidatePath("/app")
   revalidatePath("/app/setting")
   redirect("/")

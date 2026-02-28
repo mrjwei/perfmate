@@ -7,7 +7,7 @@ import BreakUnit from "@/app/ui/BreakUnit/BreakUnit"
 import TimeStamp from "@/app/ui/TimeStamp/TimeStamp"
 import { TStatus } from "@/app/lib/types"
 import { returnStatus, getFormattedTotalWorkHours } from "@/app/lib/helpers"
-import { fetchLastRecord, fetchUserByEmail } from "@/app/lib/api"
+import { fetchLastRecord } from "@/app/lib/api"
 import { auth } from "@/auth"
 import clsx from "clsx"
 
@@ -15,7 +15,7 @@ const Clock = dynamic(() => import("@/app/ui/Clock/Clock"), { ssr: false })
 
 export default async function Home() {
   const session = await auth()
-  const user = (await fetchUserByEmail(session?.user.email!)) as User
+  const user = session!.user as User
   const record = await fetchLastRecord(user.id!)
 
   let status: TStatus

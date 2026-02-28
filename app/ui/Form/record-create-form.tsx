@@ -6,16 +6,20 @@ import { useSession } from "next-auth/react"
 import clsx from "clsx"
 import { PlusIcon } from "@heroicons/react/24/outline"
 import { v4 as uuidv4 } from "uuid"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, redirect } from "next/navigation"
 import FormControl from "@/app/ui/form/form-control"
 import BreakField from "@/app/ui/form/break-field"
 import Button from "@/app/ui/Button/Button"
-import { IGenericBreak } from "@/app/lib/types"
+import { IGenericBreak, TActionState } from "@/app/lib/types"
 import { creationForm } from "@/app/lib/actions"
 import { dateToStr } from "@/app/lib/helpers"
 
 export default function RecordCreateForm() {
   const { data: session } = useSession()
+
+  if (!session) {
+    redirect("/login")
+  }
 
   const searchParams = useSearchParams()
   const date = searchParams.get("date") as string
@@ -38,12 +42,12 @@ export default function RecordCreateForm() {
     setBreaks(filteredBreaks)
   }
 
-  const initialState: any = {
+  const initialState: TActionState = {
     message: "",
     errors: {},
   }
 
-  const creationFormAction = creationForm.bind(null, session?.user.id!, month)
+  const creationFormAction = creationForm.bind(null, session.user.id!, month)
   const [state, formAction, isPending] = useActionState(
     creationFormAction,
     initialState
@@ -82,8 +86,8 @@ export default function RecordCreateForm() {
           id="starttime"
           name="starttime"
           className={clsx("col-span-8 border-1 p-2 mx-4 mb-2", {
-            "border-slate-400": !state.errors?.starttime,
-            "border-red-500": state.errors?.starttime,
+            "border-slate-400": !(state && state.errors?.starttime),
+            "border-red-500": state && state.errors?.starttime,
           })}
           aria-describedby="starttime-error"
         />
@@ -93,9 +97,9 @@ export default function RecordCreateForm() {
           aria-live="polite"
           aria-atomic="true"
         >
-          {state.errors?.starttime && (
+          {state && state.errors?.starttime && (
             <p className="text-red-500" key={state.errors?.starttime.message}>
-              {state.errors?.starttime.message}
+              {state && state.errors?.starttime.message}
             </p>
           )}
         </div>
@@ -111,19 +115,19 @@ export default function RecordCreateForm() {
               key={b.id}
               b={b}
               index={i}
-              isStarttimeError={state.errors?.breaks?.errors?.find(
+              isStarttimeError={state && state.errors?.breaks?.errors?.find(
                 (error: any) =>
                   error.id === b.id && error.fieldName === "starttime"
               )}
-              isEndtimeError={state.errors?.breaks?.errors?.find(
+              isEndtimeError={state && state.errors?.breaks?.errors?.find(
                 (error: any) =>
                   error.id === b.id && error.fieldName === "endtime"
               )}
               handleRemoveBreak={handleRemoveBreak}
             />
             <div id="break-error" aria-live="polite" aria-atomic="true">
-              {state.errors?.breaks &&
-                state.errors?.breaks?.errors?.find(
+              {state && state.errors?.breaks &&
+                state && state.errors?.breaks?.errors?.find(
                   (error: any) => error.id === b.id
                 ) && (
                   <p className="text-red-500" key={b.id}>
@@ -171,7 +175,7 @@ export default function RecordCreateForm() {
           aria-live="polite"
           aria-atomic="true"
         >
-          {state.errors?.endtime && (
+          {state && state.errors?.endtime && (
             <p className="text-red-500" key={state.errors?.endtime.message}>
               {state.errors?.endtime.message}
             </p>

@@ -8,7 +8,6 @@ declare module "next-auth" {
     id: string
     name: string
     email: string
-    password?: string
     hourlywages: number
     currency: string
     taxincluded: boolean

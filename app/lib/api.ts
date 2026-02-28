@@ -146,10 +146,28 @@ export const fetchUserByEmail = async (email: string) => {
   noStore()
   try {
     const data = await sql`
-      SELECT * FROM users WHERE email = ${email};
+      SELECT id, name, email, hourlywages, currency, taxincluded
+      FROM users
+      WHERE email = ${email}
+      LIMIT 1;
     `
-    return data.rows[0]
+    return data.rows[0] ?? null
   } catch (error) {
     throw new Error('Failed to get user');
+  }
+}
+
+export const fetchUserAuthByEmail = async (email: string) => {
+  noStore()
+  try {
+    const data = await sql`
+      SELECT id, name, email, password, hourlywages, currency, taxincluded
+      FROM users
+      WHERE email = ${email}
+      LIMIT 1;
+    `
+    return data.rows[0] ?? null
+  } catch (error) {
+    throw new Error('Failed to get user for auth');
   }
 }

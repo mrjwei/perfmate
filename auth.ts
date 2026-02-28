@@ -4,7 +4,7 @@ import { authConfig } from './auth.config';
 import Credentials from 'next-auth/providers/credentials'
 import { z } from 'zod'
 import bcrypt from 'bcrypt'
-import {fetchUserByEmail} from '@/app/lib/api'
+import { fetchUserAuthByEmail } from '@/app/lib/api'
 
 export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -19,13 +19,26 @@ export const { auth, signIn, signOut } = NextAuth({
           .safeParse(credentials)
         if (parsedCredentials.success) {
           const {email, password} = parsedCredentials.data
-          const user = await fetchUserByEmail(email)
+          const user = await fetchUserAuthByEmail(email)
           if (!user) {
             return null
           }
-          const passwordsMatch = password === user.password || await bcrypt.compare(password, user.password)
+          let passwordsMatch = false
+          try {
+            passwordsMatch = await bcrypt.compare(password, user.password)
+          } catch {
+            // Treat any malformed/legacy stored password as a failed login.
+            passwordsMatch = false
+          }
           if (passwordsMatch) {
-            return user as User
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              hourlywages: user.hourlywages ?? 0,
+              currency: user.currency ?? 'JP yen',
+              taxincluded: user.taxincluded ?? false,
+            } as User
           }
         }
         console.log('Invalid user')

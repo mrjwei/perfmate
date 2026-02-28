@@ -47,12 +47,6 @@ export interface IUser {
   taxincluded?: boolean
 }
 
-export type TSignupProps = {
-  searchParams: {
-    email: string
-  }
-}
-
 export type TNotificationType = 'empty break end time' | 'empty work end time'
 
 export interface INotification {
@@ -62,13 +56,9 @@ export interface INotification {
   isUrgent: boolean
 }
 
-// export type TActionState = {
-//   message: string
-//   errors: {
-//     date: string[]
-//     starttime: string[]
-//     existingBreaks: string[]
-//     newBreaks: string[]
-//     endTime: string[]
-//   }
-// }
+export type TActionState = {
+  message: string
+  errors: {
+    [key: string]: string
+  }
+}

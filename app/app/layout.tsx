@@ -1,11 +1,10 @@
 import React from "react"
 import { redirect } from "next/navigation"
-import type { User } from "next-auth"
 import { SessionProvider } from "next-auth/react"
 import { auth } from "@/auth"
 import Sidebar from "@/app/ui/sidebar/sidebar"
 import GlobalHeader from "@/app/ui/global-header/global-header"
-import { fetchRecordsToNotify, fetchUserByEmail } from "@/app/lib/api"
+import { fetchRecordsToNotify } from "@/app/lib/api"
 import {mapRecordsToNoticifications} from '@/app/lib/helpers'
 
 export default async function RootLayout({
@@ -18,10 +17,11 @@ export default async function RootLayout({
   if (!session) {
     redirect("/login")
   }
-  const user = await fetchUserByEmail(session.user.email!)
-  session.user = user as User
-
-  const recordsToNotify = await fetchRecordsToNotify(user.id)
+  const userId = session.user.id
+  if (!userId) {
+    redirect("/login")
+  }
+  const recordsToNotify = await fetchRecordsToNotify(userId)
 
   return (
     <SessionProvider session={session}>
