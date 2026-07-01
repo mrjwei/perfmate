@@ -5,7 +5,7 @@ import Link from "next/link"
 import clsx from "clsx"
 import { PencilIcon } from "@heroicons/react/24/outline"
 import { generatePaddedRecordsForMonth, isSaturday, isSunday, isNationalHoliday, getWeekdayName, getTodayInTimezone, fetchNationalHolidays } from "@/app/lib/helpers"
-import { IPaddedRecord, IRecord } from "@/app/lib/types"
+import { INationalHoliday, IPaddedRecord, IRecord } from "@/app/lib/types"
 import DeleteButton from '@/app/ui/records/delete-button'
 
 export default function Table({
@@ -21,7 +21,7 @@ export default function Table({
   threadId: string
   timezone: string
 }) {
-  const [holidays, setHolidays] = React.useState([])
+  const [holidays, setHolidays] = React.useState<INationalHoliday[]>([])
   const today = getTodayInTimezone(timezone)
 
   React.useEffect(() => {

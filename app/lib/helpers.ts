@@ -7,6 +7,7 @@ import {
   TDateIndexedRecords,
   IPaddedRecord,
   TNotificationType,
+  INationalHoliday,
 } from "@/app/lib/types"
 
 export const placeholder = "--:--"
@@ -89,7 +90,7 @@ export const returnStatus = (record: IRecord, timezone: string) => {
       return "AFTER-WORK"
     } else {
       if (record.breaks.length > 0) {
-        if (record.breaks.some((b: any) => !b.endtime)) {
+        if (record.breaks.some((b) => !b.endtime)) {
           return "IN-BREAK"
         } else {
           return "IN-WORK"
@@ -145,10 +146,10 @@ export const calculateTotalBreakMins = (record: IRecord) => {
   }, 0)
 }
 
-export const zip = (fillna: any, ...arrays: any) => {
-  const length = Math.max(...arrays.map((arr: any) => arr.length))
+export const zip = <T>(fillna: T, ...arrays: T[][]): T[][] => {
+  const length = Math.max(...arrays.map((arr) => arr.length))
   return Array.from({ length }, (_, i) =>
-    arrays.map((arr: any) => (arr[i] ? arr[i] : fillna))
+    arrays.map((arr) => (arr[i] ? arr[i] : fillna))
   )
 }
 
@@ -351,10 +352,9 @@ export const calculateWage = (
   return { exclTax: base, inclTax: base * taxMultiplier }
 }
 
-export const fetchNationalHolidays = async (year: string | number, countryCode: string) => {
+export const fetchNationalHolidays = async (year: string | number, countryCode: string): Promise<INationalHoliday[]> => {
   const res = await fetch(`https://date.nager.at/api/v3/publicholidays/${year}/${countryCode}`)
-  const array = await res.json()
-  return array
+  return res.json()
 }
 
 export const isSaturday = (date: Date) => {
@@ -365,8 +365,8 @@ export const isSunday = (date: Date) => {
   return date.getDay() === 0
 }
 
-export const isNationalHoliday = (date: string, nationalHolidays: any[]) => {
-  return !!nationalHolidays.map((obj: any) => obj.date).find((d: string) => d === date)
+export const isNationalHoliday = (date: string, nationalHolidays: INationalHoliday[]) => {
+  return nationalHolidays.some((holiday) => holiday.date === date)
 }
 
 export const mapRecordsToNoticifications = (records: IRecord[]) => {

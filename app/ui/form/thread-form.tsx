@@ -5,7 +5,7 @@ import clsx from "clsx"
 import FormControl from "@/app/ui/form/form-control"
 import Button from "@/app/ui/button/button"
 import { createThreadForm, updateThreadForm } from "@/app/lib/actions"
-import { IThread, TActionState } from "@/app/lib/types"
+import { IThread, TActionState, TWeekday } from "@/app/lib/types"
 import { calculateWage, mapCurrencyToMark } from "@/app/lib/helpers"
 
 const TIMEZONES: string[] = (() => {
@@ -16,7 +16,7 @@ const TIMEZONES: string[] = (() => {
   }
 })()
 
-const WEEKDAYS: { value: number; label: string }[] = [
+const WEEKDAYS: { value: TWeekday; label: string }[] = [
   { value: 0, label: "Sun" },
   { value: 1, label: "Mon" },
   { value: 2, label: "Tue" },
@@ -220,7 +220,7 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
                 type="checkbox"
                 name="schedule"
                 value={w.value}
-                defaultChecked={thread ? thread.schedule.includes(w.value as any) : w.value >= 1 && w.value <= 5}
+                defaultChecked={thread ? thread.schedule.includes(w.value) : w.value >= 1 && w.value <= 5}
                 className="mr-1"
               />
               {w.label}

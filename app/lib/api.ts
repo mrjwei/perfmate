@@ -3,14 +3,59 @@ import {sql} from '@vercel/postgres'
 import { dateToStr, getFormattedTimeString } from "@/app/lib/helpers"
 import { IBreak, IThread, TWeekday } from "@/app/lib/types"
 
-const mapBreakRow = (b: any, recordId: string): IBreak => ({
+// Shapes of the raw rows @vercel/postgres returns, before mapping to the
+// app's I* types (columns are snake_case/Date-typed as Postgres returns them).
+type TBreakRow = {
+  [column: string]: any
+  id: string
+  recordid: string
+  starttime: Date | string
+  endtime: Date | string | null
+}
+
+type TRecordRow = {
+  [column: string]: any
+  id: string
+  userid: string
+  thread_id: string
+  date: Date
+  starttime: Date | string
+  endtime: Date | string | null
+}
+
+type TUserRow = {
+  [column: string]: any
+  id: string
+  name: string
+  email: string
+}
+
+type TUserAuthRow = TUserRow & {
+  password: string
+}
+
+type TThreadRow = {
+  [column: string]: any
+  id: string
+  userid: string
+  name: string
+  hourly_wage: number | string
+  currency: string
+  tax_included: boolean
+  tax_rate: number | string
+  archived: boolean
+  schedule: (number | null)[] | null
+  timezone: string
+}
+
+const mapBreakRow = (b: TBreakRow, recordId: string): IBreak => ({
   id: b.id,
   recordId,
   starttime: getFormattedTimeString(b.starttime),
   endtime: b.endtime ? getFormattedTimeString(b.endtime) : null,
 })
 
-const mapRecordRow = (record: any, breaks: IBreak[]) => ({
+const mapRecordRow = (record: TRecordRow, breaks: IBreak[]) => ({
   id: record.id,
   userid: record.userid,
   threadid: record.thread_id,
@@ -24,13 +69,13 @@ const mapRecordRow = (record: any, breaks: IBreak[]) => ({
 // instead of one query per record (see [[db_schema_reality]] / Phase 2).
 const fetchBreaksByRecordIds = async (recordIds: string[]) => {
   if (recordIds.length === 0) {
-    return new Map<string, any[]>()
+    return new Map<string, TBreakRow[]>()
   }
-  const data = await sql.query(
+  const data = await sql.query<TBreakRow>(
     `SELECT * FROM breaks WHERE recordid = ANY($1::uuid[]) ORDER BY starttime ASC;`,
     [recordIds]
   )
-  const byRecordId = new Map<string, any[]>()
+  const byRecordId = new Map<string, TBreakRow[]>()
   for (const row of data.rows) {
     const list = byRecordId.get(row.recordid) ?? []
     list.push(row)
@@ -42,7 +87,7 @@ const fetchBreaksByRecordIds = async (recordIds: string[]) => {
 export const fetchRecordById = async (id: string) => {
   noStore()
   try {
-    const data = await sql`
+    const data = await sql<TRecordRow>`
       SELECT * FROM records
       WHERE id = ${id};
     `
@@ -59,7 +104,7 @@ export const fetchRecordById = async (id: string) => {
 export const fetchPaginatedRecords = async (threadId: string, month: string) => {
   noStore()
   try {
-    const data = await sql`
+    const data = await sql<TRecordRow>`
       SELECT * FROM records
       WHERE thread_id = ${threadId}
       AND TO_CHAR(date, 'YYYY-MM') = ${month}
@@ -80,7 +125,7 @@ export const fetchRecordsToNotify = async (userId: string) => {
   try {
     // "Not today" is evaluated per-thread since each thread can have its own
     // business timezone (e.g. working for companies in different countries).
-    const data = await sql`
+    const data = await sql<TRecordRow>`
       SELECT r.* FROM records r
       JOIN threads t ON t.id = r.thread_id
       WHERE r.userid = ${userId}
@@ -101,7 +146,7 @@ export const fetchRecordsToNotify = async (userId: string) => {
 export const fetchBreaksByRecordId = async (recordId: string) => {
   noStore()
   try {
-    const data = await sql`
+    const data = await sql<TBreakRow>`
       SELECT * FROM breaks
       WHERE breaks.recordId = ${recordId}
       ORDER BY starttime ASC;
@@ -116,7 +161,7 @@ export const fetchBreaksByRecordId = async (recordId: string) => {
 export const fetchLastRecord = async (threadId: string) => {
   noStore()
   try {
-    const data = await sql`
+    const data = await sql<TRecordRow>`
       SELECT * FROM records
       WHERE thread_id = ${threadId}
       ORDER BY date DESC
@@ -138,7 +183,7 @@ export const fetchLastRecord = async (threadId: string) => {
 export const fetchUserByEmail = async (email: string) => {
   noStore()
   try {
-    const data = await sql`
+    const data = await sql<TUserRow>`
       SELECT id, name, email
       FROM users
       WHERE email = ${email}
@@ -153,7 +198,7 @@ export const fetchUserByEmail = async (email: string) => {
 export const fetchUserAuthByEmail = async (email: string) => {
   noStore()
   try {
-    const data = await sql`
+    const data = await sql<TUserAuthRow>`
       SELECT id, name, email, password
       FROM users
       WHERE email = ${email}
@@ -165,7 +210,7 @@ export const fetchUserAuthByEmail = async (email: string) => {
   }
 }
 
-const mapThreadRow = (row: any): IThread => ({
+const mapThreadRow = (row: TThreadRow): IThread => ({
   id: row.id,
   userid: row.userid,
   name: row.name,
@@ -174,14 +219,14 @@ const mapThreadRow = (row: any): IThread => ({
   taxincluded: row.tax_included,
   taxrate: Number(row.tax_rate),
   archived: row.archived,
-  schedule: (row.schedule ?? []).filter((w: number | null) => w !== null) as TWeekday[],
+  schedule: (row.schedule ?? []).filter((w): w is TWeekday => w !== null),
   timezone: row.timezone,
 })
 
 export const fetchThreadsByUserId = async (userId: string) => {
   noStore()
   try {
-    const data = await sql`
+    const data = await sql<TThreadRow>`
       SELECT t.*, array_agg(ts.weekday) AS schedule
       FROM threads t
       LEFT JOIN thread_schedules ts ON ts.thread_id = t.id
@@ -199,7 +244,7 @@ export const fetchThreadsByUserId = async (userId: string) => {
 export const fetchThreadById = async (id: string) => {
   noStore()
   try {
-    const data = await sql`
+    const data = await sql<TThreadRow>`
       SELECT t.*, array_agg(ts.weekday) AS schedule
       FROM threads t
       LEFT JOIN thread_schedules ts ON ts.thread_id = t.id

@@ -10,7 +10,7 @@ import { useSearchParams, redirect } from "next/navigation"
 import FormControl from "@/app/ui/form/form-control"
 import BreakField from "@/app/ui/form/break-field"
 import Button from "@/app/ui/button/button"
-import { IGenericBreak, TActionState } from "@/app/lib/types"
+import { IGenericBreak, TRecordFormState } from "@/app/lib/types"
 import { creationForm } from "@/app/lib/actions"
 import { dateToStr } from "@/app/lib/helpers"
 
@@ -42,7 +42,7 @@ export default function RecordCreateForm({ threadId }: { threadId: string }) {
     setBreaks(filteredBreaks)
   }
 
-  const initialState: TActionState = {
+  const initialState: TRecordFormState = {
     message: "",
     errors: {},
   }
@@ -86,8 +86,8 @@ export default function RecordCreateForm({ threadId }: { threadId: string }) {
           id="starttime"
           name="starttime"
           className={clsx("col-span-8 border-1 p-2 mx-4 mb-2", {
-            "border-slate-400": !(state && state.errors?.starttime),
-            "border-red-500": state && state.errors?.starttime,
+            "border-slate-400": !(state?.errors?.starttime),
+            "border-red-500": state?.errors?.starttime,
           })}
           aria-describedby="starttime-error"
         />
@@ -97,9 +97,9 @@ export default function RecordCreateForm({ threadId }: { threadId: string }) {
           aria-live="polite"
           aria-atomic="true"
         >
-          {state && state.errors?.starttime && (
-            <p className="text-red-500" key={state.errors?.starttime.message}>
-              {state && state.errors?.starttime.message}
+          {state?.errors?.starttime && (
+            <p className="text-red-500" key={state?.errors?.starttime?.message}>
+              {state?.errors?.starttime.message}
             </p>
           )}
         </div>
@@ -115,23 +115,23 @@ export default function RecordCreateForm({ threadId }: { threadId: string }) {
               key={b.id}
               b={b}
               index={i}
-              isStarttimeError={state && state.errors?.breaks?.errors?.find(
-                (error: any) =>
+              isStarttimeError={!!state?.errors?.breaks?.errors?.find(
+                (error) =>
                   error.id === b.id && error.fieldName === "starttime"
               )}
-              isEndtimeError={state && state.errors?.breaks?.errors?.find(
-                (error: any) =>
+              isEndtimeError={!!state?.errors?.breaks?.errors?.find(
+                (error) =>
                   error.id === b.id && error.fieldName === "endtime"
               )}
               handleRemoveBreak={handleRemoveBreak}
             />
             <div id="break-error" aria-live="polite" aria-atomic="true">
-              {state && state.errors?.breaks &&
-                state && state.errors?.breaks?.errors?.find(
-                  (error: any) => error.id === b.id
+              {state?.errors?.breaks &&
+                state?.errors?.breaks?.errors?.find(
+                  (error) => error.id === b.id
                 ) && (
                   <p className="text-red-500" key={b.id}>
-                    {state.errors.breaks.message}
+                    {state?.errors?.breaks?.message}
                   </p>
                 )}
             </div>
@@ -175,9 +175,9 @@ export default function RecordCreateForm({ threadId }: { threadId: string }) {
           aria-live="polite"
           aria-atomic="true"
         >
-          {state && state.errors?.endtime && (
-            <p className="text-red-500" key={state.errors?.endtime.message}>
-              {state.errors?.endtime.message}
+          {state?.errors?.endtime && (
+            <p className="text-red-500" key={state?.errors?.endtime?.message}>
+              {state?.errors?.endtime?.message}
             </p>
           )}
         </div>

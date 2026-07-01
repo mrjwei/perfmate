@@ -16,8 +16,8 @@ import {
 } from "@/app/lib/schemas"
 import { auth, signIn, signOut as authSignOut } from "@/auth"
 import { AuthError } from "next-auth"
-import { ZodError } from "zod"
-import { IUser } from "@/app/lib/types"
+import { ZodError, ZodIssue } from "zod"
+import { IUser, TRecordFormState } from "@/app/lib/types"
 
 // Zod's flatten().fieldErrors gives string[] per field; TActionState expects
 // a single message per field, so this takes the first.
@@ -25,6 +25,36 @@ const toFieldErrors = (error: ZodError) =>
   Object.fromEntries(
     Object.entries(error.flatten().fieldErrors).map(([field, messages]) => [field, messages?.[0] ?? ""])
   )
+
+// Builds the nested error shape record-create-form/record-edit-form read:
+// one message per top-level field, plus (for "breaks") a list of which
+// break id/field pairs are invalid, deduped since overlap checks can report
+// the same break twice from either side of the comparison.
+const buildRecordFormErrors = (issues: ZodIssue[]): NonNullable<TRecordFormState>["errors"] => {
+  const acc: NonNullable<TRecordFormState>["errors"] = {}
+  for (const issue of issues) {
+    const path = issue.path
+    const fieldName = String(path[0])
+    if (!(fieldName in acc)) {
+      acc[fieldName] = { message: issue.message }
+    }
+    if (fieldName === "breaks" && path.length > 1) {
+      const details = acc.breaks.errors ?? (acc.breaks.errors = [])
+      const rest = path.slice(1)
+      for (let i = 0; i < rest.length; i += 2) {
+        if (rest[i] === "breaks" || rest[i + 1] === "breaks") {
+          continue
+        }
+        const detail = { id: String(rest[i]), fieldName: String(rest[i + 1]) }
+        const exists = details.some((d) => d.id === detail.id && d.fieldName === detail.fieldName)
+        if (!exists) {
+          details.push(detail)
+        }
+      }
+    }
+  }
+  return acc
+}
 
 export async function updateRecord(
   id: string,
@@ -192,7 +222,7 @@ export async function editForm(
   threadId: string,
   id: string,
   month: string | null,
-  prevState: any,
+  prevState: TRecordFormState,
   formData: FormData
 ) {
   const breakIds = formData.getAll("breakid")
@@ -212,50 +242,7 @@ export async function editForm(
   if (!validatedFields.success) {
     return {
       message: "Failed to update record",
-      errors: validatedFields.error.issues.reduce((acc: any, curr: any) => {
-        const path = curr["path"]
-        const fieldName = path[0]
-
-        // Initialize the error object for the field if it doesn't exist
-        if (!(fieldName in acc)) {
-          acc[fieldName] = { message: curr["message"] }
-        }
-
-        // Handle the 'breaks' field specifically
-        if (fieldName === "breaks" && path.length > 1) {
-          if (!acc.breaks.errors) {
-            acc.breaks.errors = []
-          }
-
-          const detailsArray = path.slice(1)
-
-          // Only push an error detail if it's not already recorded
-          for (let i = 0; i < detailsArray.length; i += 2) {
-            if (
-              detailsArray[i] === "breaks" ||
-              detailsArray[i + 1] === "breaks"
-            ) {
-              continue
-            }
-            const detail = {
-              id: detailsArray[i],
-              fieldName: detailsArray[i + 1],
-            }
-            const exists = acc.breaks.errors.some(
-              (err: any) =>
-                err.id === detail.id && err.fieldName === detail.fieldName
-            )
-            if (!exists) {
-              acc.breaks.errors.push(detail)
-            }
-          }
-        } else if (path.length === 1) {
-          // Handle top-level fields (e.g., 'starttime')
-          acc[fieldName] = { message: curr["message"] }
-        }
-
-        return acc
-      }, {}),
+      errors: buildRecordFormErrors(validatedFields.error.issues),
     }
   }
 
@@ -301,6 +288,7 @@ export async function editForm(
   } catch (error) {
     return {
       message: "Database error: failed to update record",
+      errors: {},
     }
   }
   revalidatePath(`/app/${threadId}`)
@@ -342,7 +330,7 @@ export async function creationForm(
   userId: string,
   threadId: string,
   month: string | null,
-  prevState: any,
+  prevState: TRecordFormState,
   formData: FormData
 ) {
   const breakIds = formData.getAll("breakid")
@@ -365,24 +353,7 @@ export async function creationForm(
   if (!validatedFields.success) {
     return {
       message: "Failed to create record",
-      errors: validatedFields.error.issues.reduce((acc: any, curr: any) => {
-        const path = curr["path"]
-        if (path[0] in acc) {
-          // Only highlight the first error even if there are multiple
-          // regarding the same field
-          return acc
-        }
-        acc[path[0]] = {
-          message: curr["message"],
-        }
-        if (path[0] === "breaks" && path.length > 1) {
-          acc[path[0]].details = []
-          for (let i = 0; i < path.slice(1).length - 1; i++) {
-            acc[path[0]].details.push({ id: path[i], fieldName: path[i + 1] })
-          }
-        }
-        return acc
-      }, {}),
+      errors: buildRecordFormErrors(validatedFields.error.issues),
     }
   }
 
@@ -423,6 +394,7 @@ export async function creationForm(
   } catch (error) {
     return {
       message: `Database error: ${error}`,
+      errors: {},
     }
   }
   revalidatePath(`/app/${threadId}/records`)

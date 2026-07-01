@@ -13,6 +13,8 @@ import {
   Title,
   Tooltip,
   Legend,
+  ChartOptions,
+  TooltipItem,
 } from "chart.js"
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline"
 import { IRecord, IThread } from "@/app/lib/types"
@@ -85,7 +87,7 @@ export default function Aggregates({
         },
       ],
     }
-    const workHoursOptions: any = {
+    const workHoursOptions: ChartOptions<'line'> = {
       responsive: true,
       plugins: {
         legend: {
@@ -94,8 +96,8 @@ export default function Aggregates({
         tooltip: {
           displayColors: false,
           callbacks: {
-            label: (ctx: any) => {
-              const mins = ctx.dataset.data[ctx.dataIndex]
+            label: (ctx: TooltipItem<'line'>) => {
+              const mins = ctx.dataset.data[ctx.dataIndex] as number
               return `Work hours: ${getFormattedTimeString(mins)}`
             },
           },
@@ -104,7 +106,7 @@ export default function Aggregates({
       scales: {
         y: {
           ticks: {
-            callback: (mins: number) => {
+            callback: (mins: string | number) => {
               return getFormattedTimeString(mins)
             },
           },
@@ -136,7 +138,7 @@ export default function Aggregates({
         },
       ],
     }
-    const startAndEndTimesOptions: any = {
+    const startAndEndTimesOptions: ChartOptions<'bar'> = {
       responsive: true,
       plugins: {
         legend: {
@@ -145,8 +147,8 @@ export default function Aggregates({
         tooltip: {
           displayColors: false,
           callbacks: {
-            label: (ctx: any) => {
-              const [startMins, endMins] = ctx.dataset.data[ctx.dataIndex]
+            label: (ctx: TooltipItem<'bar'>) => {
+              const [startMins, endMins] = ctx.dataset.data[ctx.dataIndex] as unknown as [number, number]
               return [
                 `Start: ${getFormattedTimeString(startMins)}`,
                 `End: ${getFormattedTimeString(endMins)}`,
@@ -158,7 +160,7 @@ export default function Aggregates({
       scales: {
         y: {
           ticks: {
-            callback: (mins: number) => {
+            callback: (mins: string | number) => {
               return getFormattedTimeString(mins)
             },
           },
@@ -193,7 +195,7 @@ export default function Aggregates({
         },
       ],
     }
-    const wagesOptions: any = {
+    const wagesOptions: ChartOptions<'bar'> = {
       responsive: true,
       plugins: {
         legend: {
@@ -202,7 +204,7 @@ export default function Aggregates({
         tooltip: {
           displayColors: false,
           callbacks: {
-            label: (ctx: any) => {
+            label: (ctx: TooltipItem<'bar'>) => {
               const wages = ctx.dataset.data[ctx.dataIndex]
               return `Wages (incl. tax): ${mapCurrencyToMark(thread.currency)} ${wages}`
             },

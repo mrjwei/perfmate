@@ -6,7 +6,7 @@ import ButtonGroup from "@/app/ui/home/button-group"
 import BreakUnit from "@/app/ui/break-unit/break-unit"
 import TimeStamp from "@/app/ui/time-stamp/time-stamp"
 import { TStatus } from "@/app/lib/types"
-import { returnStatus, getFormattedTotalWorkHours } from "@/app/lib/helpers"
+import { returnStatus, getFormattedTotalWorkHours, placeholder } from "@/app/lib/helpers"
 import { fetchLastRecord, fetchThreadById } from "@/app/lib/api"
 import { auth } from "@/auth"
 import { notFound } from "next/navigation"
@@ -56,7 +56,7 @@ export default async function Home({ params }: { params: { threadId: string } })
         <li>
           <ul className="pl-4">
             {record &&
-              record.breaks.map((b: any, i: number) => (
+              record.breaks.map((b, i) => (
                 <li
                   className={clsx(
                     'py-2',
@@ -69,7 +69,7 @@ export default async function Home({ params }: { params: { threadId: string } })
                   <BreakUnit
                     index={i + 1}
                     starttime={b.starttime}
-                    endtime={b.endtime}
+                    endtime={b.endtime ?? placeholder}
                   />
                 </li>
               ))}
