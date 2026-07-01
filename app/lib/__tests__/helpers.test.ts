@@ -46,23 +46,23 @@ describe('Function areSameDay', () => {
 
 describe('Function returnStatus', () => {
   it('returns "BEFORE-WORK" if record date does not match today date', () => {
-    expect(returnStatus(recordOfAnotherDay)).toBe("BEFORE-WORK")
+    expect(returnStatus(recordOfAnotherDay, 'Asia/Tokyo')).toBe("BEFORE-WORK")
   })
 
   it('returns "AFTER-WORK" if record date matches today date and record endtime is not null', () => {
-    expect(returnStatus(todayRecord)).toBe("AFTER-WORK")
+    expect(returnStatus(todayRecord, 'Asia/Tokyo')).toBe("AFTER-WORK")
   })
 
   it('returns "IN-BREAK" if record has any break whose endtime is null', () => {
-    expect(returnStatus(todayRecordWithNullEndtimeBreaks)).toBe("IN-BREAK")
+    expect(returnStatus(todayRecordWithNullEndtimeBreaks, 'Asia/Tokyo')).toBe("IN-BREAK")
   })
 
   it('returns "IN-WORK" if record has break(s) whose endtime(s) is(are) all non-null', () => {
-    expect(returnStatus(todayRecordWithNonNullEndtimeBreaks)).toBe("IN-WORK")
+    expect(returnStatus(todayRecordWithNonNullEndtimeBreaks, 'Asia/Tokyo')).toBe("IN-WORK")
   })
 
   it('returns "IN-WORK" if record has no break', () => {
-    expect(returnStatus(todayRecordWithNullEndtime)).toBe("IN-WORK")
+    expect(returnStatus(todayRecordWithNullEndtime, 'Asia/Tokyo')).toBe("IN-WORK")
   })
 });
 

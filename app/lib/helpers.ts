@@ -11,13 +11,61 @@ import {
 
 export const placeholder = "--:--"
 
+// Fallback for calendar-date formatting (dateToStr, extractDateParts, etc.)
+// which deals with dates that are already known (e.g. a DB date column, a
+// month string from a URL) rather than "the current moment" — that math
+// doesn't depend on any particular timezone, so this default only matters for
+// display and is not a correctness issue.
 export const formatter = new Intl.DateTimeFormat("en-US", {
   weekday: "short",
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
-  timeZone: "Asia/Tokyo" // TODO: move this to user settings
+  timeZone: "Asia/Tokyo"
 })
+
+// Timezone is a per-thread setting (thread.timezone) since a user can work
+// for companies in different countries. These helpers answer "what is today"
+// and "what time is it right now" for a specific thread's timezone — unlike
+// `formatter` above, this genuinely depends on the timezone since it's
+// evaluating the current instant, not reformatting an already-known date.
+const timezoneDateFormatterCache = new Map<string, Intl.DateTimeFormat>()
+const getDateFormatterForTimezone = (timezone: string) => {
+  let tzFormatter = timezoneDateFormatterCache.get(timezone)
+  if (!tzFormatter) {
+    tzFormatter = new Intl.DateTimeFormat("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      timeZone: timezone,
+    })
+    timezoneDateFormatterCache.set(timezone, tzFormatter)
+  }
+  return tzFormatter
+}
+
+export const extractDatePartsInTimezone = (date: Date, timezone: string) => {
+  const [
+    { value: weekday },
+    ,
+    { value: month },
+    ,
+    { value: day },
+    ,
+    { value: year },
+  ] = getDateFormatterForTimezone(timezone).formatToParts(date)
+  return { weekday, year, month, day }
+}
+
+export const getTodayInTimezone = (timezone: string) => {
+  const { year, month, day } = extractDatePartsInTimezone(new Date(), timezone)
+  return `${year}-${month}-${day}`
+}
+
+export const getCurrentTimeInTimezone = (timezone: string) => {
+  return new Date().toLocaleTimeString("en-US", { hour12: false, timeZone: timezone })
+}
 
 export const mapStatusToHumanReadableString = (status: TStatus | null) => {
   switch (status) {
@@ -34,8 +82,8 @@ export const mapStatusToHumanReadableString = (status: TStatus | null) => {
   }
 }
 
-export const returnStatus = (record: IRecord) => {
-  if (areSameDay(new Date(), new Date(record.date))) {
+export const returnStatus = (record: IRecord, timezone: string) => {
+  if (record.date === getTodayInTimezone(timezone)) {
     // If today's record exists
     if (record.endtime) {
       return "AFTER-WORK"
@@ -123,33 +171,6 @@ export const extractDateParts = (date: Date) => {
     { value: year },
   ] = formatter.formatToParts(date)
   return { weekday, year, month, day }
-}
-
-export const generatePageIndexes = (
-  currentPageIndex: number,
-  totalPages: number
-) => {
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1)
-  }
-
-  if (currentPageIndex <= 3) {
-    return [1, 2, 3, "...", totalPages - 1, totalPages]
-  }
-
-  if (currentPageIndex >= totalPages - 2) {
-    return [1, 2, "...", totalPages - 2, totalPages - 1, totalPages]
-  }
-
-  return [
-    1,
-    "...",
-    currentPageIndex - 1,
-    currentPageIndex,
-    currentPageIndex + 1,
-    "...",
-    totalPages,
-  ]
 }
 
 export const dateStrOneMonthOffset = (date: Date, offset: 'prev' | 'next') => {

@@ -556,6 +556,7 @@ export async function createThreadForm(prevState: unknown, formData: FormData) {
     taxincluded: formData.get("taxincluded"),
     taxrate: formData.get("taxrate"),
     schedule: formData.getAll("schedule"),
+    timezone: formData.get("timezone"),
   })
   if (!validatedFields.success) {
     return {
@@ -563,13 +564,13 @@ export async function createThreadForm(prevState: unknown, formData: FormData) {
       errors: toFieldErrors(validatedFields.error),
     }
   }
-  const { name, hourlywage, currency, taxincluded, taxrate, schedule } = validatedFields.data
+  const { name, hourlywage, currency, taxincluded, taxrate, schedule, timezone } = validatedFields.data
 
   let threadId
   try {
     const data = await sql`
-      INSERT INTO threads (userid, name, hourly_wage, currency, tax_included, tax_rate)
-      VALUES (${session.user.id}, ${name}, ${hourlywage}, ${currency}, ${taxincluded}, ${taxrate})
+      INSERT INTO threads (userid, name, hourly_wage, currency, tax_included, tax_rate, timezone)
+      VALUES (${session.user.id}, ${name}, ${hourlywage}, ${currency}, ${taxincluded}, ${taxrate}, ${timezone})
       RETURNING id;
     `
     threadId = data.rows[0].id
@@ -594,6 +595,7 @@ export async function updateThreadForm(
     taxincluded: formData.get("taxincluded"),
     taxrate: formData.get("taxrate"),
     schedule: formData.getAll("schedule"),
+    timezone: formData.get("timezone"),
   })
   if (!validatedFields.success) {
     return {
@@ -601,12 +603,12 @@ export async function updateThreadForm(
       errors: toFieldErrors(validatedFields.error),
     }
   }
-  const { id, name, hourlywage, currency, taxincluded, taxrate, schedule } = validatedFields.data
+  const { id, name, hourlywage, currency, taxincluded, taxrate, schedule, timezone } = validatedFields.data
 
   try {
     await sql`
       UPDATE threads
-      SET name=${name}, hourly_wage=${hourlywage}, currency=${currency}, tax_included=${taxincluded}, tax_rate=${taxrate}
+      SET name=${name}, hourly_wage=${hourlywage}, currency=${currency}, tax_included=${taxincluded}, tax_rate=${taxrate}, timezone=${timezone}
       WHERE id=${id};
     `
     await replaceThreadSchedule(id, schedule)

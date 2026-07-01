@@ -4,7 +4,7 @@ import React from 'react'
 import Link from "next/link"
 import clsx from "clsx"
 import { PencilIcon } from "@heroicons/react/24/outline"
-import { generatePaddedRecordsForMonth, isSaturday, isSunday, isNationalHoliday, getWeekdayName, dateToStr, fetchNationalHolidays } from "@/app/lib/helpers"
+import { generatePaddedRecordsForMonth, isSaturday, isSunday, isNationalHoliday, getWeekdayName, getTodayInTimezone, fetchNationalHolidays } from "@/app/lib/helpers"
 import { IPaddedRecord, IRecord } from "@/app/lib/types"
 import DeleteButton from '@/app/ui/records/delete-button'
 
@@ -13,13 +13,16 @@ export default function Table({
   month,
   targetDate,
   threadId,
+  timezone,
 }: {
   records: IRecord[]
   month: string
   targetDate?: string
   threadId: string
+  timezone: string
 }) {
   const [holidays, setHolidays] = React.useState([])
+  const today = getTodayInTimezone(timezone)
 
   React.useEffect(() => {
     const data = localStorage.getItem('holidays')
@@ -69,13 +72,13 @@ export default function Table({
             return (
               <tr
                 key={date}
-                id={date === dateToStr(new Date()) ? 'today' : ''}
+                id={date === today ? 'today' : ''}
                 className={clsx("box-border", {
                   "animate-fadeOutBackground": targetDate === date,
                   "bg-red-50": isSunday(new Date(date)) || isHoliday,
                   "bg-blue-50": isSaturday(new Date(date)),
-                  "border-l-8 border-2 border-blue-500": date === dateToStr(new Date()),
-                  "border-t-1 border-slate-200 first:border-none": date !== dateToStr(new Date())
+                  "border-l-8 border-2 border-blue-500": date === today,
+                  "border-t-1 border-slate-200 first:border-none": date !== today
                 })}
               >
                 <td className="py-4 pl-4">

@@ -7,8 +7,9 @@ import BreakUnit from "@/app/ui/BreakUnit/BreakUnit"
 import TimeStamp from "@/app/ui/TimeStamp/TimeStamp"
 import { TStatus } from "@/app/lib/types"
 import { returnStatus, getFormattedTotalWorkHours } from "@/app/lib/helpers"
-import { fetchLastRecord } from "@/app/lib/api"
+import { fetchLastRecord, fetchThreadById } from "@/app/lib/api"
 import { auth } from "@/auth"
+import { notFound } from "next/navigation"
 import clsx from "clsx"
 
 const Clock = dynamic(() => import("@/app/ui/Clock/Clock"), { ssr: false })
@@ -17,24 +18,30 @@ export default async function Home({ params }: { params: { threadId: string } })
   const { threadId } = params
   const session = await auth()
   const user = session!.user as User
-  const record = await fetchLastRecord(threadId)
+  const [thread, record] = await Promise.all([
+    fetchThreadById(threadId),
+    fetchLastRecord(threadId),
+  ])
+  if (!thread) {
+    notFound()
+  }
 
   let status: TStatus
 
   if (!record) {
     status = "BEFORE-WORK"
   } else {
-    status = returnStatus(record)
+    status = returnStatus(record, thread.timezone)
   }
 
   return (
     <>
-      <Clock suppressHydrationWarning />
+      <Clock suppressHydrationWarning timezone={thread.timezone} />
       <div className="w-full flex justify-between items-start lg:items-center py-8 px-8 bg-white rounded-lg shadow mb-4">
         <Tag testid="status" className="mr-2 text-xl lg:text-2xl lg:mr-8">
           {status}
         </Tag>
-        <ButtonGroup user={user} threadId={threadId} record={record} status={status} />
+        <ButtonGroup user={user} threadId={threadId} timezone={thread.timezone} record={record} status={status} />
       </div>
       <ul
         className={`px-8 py-8 bg-white rounded-lg shadow mb-4 ${

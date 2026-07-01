@@ -4,18 +4,18 @@ import { render, screen, cleanup, act } from '@testing-library/react'
 import Clock from './Clock'
 
 describe('Clock', () => {
-  let mockDate = new Date('2024-07-27T01:02:03')
+  let mockDate = new Date('2024-07-27T01:02:03+09:00')
 
   afterEach(() => {
     vi.setSystemTime(Date.now())
     vi.useRealTimers()
-    mockDate = new Date('2024-07-27T01:02:03')
+    mockDate = new Date('2024-07-27T01:02:03+09:00')
     cleanup()
   })
 
   it('renders initial time correctly', () => {
     vi.setSystemTime(mockDate)
-    render(<Clock />)
+    render(<Clock timezone="Asia/Tokyo" />)
     expect(screen.getByText('01:02:03')).toBeInTheDocument()
     expect(screen.getByText('2024-07-27 (Sat)')).toBeInTheDocument()
   })
@@ -23,7 +23,7 @@ describe('Clock', () => {
   it('updates time every second', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(mockDate)
-    render(<Clock />)
+    render(<Clock timezone="Asia/Tokyo" />)
     expect(screen.getByText('01:02:03')).toBeInTheDocument()
     act(() => {
       vi.advanceTimersByTime(1000);
@@ -36,10 +36,10 @@ describe('Clock', () => {
   })
 
   it('updates date string correctly', async () => {
-    mockDate = new Date('2024-07-27T23:59:59')
+    mockDate = new Date('2024-07-27T23:59:59+09:00')
     vi.useFakeTimers()
     vi.setSystemTime(mockDate)
-    render(<Clock />)
+    render(<Clock timezone="Asia/Tokyo" />)
     expect(screen.getByText('23:59:59')).toBeInTheDocument()
     expect(screen.getByText('2024-07-27 (Sat)')).toBeInTheDocument()
     act(() => {

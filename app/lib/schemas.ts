@@ -316,6 +316,7 @@ export const threadBaseSchema = z.object({
   taxincluded: booleanSchema,
   taxrate: z.coerce.number().min(0, {message: 'Tax rate cannot be negative'}).max(100, {message: 'Tax rate cannot exceed 100'}),
   schedule: z.array(weekdaySchema),
+  timezone: z.string().min(1, {message: 'Please select a timezone'}),
 })
 
 export const threadCreationSchema = threadBaseSchema.omit({ id: true })

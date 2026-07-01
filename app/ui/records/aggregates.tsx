@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useMemo } from "react"
 import clsx from "clsx"
 import { Line, Bar } from "react-chartjs-2"
 import {
@@ -27,6 +27,19 @@ import {
   timeStringToMins,
 } from "@/app/lib/helpers"
 
+// Registration is global and idempotent — do it once at module load rather
+// than on every render/mount of this component.
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+)
+
 export default function Aggregates({
   records,
   thread,
@@ -39,164 +52,175 @@ export default function Aggregates({
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("work hours")
 
-  const monthlyTotalWorkMins = calculateMonthlyTotalWorkMins(records)
-  const rawData = generatePaddedRecordsForMonth(month, records)
+  // Derives entirely from records/thread/month, so this shouldn't be
+  // recomputed when only isDetailsOpen/activeTab (unrelated UI state) change.
+  const {
+    monthlyTotalWorkMins,
+    workHoursData,
+    workHoursOptions,
+    startAndEndTimesdata,
+    startAndEndTimesOptions,
+    wagesData,
+    wagesOptions,
+  } = useMemo(() => {
+    const monthlyTotalWorkMins = calculateMonthlyTotalWorkMins(records)
+    const rawData = generatePaddedRecordsForMonth(month, records)
+    const labels = rawData.map((r) => r.date.substring(5))
 
-  ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
-  )
+    const workHoursData = {
+      labels,
+      datasets: [
+        {
+          label: "Work Hours",
+          data: rawData.map((r) => {
+            if (r.totalworkhours === placeholder) {
+              return 0
+            }
+            return timeStringToMins(r.totalworkhours)
+          }),
+          backgroundColor: "#1e293b",
+          borderColor: "#1e293b",
+          borderWidth: 2,
+          pointRadius: 4,
+        },
+      ],
+    }
+    const workHoursOptions: any = {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "top",
+        },
+        tooltip: {
+          displayColors: false,
+          callbacks: {
+            label: (ctx: any) => {
+              const mins = ctx.dataset.data[ctx.dataIndex]
+              return `Work hours: ${getFormattedTimeString(mins)}`
+            },
+          },
+        },
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: (mins: number) => {
+              return getFormattedTimeString(mins)
+            },
+          },
+          suggestedMin: 360,
+          suggestedMax: 600,
+        },
+      },
+    }
 
-  const labels = rawData.map((r) => r.date.substring(5))
-  const workHoursData = {
-    labels,
-    datasets: [
-      {
-        label: "Work Hours",
-        data: rawData.map((r) => {
-          if (r.totalworkhours === placeholder) {
+    const startAndEndTimesdata = {
+      labels,
+      datasets: [
+        {
+          label: "Work Start and End Times",
+          data: rawData.map((r) => {
+            if (
+              r.starttime &&
+              r.starttime !== placeholder &&
+              r.endtime &&
+              r.endtime !== placeholder
+            ) {
+              return [timeStringToMins(r.starttime), timeStringToMins(r.endtime)]
+            }
+            return [0, 0]
+          }),
+          backgroundColor: "#1e293b",
+          borderColor: "#1e293b",
+          borderWidth: 2,
+        },
+      ],
+    }
+    const startAndEndTimesOptions: any = {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "top",
+        },
+        tooltip: {
+          displayColors: false,
+          callbacks: {
+            label: (ctx: any) => {
+              const [startMins, endMins] = ctx.dataset.data[ctx.dataIndex]
+              return [
+                `Start: ${getFormattedTimeString(startMins)}`,
+                `End: ${getFormattedTimeString(endMins)}`,
+              ]
+            },
+          },
+        },
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: (mins: number) => {
+              return getFormattedTimeString(mins)
+            },
+          },
+          suggestedMin: 360,
+          suggestedMax: 1200,
+        },
+      },
+    }
+
+    const wagesData = {
+      labels,
+      datasets: [
+        {
+          label: "Wages",
+          data: rawData.map((r) => {
+            if (
+              r.starttime &&
+              r.starttime !== placeholder &&
+              r.endtime &&
+              r.endtime !== placeholder
+            ) {
+              return calculateWage(
+                timeStringToMins(r.totalworkhours),
+                thread
+              ).inclTax
+            }
             return 0
-          }
-          return timeStringToMins(r.totalworkhours)
-        }),
-        backgroundColor: "#1e293b",
-        borderColor: "#1e293b",
-        borderWidth: 2,
-        pointRadius: 4,
-      },
-    ],
-  }
-  const workHoursOptions: any = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      tooltip: {
-        displayColors: false,
-        callbacks: {
-          label: (ctx: any) => {
-            const mins = ctx.dataset.data[ctx.dataIndex]
-            return `Work hours: ${getFormattedTimeString(mins)}`
+          }),
+          backgroundColor: "#1e293b",
+          borderColor: "#1e293b",
+          borderWidth: 2,
+        },
+      ],
+    }
+    const wagesOptions: any = {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "top",
+        },
+        tooltip: {
+          displayColors: false,
+          callbacks: {
+            label: (ctx: any) => {
+              const wages = ctx.dataset.data[ctx.dataIndex]
+              return `Wages (incl. tax): ${mapCurrencyToMark(thread.currency)} ${wages}`
+            },
           },
         },
       },
-    },
-    scales: {
-      y: {
-        ticks: {
-          callback: (mins: number) => {
-            return getFormattedTimeString(mins)
-          },
-        },
-        suggestedMin: 360,
-        suggestedMax: 600,
-      },
-    },
-  }
+    }
 
-  const startAndEndTimesdata = {
-    labels,
-    datasets: [
-      {
-        label: "Work Start and End Times",
-        data: rawData.map((r) => {
-          if (
-            r.starttime &&
-            r.starttime !== placeholder &&
-            r.endtime &&
-            r.endtime !== placeholder
-          ) {
-            return [timeStringToMins(r.starttime), timeStringToMins(r.endtime)]
-          }
-          return [0, 0]
-        }),
-        backgroundColor: "#1e293b",
-        borderColor: "#1e293b",
-        borderWidth: 2,
-      },
-    ],
-  }
-  const startAndEndTimesOptions: any = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      tooltip: {
-        displayColors: false,
-        callbacks: {
-          label: (ctx: any) => {
-            const [startMins, endMins] = ctx.dataset.data[ctx.dataIndex]
-            return [
-              `Start: ${getFormattedTimeString(startMins)}`,
-              `End: ${getFormattedTimeString(endMins)}`,
-            ]
-          },
-        },
-      },
-    },
-    scales: {
-      y: {
-        ticks: {
-          callback: (mins: number) => {
-            return getFormattedTimeString(mins)
-          },
-        },
-        suggestedMin: 360,
-        suggestedMax: 1200,
-      },
-    },
-  }
-
-  const wagesData = {
-    labels,
-    datasets: [
-      {
-        label: "Wages",
-        data: rawData.map((r) => {
-          if (
-            r.starttime &&
-            r.starttime !== placeholder &&
-            r.endtime &&
-            r.endtime !== placeholder
-          ) {
-            return calculateWage(
-              timeStringToMins(r.totalworkhours),
-              thread
-            ).inclTax
-          }
-          return 0
-        }),
-        backgroundColor: "#1e293b",
-        borderColor: "#1e293b",
-        borderWidth: 2,
-      },
-    ],
-  }
-  const wagesOptions: any = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      tooltip: {
-        displayColors: false,
-        callbacks: {
-          label: (ctx: any) => {
-            const wages = ctx.dataset.data[ctx.dataIndex]
-            return `Wages (incl. tax): ${mapCurrencyToMark(thread.currency)} ${wages}`
-          },
-        },
-      },
-    },
-  }
+    return {
+      monthlyTotalWorkMins,
+      workHoursData,
+      workHoursOptions,
+      startAndEndTimesdata,
+      startAndEndTimesOptions,
+      wagesData,
+      wagesOptions,
+    }
+  }, [records, thread, month])
 
   return (
     <div className="mb-4">

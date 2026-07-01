@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import MonthPicker from '@/app/ui/records/monthpicker'
 import Aggregates from '@/app/ui/records/aggregates'
 import LinkItem from '@/app/ui/link-item/link-item'
-import { dateToStr } from "@/app/lib/helpers"
+import { getTodayInTimezone } from "@/app/lib/helpers"
 import {TRecordsProps} from '@/app/lib/types'
 
 const Table = dynamic(() => import('@/app/ui/records/table'), { ssr: false })
@@ -19,7 +19,7 @@ export default async function Records({
   if (!thread) {
     notFound()
   }
-  const month = searchParams?.month ? searchParams?.month : dateToStr(new Date(), 'yyyy-mm')
+  const month = searchParams?.month ? searchParams?.month : getTodayInTimezone(thread.timezone).slice(0, 7)
   const records = await fetchPaginatedRecords(threadId, month)
   const targetDate = searchParams?.date ? searchParams?.date : undefined
 
@@ -31,12 +31,12 @@ export default async function Records({
           <LinkItem href={`/app/${threadId}/records#today`} className="px-4 py-2 text-blue-500 mr-4 border-2 border-blue-500 rounded-lg">
             Back to Today
           </LinkItem>
-          <MonthPicker />
+          <MonthPicker timezone={thread.timezone} />
         </div>
       </div>
       <div className="py-8 px-8 bg-white rounded-lg shadow">
         <Aggregates records={records} thread={thread} month={month} />
-        <Table records={records} month={month} targetDate={targetDate} threadId={threadId} />
+        <Table records={records} month={month} targetDate={targetDate} threadId={threadId} timezone={thread.timezone} />
       </div>
     </div>
   )

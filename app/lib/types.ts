@@ -29,6 +29,7 @@ export interface IThread {
   taxrate: number
   archived: boolean
   schedule: TWeekday[]
+  timezone: string
 }
 
 export interface IBreak {

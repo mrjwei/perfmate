@@ -8,15 +8,15 @@ import StartBreakButton from "@/app/ui/Button/variants/StartBreakButton"
 import EndBreakButton from "@/app/ui/Button/variants/EndBreakButton"
 import { IRecord, TStatus } from "@/app/lib/types"
 import {
-  dateToStr,
-  getFormattedTimeString
+  getTodayInTimezone,
+  getCurrentTimeInTimezone
 } from '@/app/lib/helpers'
 
-export default function ButtonGroup({user, threadId, record, status}: {user: User, threadId: string, record: IRecord | null, status: TStatus}) {
+export default function ButtonGroup({user, threadId, timezone, record, status}: {user: User, threadId: string, timezone: string, record: IRecord | null, status: TStatus}) {
   const [date, setDate] = useState(new Date())
 
-  const dateStr = useMemo(() => dateToStr(date), [date])
-  const timeStr = useMemo(() => getFormattedTimeString(date), [date])
+  const dateStr = useMemo(() => getTodayInTimezone(timezone), [date, timezone])
+  const timeStr = useMemo(() => getCurrentTimeInTimezone(timezone), [date, timezone])
 
   useEffect(() => {
 		const interval = setInterval(() => {

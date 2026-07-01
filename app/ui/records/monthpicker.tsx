@@ -9,14 +9,14 @@ import {useSearchParams, useRouter, usePathname} from 'next/navigation'
 import Link from 'next/link'
 import FormControl from "@/app/ui/Form/form-control"
 import {
-  dateToStr,
   createPageURL,
   dateStrOneMonthOffset,
+  getTodayInTimezone,
 } from '@/app/lib/helpers'
 
-export default function MonthPicker() {
+export default function MonthPicker({ timezone }: { timezone: string }) {
   const searchParams = useSearchParams()
-  const currentMonth = searchParams.get('month') ? searchParams.get('month') as string : dateToStr(new Date(), 'yyyy-mm')
+  const currentMonth = searchParams.get('month') ? searchParams.get('month') as string : getTodayInTimezone(timezone).slice(0, 7)
 
   const pickerRef = useRef<HTMLInputElement>(null)
 

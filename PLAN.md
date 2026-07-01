@@ -19,11 +19,14 @@ Freelancer time/wage tracking app, Next.js 15 App Router + raw-SQL Vercel Postgr
 - `users.hourlywages/currency/taxincluded` columns dropped (data backfilled into each user's default thread first).
 - N+1 query pattern in `fetchPaginatedRecords`/`fetchRecordsToNotify` fixed opportunistically while rewriting `app/lib/api.ts` for threads (single batched breaks query instead of one query per record).
 
-## Phase 2 — Performance — **Not started**
+## Phase 2 — Performance — **Done**
 
-- Add real pagination to `/app/[threadId]/records` (helper for this exists but is unused).
-- Memoize chart-data derivation in `Aggregates` (`app/ui/records/aggregates.tsx`) with `useMemo`.
-- Make timezone user-configurable instead of hardcoded `"Asia/Tokyo"` in `app/lib/helpers.ts`.
+- Removed the unused `generatePageIndexes` helper instead of wiring it up: the records view is a full-month calendar grid (every day rendered, padded), not a scrollable list, so numbered pagination doesn't fit — it's already naturally "paginated" by month via `MonthPicker`. Records per month are bounded (≤31 + breaks), so there's no unbounded-query concern here.
+- Memoized the chart-data derivation in `Aggregates` (`app/ui/records/aggregates.tsx`) with a single `useMemo` keyed on `[records, thread, month]`, so toggling the details/tab UI state no longer recomputes chart datasets; moved `ChartJS.register(...)` to module scope (one-time global registration, not per-render).
+- Timezone is now **per-thread** (not per-user or app-wide) — someone can work for companies in different countries, and each thread's business timezone affects what counts as "today" and the time recorded/displayed:
+  - Added `threads.timezone` (migration, default `Asia/Tokyo`), a timezone select in the thread create/settings form (`app/ui/Form/thread-form.tsx`, via `Intl.supportedValuesOf('timeZone')`).
+  - Added `getTodayInTimezone`/`getCurrentTimeInTimezone`/`extractDatePartsInTimezone` to `app/lib/helpers.ts` for the genuinely "current moment" call sites (Clock, ButtonGroup, Table's "is this today" highlighting, MonthPicker's default month, `returnStatus`); the notifications query (`fetchRecordsToNotify` in `app/lib/api.ts`) now compares "today" per-record via `(now() AT TIME ZONE t.timezone)::date` in SQL.
+  - Left pure calendar-date math (`dateToStr`, `extractDateParts`, `dateStrOneMonthOffset`, `generatePaddedRecordsForMonth`) unchanged — those format already-known dates (DB date columns, URL params), not "the current instant," so they aren't timezone-sensitive in the same way.
 
 ## Phase 3 — Project structure cleanup — **Not started**
 

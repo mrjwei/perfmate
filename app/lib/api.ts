@@ -78,9 +78,14 @@ export const fetchPaginatedRecords = async (threadId: string, month: string) => 
 export const fetchRecordsToNotify = async (userId: string) => {
   noStore()
   try {
+    // "Not today" is evaluated per-thread since each thread can have its own
+    // business timezone (e.g. working for companies in different countries).
     const data = await sql`
-      SELECT * FROM records
-      WHERE userid = ${userId} AND date != ${dateToStr(new Date())} AND endtime IS NULL;
+      SELECT r.* FROM records r
+      JOIN threads t ON t.id = r.thread_id
+      WHERE r.userid = ${userId}
+        AND r.date != (now() AT TIME ZONE t.timezone)::date
+        AND r.endtime IS NULL;
     `
     const breaksByRecordId = await fetchBreaksByRecordIds(data.rows.map((r) => r.id))
     return data.rows.map((record) => {
@@ -170,6 +175,7 @@ const mapThreadRow = (row: any): IThread => ({
   taxrate: Number(row.tax_rate),
   archived: row.archived,
   schedule: (row.schedule ?? []).filter((w: number | null) => w !== null) as TWeekday[],
+  timezone: row.timezone,
 })
 
 export const fetchThreadsByUserId = async (userId: string) => {

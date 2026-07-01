@@ -8,6 +8,14 @@ import { createThreadForm, updateThreadForm } from "@/app/lib/actions"
 import { IThread, TActionState } from "@/app/lib/types"
 import { calculateWage, mapCurrencyToMark } from "@/app/lib/helpers"
 
+const TIMEZONES: string[] = (() => {
+  try {
+    return Intl.supportedValuesOf("timeZone")
+  } catch {
+    return ["Asia/Tokyo", "America/New_York", "America/Los_Angeles", "Europe/London", "UTC"]
+  }
+})()
+
 const WEEKDAYS: { value: number; label: string }[] = [
   { value: 0, label: "Sun" },
   { value: 1, label: "Mon" },
@@ -75,6 +83,30 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
           <option value="usd">USD</option>
           <option value="rmb">RMB</option>
         </select>
+      </FormControl>
+      <FormControl
+        label="Timezone"
+        htmlFor="timezone"
+        className="items-center mb-6"
+        labelClassName="col-span-12 font-bold mb-2"
+      >
+        <select
+          name="timezone"
+          id="timezone"
+          defaultValue={thread?.timezone ?? "Asia/Tokyo"}
+          className={clsx("col-span-12 border-1 p-2", {
+            "border-slate-400": !errors.timezone,
+            "border-red-500": errors.timezone,
+          })}
+          required
+        >
+          {TIMEZONES.map((tz) => (
+            <option key={tz} value={tz}>{tz}</option>
+          ))}
+        </select>
+        <p className="col-span-12 text-xs text-slate-400 mt-1">
+          This thread's business timezone — used to decide what "today" is and to record accurate start/end times, independent of your own device's timezone.
+        </p>
       </FormControl>
       <FormControl
         label="Hourly wage"
