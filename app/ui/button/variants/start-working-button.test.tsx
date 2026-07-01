@@ -1,7 +1,7 @@
 import React from 'react'
 import {describe, it, afterEach, vi, expect} from 'vitest'
 import {render, screen, waitFor, cleanup, fireEvent} from '@testing-library/react'
-import StartWorkingButton from './StartWorkingButton'
+import StartWorkingButton from './start-working-button'
 import * as actions from '@/app/lib/actions'
 
 /**

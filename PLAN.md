@@ -28,10 +28,11 @@ Freelancer time/wage tracking app, Next.js 15 App Router + raw-SQL Vercel Postgr
   - Added `getTodayInTimezone`/`getCurrentTimeInTimezone`/`extractDatePartsInTimezone` to `app/lib/helpers.ts` for the genuinely "current moment" call sites (Clock, ButtonGroup, Table's "is this today" highlighting, MonthPicker's default month, `returnStatus`); the notifications query (`fetchRecordsToNotify` in `app/lib/api.ts`) now compares "today" per-record via `(now() AT TIME ZONE t.timezone)::date` in SQL.
   - Left pure calendar-date math (`dateToStr`, `extractDateParts`, `dateStrOneMonthOffset`, `generatePaddedRecordsForMonth`) unchanged — those format already-known dates (DB date columns, URL params), not "the current instant," so they aren't timezone-sensitive in the same way.
 
-## Phase 3 — Project structure cleanup — **Not started**
+## Phase 3 — Project structure cleanup — **Done**
 
-- Normalize component directory casing (mixed `Form/`, `BreakUnit/`, `records/`, `setting/`).
-- Consolidate `app/lib/types.ts` and `app/types/next-auth.d.ts` into one location; co-locate component-specific types.
+- Normalized all `app/ui/*` component directories and files to kebab-case (`BreakUnit` → `break-unit`, `Button` → `button`, `Clock` → `clock`, `Form` → `form`, `Tag` → `tag`, `TimeStamp` → `time-stamp`), matching the convention already used by newer directories (`global-header`, `home`, `records`, `setting`, `sidebar`). All ~25 import sites updated accordingly.
+- Moved `app/types/next-auth.d.ts` into `app/lib/next-auth.d.ts` alongside `app/lib/types.ts`, removing the now-empty `app/types/` directory and a stale `types/**/*.ts` entry in `tsconfig.json`'s `include` (pointed at a top-level `types/` dir that never existed).
+- Hit the same macOS case-insensitive-filesystem gotcha as Phase 0: `git mv Foo foo` in one step silently corrupts the index on a case-preserving-but-insensitive filesystem, leaving both the old- and new-cased paths tracked even though they're the same file on disk. Fixed by renaming through a temporary intermediate name (`git mv Foo foo-tmp && git mv foo-tmp foo`) and verifying with `git ls-files` afterward.
 
 ## Phase 4 — Type safety & tests — **Not started**
 

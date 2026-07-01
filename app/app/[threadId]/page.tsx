@@ -1,10 +1,10 @@
 import React from "react"
 import dynamic from "next/dynamic"
 import type { User } from "next-auth"
-import Tag from "@/app/ui/Tag/Tag"
+import Tag from "@/app/ui/tag/tag"
 import ButtonGroup from "@/app/ui/home/button-group"
-import BreakUnit from "@/app/ui/BreakUnit/BreakUnit"
-import TimeStamp from "@/app/ui/TimeStamp/TimeStamp"
+import BreakUnit from "@/app/ui/break-unit/break-unit"
+import TimeStamp from "@/app/ui/time-stamp/time-stamp"
 import { TStatus } from "@/app/lib/types"
 import { returnStatus, getFormattedTotalWorkHours } from "@/app/lib/helpers"
 import { fetchLastRecord, fetchThreadById } from "@/app/lib/api"
@@ -12,7 +12,7 @@ import { auth } from "@/auth"
 import { notFound } from "next/navigation"
 import clsx from "clsx"
 
-const Clock = dynamic(() => import("@/app/ui/Clock/Clock"), { ssr: false })
+const Clock = dynamic(() => import("@/app/ui/clock/clock"), { ssr: false })
 
 export default async function Home({ params }: { params: { threadId: string } }) {
   const { threadId } = params

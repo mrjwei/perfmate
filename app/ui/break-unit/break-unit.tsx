@@ -1,5 +1,5 @@
 import React from 'react'
-import TimeStamp from "@/app/ui/TimeStamp/TimeStamp"
+import TimeStamp from "@/app/ui/time-stamp/time-stamp"
 
 export default function BreakUnit({index, starttime, endtime}: {
   index: number, starttime: string, endtime: string

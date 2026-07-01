@@ -1,7 +1,7 @@
 import React from 'react'
 import {describe, it, expect, beforeEach, afterEach} from 'vitest'
 import {cleanup, render, screen} from '@testing-library/react'
-import TimeStamp from '@/app/ui/TimeStamp/TimeStamp';
+import TimeStamp from '@/app/ui/time-stamp/time-stamp';
 
 describe('TimeStamp', () => {
   beforeEach(() => {

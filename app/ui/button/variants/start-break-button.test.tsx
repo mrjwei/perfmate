@@ -1,7 +1,7 @@
 import React from 'react'
 import { describe, afterEach, vi, it, expect } from "vitest"
 import {render, screen, cleanup, fireEvent, waitFor} from '@testing-library/react';
-import StartBreakButton from './StartBreakButton';
+import StartBreakButton from './start-break-button';
 import * as actions from '@/app/lib/actions'
 
 describe('StartBreakButton', () => {

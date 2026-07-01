@@ -4,7 +4,7 @@ import { auth } from "@/auth"
 import { fetchThreadsByUserId } from "@/app/lib/api"
 import { archiveThread, unarchiveThread } from "@/app/lib/actions"
 import { mapCurrencyToMark } from "@/app/lib/helpers"
-import Button from "@/app/ui/Button/Button"
+import Button from "@/app/ui/button/button"
 
 export default async function ThreadsPage() {
   const session = await auth()

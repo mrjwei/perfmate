@@ -1,7 +1,7 @@
 import React from "react"
 import { notFound } from "next/navigation"
 import { fetchThreadById } from "@/app/lib/api"
-import ThreadForm from "@/app/ui/Form/thread-form"
+import ThreadForm from "@/app/ui/form/thread-form"
 
 export default async function ThreadSettingsPage({ params }: { params: { threadId: string } }) {
   const thread = await fetchThreadById(params.threadId)

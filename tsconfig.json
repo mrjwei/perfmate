@@ -33,7 +33,6 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "types/**/*.ts",
     ".next/types/**/*.ts",
     "scripts/seed.js",
     "app/lib/data.js"

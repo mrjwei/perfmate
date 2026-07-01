@@ -6,8 +6,8 @@ import {
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline"
 import { ArrowRightIcon } from "@heroicons/react/20/solid"
-import Button from "@/app/ui/Button/Button"
-import FormControl from "@/app/ui/Form/form-control"
+import Button from "@/app/ui/button/button"
+import FormControl from "@/app/ui/form/form-control"
 
 export default function SignupStepOneForm() {
   const [errorMessage, formAction, isPending] = useActionState(

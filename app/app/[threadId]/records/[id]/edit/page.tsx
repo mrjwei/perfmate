@@ -1,6 +1,6 @@
 import React from 'react'
 import { fetchRecordById } from "@/app/lib/api"
-import RecordEditForm from '@/app/ui/Form/record-edit-form'
+import RecordEditForm from '@/app/ui/form/record-edit-form'
 import {notFound} from 'next/navigation'
 
 export default async function Page({params}: {params: {threadId: string, id: string}}) {

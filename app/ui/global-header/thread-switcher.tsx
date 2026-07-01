@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline"
-import Button from "@/app/ui/Button/Button"
+import Button from "@/app/ui/button/button"
 import LinkItem from "@/app/ui/link-item/link-item"
 import { IThread } from "@/app/lib/types"
 

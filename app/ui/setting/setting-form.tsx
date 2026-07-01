@@ -2,8 +2,8 @@
 
 import React, { useActionState } from "react"
 import { User } from "next-auth"
-import FormControl from "@/app/ui/Form/form-control"
-import Button from "@/app/ui/Button/Button"
+import FormControl from "@/app/ui/form/form-control"
+import Button from "@/app/ui/button/button"
 import {updateUserInfo} from '@/app/lib/actions'
 import { TActionState } from "@/app/lib/types"
 import clsx from "clsx"

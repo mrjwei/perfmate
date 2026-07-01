@@ -2,8 +2,8 @@
 
 import React from "react"
 import { TrashIcon } from "@heroicons/react/24/outline"
-import FormControl from "@/app/ui/Form/form-control"
-import Button from "@/app/ui/Button/Button"
+import FormControl from "@/app/ui/form/form-control"
+import Button from "@/app/ui/button/button"
 import { IGenericBreak } from "@/app/lib/types"
 import clsx from "clsx"
 

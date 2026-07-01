@@ -1,7 +1,7 @@
 import React from 'react'
 import {describe, it, expect} from 'vitest'
 import {render, screen} from '@testing-library/react'
-import BreakUnit from '@/app/ui/BreakUnit/BreakUnit';
+import BreakUnit from '@/app/ui/break-unit/break-unit';
 
 describe('BreakUnit', () => {
   const renderComp = (index: number) => {

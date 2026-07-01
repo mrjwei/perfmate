@@ -1,6 +1,6 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
-import ThreadForm from '@/app/ui/Form/thread-form'
+import ThreadForm from '@/app/ui/form/thread-form'
 import { auth } from '@/auth'
 
 export default async function SignupStepTwo() {

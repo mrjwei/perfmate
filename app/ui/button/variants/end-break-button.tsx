@@ -1,7 +1,7 @@
 "use client"
 
 import React, {useActionState} from "react"
-import Button from "@/app/ui/Button/Button"
+import Button from "@/app/ui/button/button"
 import { endBreak } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
 

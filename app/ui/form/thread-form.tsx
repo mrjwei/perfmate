@@ -2,8 +2,8 @@
 
 import React, { useActionState, useState } from "react"
 import clsx from "clsx"
-import FormControl from "@/app/ui/Form/form-control"
-import Button from "@/app/ui/Button/Button"
+import FormControl from "@/app/ui/form/form-control"
+import Button from "@/app/ui/button/button"
 import { createThreadForm, updateThreadForm } from "@/app/lib/actions"
 import { IThread, TActionState } from "@/app/lib/types"
 import { calculateWage, mapCurrencyToMark } from "@/app/lib/helpers"

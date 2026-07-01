@@ -1,21 +1,21 @@
 "use client"
 
 import React, {useActionState} from "react"
-import Button from "@/app/ui/Button/Button"
-import { startBreak } from "@/app/lib/actions"
+import Button from "@/app/ui/button/button"
+import { endWorking } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
 
-export default function StartBreakButton({
+export default function EndWorkingButton({
   threadId,
   record,
   disabled,
-  starttimeStr,
+  endtimeStr,
   ...props
 }: {
   threadId: string
   record: IRecord | null
   disabled: boolean
-  starttimeStr: string
+  endtimeStr: string
 }) {
   let recordId
 
@@ -25,15 +25,15 @@ export default function StartBreakButton({
     recordId = record.id
   }
 
-  const startBreakAction = startBreak.bind(null, threadId, recordId, starttimeStr)
-  const [state, formAction, isPending] = useActionState(startBreakAction, null)
+  const endWorkingAction = endWorking.bind(null, threadId, recordId, endtimeStr)
+  const [state, formAction, isPending] = useActionState(endWorkingAction, null)
   return (
     <form action={formAction}>
       <Button
         type="submit"
         disabled={disabled}
-        name="startBreak"
-        className="w-full text-white bg-purple-500 mr-4"
+        name="endWorking"
+        className="w-full text-white bg-red-500"
         {...props}
       >
         {isPending ? (
@@ -45,7 +45,7 @@ export default function StartBreakButton({
             <span>Processing</span>
           </div>
         ) : (
-          "Start Break"
+          "End Working"
         )}
       </Button>
     </form>

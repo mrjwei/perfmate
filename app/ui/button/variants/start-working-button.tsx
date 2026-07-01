@@ -1,39 +1,33 @@
 "use client"
 
 import React, {useActionState} from "react"
-import Button from "@/app/ui/Button/Button"
-import { endWorking } from "@/app/lib/actions"
-import { IRecord } from "@/app/lib/types"
+import Button from "@/app/ui/button/button"
+import { startWorking } from "@/app/lib/actions"
 
-export default function EndWorkingButton({
+
+export default function StartWorkingButton({
+  userid,
   threadId,
-  record,
   disabled,
-  endtimeStr,
+  dateStr,
+  starttimeStr,
   ...props
 }: {
+  userid: string
   threadId: string
-  record: IRecord | null
-  disabled: boolean
-  endtimeStr: string
+  disabled?: boolean
+  dateStr: string
+  starttimeStr: string
 }) {
-  let recordId
-
-  if (!record) {
-    recordId = null
-  } else {
-    recordId = record.id
-  }
-
-  const endWorkingAction = endWorking.bind(null, threadId, recordId, endtimeStr)
-  const [state, formAction, isPending] = useActionState(endWorkingAction, null)
+  const startWorkingAction = startWorking.bind(null, userid, threadId, dateStr, starttimeStr)
+  const [state, formAction, isPending] = useActionState(startWorkingAction, null)
   return (
     <form action={formAction}>
       <Button
         type="submit"
         disabled={disabled}
-        name="endWorking"
-        className="w-full text-white bg-red-500"
+        name="startWorking"
+        className="w-full text-white bg-lime-600 mr-4"
         {...props}
       >
         {isPending ? (
@@ -45,7 +39,7 @@ export default function EndWorkingButton({
             <span>Processing</span>
           </div>
         ) : (
-          "End Working"
+          "Start Working"
         )}
       </Button>
     </form>

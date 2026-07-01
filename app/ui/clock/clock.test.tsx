@@ -1,7 +1,7 @@
 import React from 'react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, cleanup, act } from '@testing-library/react'
-import Clock from './Clock'
+import Clock from './clock'
 
 describe('Clock', () => {
   let mockDate = new Date('2024-07-27T01:02:03+09:00')

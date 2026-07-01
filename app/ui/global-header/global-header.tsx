@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { League_Spartan } from "next/font/google";
 import { ChevronDownIcon, ChevronUpIcon, ArrowRightIcon } from "@heroicons/react/24/outline"
-import Button from "@/app/ui/Button/Button"
+import Button from "@/app/ui/button/button"
 import LinkItem from "@/app/ui/link-item/link-item"
 import ThreadSwitcher from "@/app/ui/global-header/thread-switcher"
 import { signOut } from '@/app/lib/actions'

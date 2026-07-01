@@ -16,7 +16,7 @@ import {
 } from "chart.js"
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline"
 import { IRecord, IThread } from "@/app/lib/types"
-import Button from "@/app/ui/Button/Button"
+import Button from "@/app/ui/button/button"
 import {
   placeholder,
   calculateMonthlyTotalWorkMins,
