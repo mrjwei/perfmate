@@ -1,5 +1,5 @@
 import React, {Suspense} from 'react'
-import RecordCreateForm from '@/app/ui/form/record-create-form'
+import RecordCreateForm from '@/app/ui/Form/record-create-form'
 
 export default function Page() {
   return (

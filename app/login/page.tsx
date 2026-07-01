@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import LoginForm from '@/app/ui/form/login-form'
+import LoginForm from '@/app/ui/Form/login-form'
 import { auth } from "@/auth"
 
 export default async function LoginPage() {

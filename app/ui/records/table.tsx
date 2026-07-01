@@ -54,7 +54,7 @@ export default function Table({
       </thead>
       <tbody>
         {generatePaddedRecordsForMonth(month, records).map(
-          async (record: IPaddedRecord) => {
+          (record: IPaddedRecord) => {
             const {
               id,
               date,
@@ -63,7 +63,7 @@ export default function Table({
               totalbreakhours,
               totalworkhours,
             } = record
-            const isHoliday = await isNationalHoliday(date, holidays)
+            const isHoliday = isNationalHoliday(date, holidays)
             return (
               <tr
                 key={date}

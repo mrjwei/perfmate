@@ -7,7 +7,7 @@ import {
 } from '@heroicons/react/24/outline'
 import {useSearchParams, useRouter, usePathname} from 'next/navigation'
 import Link from 'next/link'
-import FormControl from "@/app/ui/form/form-control"
+import FormControl from "@/app/ui/Form/form-control"
 import {
   dateToStr,
   createPageURL,
