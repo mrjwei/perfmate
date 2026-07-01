@@ -14,7 +14,7 @@ import { IGenericBreak, TActionState } from "@/app/lib/types"
 import { creationForm } from "@/app/lib/actions"
 import { dateToStr } from "@/app/lib/helpers"
 
-export default function RecordCreateForm() {
+export default function RecordCreateForm({ threadId }: { threadId: string }) {
   const { data: session } = useSession()
 
   if (!session) {
@@ -47,7 +47,7 @@ export default function RecordCreateForm() {
     errors: {},
   }
 
-  const creationFormAction = creationForm.bind(null, session.user.id!, month)
+  const creationFormAction = creationForm.bind(null, session.user.id!, threadId, month)
   const [state, formAction, isPending] = useActionState(
     creationFormAction,
     initialState
@@ -164,8 +164,8 @@ export default function RecordCreateForm() {
           id="endtime"
           name="endtime"
           className={clsx("col-span-8 border-1 p-2 mx-4 mb-2", {
-            "border-slate-400": !state.errors?.starttime,
-            "border-red-500": state.errors?.starttime,
+            "border-slate-400": !state?.errors?.starttime,
+            "border-red-500": state?.errors?.starttime,
           })}
           aria-describedby="endtime-error"
         />
@@ -197,7 +197,7 @@ export default function RecordCreateForm() {
           )}
         </Button>
         <Link
-          href={`/app/records?month=${dateToStr(new Date(date), 'yyyy-mm')}`}
+          href={`/app/${threadId}/records?month=${dateToStr(new Date(date), 'yyyy-mm')}`}
           className="box-border px-4 py-2 font-medium rounded-lg disabled:bg-slate-300 whitespace-nowrap  border-2 border-slate-800"
         >
           Cancel

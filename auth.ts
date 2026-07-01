@@ -35,9 +35,6 @@ export const { auth, signIn, signOut } = NextAuth({
               id: user.id,
               name: user.name,
               email: user.email,
-              hourlywages: user.hourlywages ?? 0,
-              currency: user.currency ?? 'JP yen',
-              taxincluded: user.taxincluded ?? false,
             } as User
           }
         }

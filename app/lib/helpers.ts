@@ -3,6 +3,7 @@ import {
   TStatus,
   IRecord,
   IBreak,
+  IThread,
   TDateIndexedRecords,
   IPaddedRecord,
   TNotificationType,
@@ -309,8 +310,24 @@ export const mapCurrencyToMark = (currency: string) => {
   }
 }
 
-export const calculateWageFromMins = (mins: number, hourlyWage: number) => {
-  return Math.round(mins) / 60 * hourlyWage
+export interface IWageBreakdown {
+  exclTax: number
+  inclTax: number
+}
+
+// A thread's hourlywage is either tax-inclusive or tax-exclusive (per its
+// taxincluded flag); this derives the other figure from taxrate (a percentage,
+// e.g. 10 for a 10% consumption/sales tax) so both can be displayed.
+export const calculateWage = (
+  mins: number,
+  thread: Pick<IThread, "hourlywage" | "taxincluded" | "taxrate">
+): IWageBreakdown => {
+  const base = (Math.round(mins) / 60) * thread.hourlywage
+  const taxMultiplier = 1 + thread.taxrate / 100
+  if (thread.taxincluded) {
+    return { inclTax: base, exclTax: base / taxMultiplier }
+  }
+  return { exclTax: base, inclTax: base * taxMultiplier }
 }
 
 export const fetchNationalHolidays = async (year: string | number, countryCode: string) => {

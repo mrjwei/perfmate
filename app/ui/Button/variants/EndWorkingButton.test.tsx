@@ -6,7 +6,7 @@ import * as actions from '@/app/lib/actions'
 
 describe('EndWorkingButton', () => {
   const renderEl = (status: string = "IN-WORK") => {
-    render(<EndWorkingButton record={null} endtimeStr="18:00" disabled={status === "BEFORE-WORK" || status === "AFTER-WORK"} />)
+    render(<EndWorkingButton threadId="threadid" record={null} endtimeStr="18:00" disabled={status === "BEFORE-WORK" || status === "AFTER-WORK"} />)
   }
 
   const getButton = (name: string) => {

@@ -3,16 +3,32 @@ export type TStatus = 'BEFORE-WORK' | 'IN-WORK' | 'IN-BREAK' | 'AFTER-WORK'
 export interface IRecord {
   id: string
   userid: string
+  threadid: string
   date: string
   starttime: string
   breaks: IBreak[]
   endtime: string | null
 }
 
-export interface IPaddedRecord extends Omit<IRecord, 'id' | 'userid'> {
-  id?: any
+export interface IPaddedRecord extends Omit<IRecord, 'id' | 'userid' | 'threadid'> {
+  id?: string
   totalbreakhours: string
   totalworkhours: string
+}
+
+// 0 = Sunday .. 6 = Saturday, matching JS Date#getDay()
+export type TWeekday = 0 | 1 | 2 | 3 | 4 | 5 | 6
+
+export interface IThread {
+  id: string
+  userid: string
+  name: string
+  hourlywage: number
+  currency: string
+  taxincluded: boolean
+  taxrate: number
+  archived: boolean
+  schedule: TWeekday[]
 }
 
 export interface IBreak {
@@ -42,9 +58,6 @@ export interface IUser {
   name: string
   email: string
   password: string
-  hourlywages?: number
-  currency?: string
-  taxincluded?: boolean
 }
 
 export type TNotificationType = 'empty break end time' | 'empty work end time'

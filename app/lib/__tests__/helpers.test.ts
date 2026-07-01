@@ -8,7 +8,7 @@ import {
   isNationalHoliday,
   isSaturday,
   isSunday,
-  calculateWageFromMins
+  calculateWage
 } from '@/app/lib/helpers'
 import {
   todayRecord,
@@ -125,15 +125,28 @@ describe('Function isSunday', () => {
   })
 })
 
-describe('Function calculateWageFromMins', () => {
+describe('Function calculateWage', () => {
   it.each([
     [5, 600, 50],
     [5.4, 600, 50],
     [5.5, 600, 60],
     [100, 600, 1000],
-  ])('returns correct values', (mins, hourlyWage, expectedWage) => {
-    const wage = calculateWageFromMins(mins, hourlyWage)
-    expect(wage).toBe(expectedWage)
+  ])('returns correct values when tax rate is 0', (mins, hourlywage, expectedWage) => {
+    const { exclTax, inclTax } = calculateWage(mins, { hourlywage, taxincluded: false, taxrate: 0 })
+    expect(exclTax).toBe(expectedWage)
+    expect(inclTax).toBe(expectedWage)
+  })
+
+  it('derives the tax-inclusive amount when hourlywage excludes tax', () => {
+    const { exclTax, inclTax } = calculateWage(60, { hourlywage: 1000, taxincluded: false, taxrate: 10 })
+    expect(exclTax).toBe(1000)
+    expect(inclTax).toBe(1100)
+  })
+
+  it('derives the tax-exclusive amount when hourlywage includes tax', () => {
+    const { exclTax, inclTax } = calculateWage(60, { hourlywage: 1100, taxincluded: true, taxrate: 10 })
+    expect(inclTax).toBe(1100)
+    expect(exclTax).toBeCloseTo(1000)
   })
 })
 

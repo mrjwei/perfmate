@@ -7,6 +7,7 @@ export const todayStr = `${year}-${month}-${day}`
 export const todayRecord = {
   "id": "2e1fa58c-6b94-4c1a-8f03-d858453a66fb",
   "userid": "userid",
+  "threadid": "threadid",
   "date": todayStr,
   "starttime": "09:18",
   "endtime": "18:00",
@@ -16,6 +17,7 @@ export const todayRecord = {
 export const todayRecordWithNullEndtime = {
   "id": "2e1fa58c-6b94-4c1a-8f03-d858453a66fb",
   "userid": "userid",
+  "threadid": "threadid",
   "date": todayStr,
   "starttime": "09:18",
   "endtime": null,
@@ -25,6 +27,7 @@ export const todayRecordWithNullEndtime = {
 export const todayRecordWithNullEndtimeBreaks = {
   "id": "2e1fa58c-6b94-4c1a-8f03-d858453a66fb",
   "userid": "userid",
+  "threadid": "threadid",
   "date": todayStr,
   "starttime": "09:18",
   "endtime": null,
@@ -47,6 +50,7 @@ export const todayRecordWithNullEndtimeBreaks = {
 export const todayRecordWithNonNullEndtimeBreaks = {
   "id": "2e1fa58c-6b94-4c1a-8f03-d858453a66fb",
   "userid": "userid",
+  "threadid": "threadid",
   "date": todayStr,
   "starttime": "09:18",
   "endtime": null,
@@ -69,6 +73,7 @@ export const todayRecordWithNonNullEndtimeBreaks = {
 export const recordOfAnotherDay = {
   "id": "f1abe054-fb74-4f9d-80e1-fd2c8ceab4ce",
   "userid": "userid",
+  "threadid": "threadid",
   "date": "2024-07-27",
   "starttime": "10:00",
   "endtime": "18:15",

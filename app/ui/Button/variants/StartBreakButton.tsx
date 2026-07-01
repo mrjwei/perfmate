@@ -6,11 +6,13 @@ import { startBreak } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
 
 export default function StartBreakButton({
+  threadId,
   record,
   disabled,
   starttimeStr,
   ...props
 }: {
+  threadId: string
   record: IRecord | null
   disabled: boolean
   starttimeStr: string
@@ -23,7 +25,7 @@ export default function StartBreakButton({
     recordId = record.id
   }
 
-  const startBreakAction = startBreak.bind(null, recordId, starttimeStr)
+  const startBreakAction = startBreak.bind(null, threadId, recordId, starttimeStr)
   const [state, formAction, isPending] = useActionState(startBreakAction, null)
   return (
     <form action={formAction}>

@@ -6,7 +6,7 @@ import * as actions from '@/app/lib/actions'
 
 describe('EndBreakButton', () => {
   const renderEl = (status: string = "IN-BREAK") => {
-    render(<EndBreakButton record={null} disabled={status !== "IN-BREAK"} endtimeStr="13:00" />)
+    render(<EndBreakButton threadId="threadid" record={null} disabled={status !== "IN-BREAK"} endtimeStr="13:00" />)
   }
   const getButton = (name: string) => {
     return screen.getByRole('button', {name})

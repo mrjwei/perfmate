@@ -10,12 +10,21 @@ import {
   updateSchema,
   creationSchema,
   userCreationSchema,
-  userSettingsSchema,
   userUpdateSchema,
+  threadCreationSchema,
+  threadUpdateSchema,
 } from "@/app/lib/schemas"
 import { auth, signIn, signOut as authSignOut } from "@/auth"
 import { AuthError } from "next-auth"
+import { ZodError } from "zod"
 import { IUser } from "@/app/lib/types"
+
+// Zod's flatten().fieldErrors gives string[] per field; TActionState expects
+// a single message per field, so this takes the first.
+const toFieldErrors = (error: ZodError) =>
+  Object.fromEntries(
+    Object.entries(error.flatten().fieldErrors).map(([field, messages]) => [field, messages?.[0] ?? ""])
+  )
 
 export async function updateRecord(
   id: string,
@@ -44,7 +53,7 @@ export async function updateRecord(
   }
 }
 
-export async function deleteRecord(id: string, month?: string) {
+export async function deleteRecord(threadId: string, id: string, month?: string) {
   let date
   try {
     const data = await sql`
@@ -57,40 +66,39 @@ export async function deleteRecord(id: string, month?: string) {
       message: "Database error: failed to delete record",
     }
   }
-  revalidatePath("/app/records")
+  revalidatePath(`/app/${threadId}/records`)
   if (month) {
-    redirect(`/app/records?month=${month}&date=${date}`)
+    redirect(`/app/${threadId}/records?month=${month}&date=${date}`)
   } else {
-    redirect(`/app/records?date=${date}`)
+    redirect(`/app/${threadId}/records?date=${date}`)
   }
 }
 
 export async function createRecord(
   userId: string,
+  threadId: string,
   date: string,
   starttime: string,
   endtime?: string | null
 ) {
-  console.log('create record')
   try {
     let data
     if (endtime && endtime !== null) {
       data = await sql`
-        INSERT INTO records (userid, date, starttime, endtime)
-        VALUES (${userId}, ${date}, ${starttime}, ${endtime})
+        INSERT INTO records (userid, thread_id, date, starttime, endtime)
+        VALUES (${userId}, ${threadId}, ${date}, ${starttime}, ${endtime})
         RETURNING id;
       `
     } else {
       data = await sql`
-        INSERT INTO records (userid, date, starttime)
-        VALUES (${userId}, ${date}, ${starttime})
+        INSERT INTO records (userid, thread_id, date, starttime)
+        VALUES (${userId}, ${threadId}, ${date}, ${starttime})
         RETURNING id;
       `
     }
-    console.log('record data: ', JSON.stringify(data))
     return data
   } catch (error) {
-    console.error('oops error: ', error)
+    console.error('Database error: failed to create record: ', error)
     return {
       message: "Database error: failed to create record",
     }
@@ -162,24 +170,26 @@ export async function createBreak(
 
 export async function startWorking(
   userId: string,
+  threadId: string,
   date: string,
   starttime: string
 ) {
-  createRecord(userId, date, starttime)
-  revalidatePath("/app")
-  redirect("/app")
+  await createRecord(userId, threadId, date, starttime)
+  revalidatePath(`/app/${threadId}`)
+  redirect(`/app/${threadId}`)
 }
 
-export async function endWorking(id: string | null, endtime: string) {
+export async function endWorking(threadId: string, id: string | null, endtime: string) {
   if (!id) {
     return
   }
-  updateRecord(id, endtime)
-  revalidatePath("/app")
-  redirect("/app")
+  await updateRecord(id, endtime)
+  revalidatePath(`/app/${threadId}`)
+  redirect(`/app/${threadId}`)
 }
 
 export async function editForm(
+  threadId: string,
   id: string,
   month: string | null,
   prevState: any,
@@ -260,11 +270,11 @@ export async function editForm(
   try {
     if (!validatedStarttime && !validatedEndtime) {
       // If both start and end times are empty, delete the record
-      deleteRecord(validatedRecordId)
+      await deleteRecord(threadId, validatedRecordId)
     } else if (validatedStarttime) {
       // Otherwise update record
       const endtime = validatedEndtime ? validatedEndtime : null
-      updateRecord(id, endtime, validatedStarttime, validatedDate)
+      await updateRecord(id, endtime, validatedStarttime, validatedDate)
     }
     // Handle breaks if any exists
     if (validatedBreaks && validatedBreaks.length > 0) {
@@ -277,13 +287,13 @@ export async function editForm(
             `
           const existingBreak = data.rows
           if (existingBreak.length > 0 && !starttime && !endtime) {
-            deleteBreak(breakId!)
+            await deleteBreak(breakId!)
           } else if (existingBreak.length === 0 && !starttime && !endtime) {
             return
           } else if (existingBreak.length > 0 && starttime) {
-            updateBreak(breakId, starttime, endtime)
+            await updateBreak(breakId, starttime, endtime)
           } else if (existingBreak.length === 0 && starttime) {
-            createBreak(validatedRecordId, starttime, endtime)
+            await createBreak(validatedRecordId, starttime, endtime)
           }
         })
       )
@@ -293,25 +303,25 @@ export async function editForm(
       message: "Database error: failed to update record",
     }
   }
-  revalidatePath("/app")
-  revalidatePath("/app/records")
+  revalidatePath(`/app/${threadId}`)
+  revalidatePath(`/app/${threadId}/records`)
   if (month) {
-    redirect(`/app/records?month=${month}&date=${validatedDate}`)
+    redirect(`/app/${threadId}/records?month=${month}&date=${validatedDate}`)
   } else {
-    redirect(`/app/records?date=${validatedDate}`)
+    redirect(`/app/${threadId}/records?date=${validatedDate}`)
   }
 }
 
-export async function startBreak(recordId: string | null, starttime: string) {
+export async function startBreak(threadId: string, recordId: string | null, starttime: string) {
   if (!recordId) {
     return
   }
-  createBreak(recordId, starttime)
-  revalidatePath("/app")
-  redirect("/app")
+  await createBreak(recordId, starttime)
+  revalidatePath(`/app/${threadId}`)
+  redirect(`/app/${threadId}`)
 }
 
-export async function endBreak(recordId: string | null, endtime: string) {
+export async function endBreak(threadId: string, recordId: string | null, endtime: string) {
   if (!recordId) {
     return
   }
@@ -323,13 +333,14 @@ export async function endBreak(recordId: string | null, endtime: string) {
   if (!targetBreak) {
     return
   }
-  updateBreak(targetBreak.id, undefined, endtime)
-  revalidatePath("/app")
-  redirect("/app")
+  await updateBreak(targetBreak.id, undefined, endtime)
+  revalidatePath(`/app/${threadId}`)
+  redirect(`/app/${threadId}`)
 }
 
 export async function creationForm(
   userId: string,
+  threadId: string,
   month: string | null,
   prevState: any,
   formData: FormData
@@ -388,6 +399,7 @@ export async function creationForm(
 
       const data = await createRecord(
         userId,
+        threadId,
         validatedDate,
         validatedStarttime,
         endtime
@@ -403,7 +415,7 @@ export async function creationForm(
               return
             }
             const parsedEndtime = endtime ? endtime : null
-            createBreak(recordId, starttime, parsedEndtime)
+            return createBreak(recordId, starttime, parsedEndtime)
           })
         )
       }
@@ -413,11 +425,11 @@ export async function creationForm(
       message: `Database error: ${error}`,
     }
   }
-  revalidatePath("/app/records")
+  revalidatePath(`/app/${threadId}/records`)
   if (month) {
-    redirect(`/app/records?month=${month}&date=${validatedDate}`)
+    redirect(`/app/${threadId}/records?month=${month}&date=${validatedDate}`)
   } else {
-    redirect(`/app/records?date=${validatedDate}`)
+    redirect(`/app/${threadId}/records?date=${validatedDate}`)
   }
 }
 
@@ -442,7 +454,7 @@ export async function authenticate(prevState: unknown, formData: FormData) {
 }
 
 export async function createUser(data: Omit<IUser, "id">) {
-  const { name, email, password, hourlywages, currency, taxincluded } = data
+  const { name, email, password } = data
 
   const existingUser = await fetchUserByEmail(email)
   if (existingUser) {
@@ -451,8 +463,8 @@ export async function createUser(data: Omit<IUser, "id">) {
 
   try {
     const data = await sql`
-      INSERT INTO users (name, email, password, hourlywages, currency, taxincluded)
-      VALUES (${name}, ${email}, ${password}, ${hourlywages}, ${currency}, ${taxincluded})
+      INSERT INTO users (name, email, password)
+      VALUES (${name}, ${email}, ${password})
       RETURNING email;
     `
     return data.rows[0].email
@@ -463,25 +475,13 @@ export async function createUser(data: Omit<IUser, "id">) {
   }
 }
 
-export async function updateUser(data: Partial<IUser>) {
-  if (!data.id) {
-    return
-  }
-
+export async function updateUser(data: Pick<IUser, "id" | "name">) {
   try {
-    if (data.name) {
-      await sql`
-        UPDATE users
-        SET name=${data.name}, hourlywages=${data.hourlywages}, currency=${data.currency}, taxincluded=${data.taxincluded}
-        WHERE id=${data.id};
-      `
-    } else {
-      await sql`
-        UPDATE users
-        SET hourlywages=${data.hourlywages}, currency=${data.currency}, taxincluded=${data.taxincluded}
-        WHERE id=${data.id};
-      `
-    }
+    await sql`
+      UPDATE users
+      SET name=${data.name}
+      WHERE id=${data.id};
+    `
   } catch (error) {
     return {
       message: "Database error: failed to update user",
@@ -507,8 +507,6 @@ export async function signup(prevState: unknown, formData: FormData) {
     email = await createUser({
       ...validatedFields.data,
       password,
-      currency: "JP yen",
-      taxincluded: false,
     })
     if (!email) {
       return "Email address unavailable. Please use another one."
@@ -532,41 +530,107 @@ export async function signup(prevState: unknown, formData: FormData) {
   }
 }
 
-export async function setUserInfo(prevState: unknown, formData: FormData) {
-  const validatedFields = userSettingsSchema.safeParse({
-    hourlywages: formData.get("hourlywages"),
+async function replaceThreadSchedule(threadId: string, schedule: number[]) {
+  await sql`DELETE FROM thread_schedules WHERE thread_id = ${threadId};`
+  if (schedule.length === 0) {
+    return
+  }
+  await Promise.all(
+    schedule.map((weekday) => sql`
+      INSERT INTO thread_schedules (thread_id, weekday)
+      VALUES (${threadId}, ${weekday});
+    `)
+  )
+}
+
+export async function createThreadForm(prevState: unknown, formData: FormData) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return { message: "Not authenticated", errors: {} }
+  }
+
+  const validatedFields = threadCreationSchema.safeParse({
+    name: formData.get("name"),
+    hourlywage: formData.get("hourlywage"),
     currency: formData.get("currency"),
     taxincluded: formData.get("taxincluded"),
+    taxrate: formData.get("taxrate"),
+    schedule: formData.getAll("schedule"),
   })
   if (!validatedFields.success) {
-    return JSON.stringify(validatedFields.error.flatten().fieldErrors)
+    return {
+      message: "Failed to create thread",
+      errors: toFieldErrors(validatedFields.error),
+    }
   }
-  const { hourlywages, currency, taxincluded } = validatedFields.data
+  const { name, hourlywage, currency, taxincluded, taxrate, schedule } = validatedFields.data
 
-  const session = await auth()
-  if (!session?.user?.id || !session.user.email) {
-    return "Not authenticated"
+  let threadId
+  try {
+    const data = await sql`
+      INSERT INTO threads (userid, name, hourly_wage, currency, tax_included, tax_rate)
+      VALUES (${session.user.id}, ${name}, ${hourlywage}, ${currency}, ${taxincluded}, ${taxrate})
+      RETURNING id;
+    `
+    threadId = data.rows[0].id
+    await replaceThreadSchedule(threadId, schedule)
+  } catch (error) {
+    return { message: "Database error: failed to create thread", errors: {} }
   }
+  revalidatePath("/app")
+  redirect(`/app/${threadId}`)
+}
+
+export async function updateThreadForm(
+  threadId: string,
+  prevState: unknown,
+  formData: FormData
+) {
+  const validatedFields = threadUpdateSchema.safeParse({
+    id: threadId,
+    name: formData.get("name"),
+    hourlywage: formData.get("hourlywage"),
+    currency: formData.get("currency"),
+    taxincluded: formData.get("taxincluded"),
+    taxrate: formData.get("taxrate"),
+    schedule: formData.getAll("schedule"),
+  })
+  if (!validatedFields.success) {
+    return {
+      message: "Failed to update thread",
+      errors: toFieldErrors(validatedFields.error),
+    }
+  }
+  const { id, name, hourlywage, currency, taxincluded, taxrate, schedule } = validatedFields.data
 
   try {
-    await updateUser({
-      id: session.user.id,
-      hourlywages: hourlywages ? hourlywages : undefined,
-      currency: currency ? currency : undefined,
-      taxincluded: typeof taxincluded === 'boolean' ? taxincluded : undefined,
-    })
-    redirect('/app')
-  } catch (error: unknown) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return "Invalid credentials"
-        default:
-          return "Something went wrong"
-      }
+    await sql`
+      UPDATE threads
+      SET name=${name}, hourly_wage=${hourlywage}, currency=${currency}, tax_included=${taxincluded}, tax_rate=${taxrate}
+      WHERE id=${id};
+    `
+    await replaceThreadSchedule(id, schedule)
+  } catch (error) {
+    return {
+      message: "Database error: failed to update thread",
+      errors: {},
     }
-    throw error
   }
+  revalidatePath(`/app/${threadId}`)
+  revalidatePath("/app/threads")
+  redirect(`/app/${threadId}/settings`)
+}
+
+export async function archiveThread(threadId: string) {
+  await sql`UPDATE threads SET archived = true WHERE id = ${threadId};`
+  revalidatePath("/app/threads")
+  redirect("/app/threads")
+}
+
+export async function unarchiveThread(threadId: string) {
+  await sql`UPDATE threads SET archived = false WHERE id = ${threadId};`
+  revalidatePath("/app/threads")
+  redirect("/app/threads")
 }
 
 export async function signOut() {
@@ -577,24 +641,17 @@ export async function updateUserInfo(prevState: unknown, formData: FormData) {
   const validatedFields = userUpdateSchema.safeParse({
     id: formData.get("userid"),
     name: formData.get("username"),
-    hourlywages: formData.get("hourlywages"),
-    currency: formData.get("currency"),
-    taxincluded: formData.get("taxincluded"),
   })
-  console.log(JSON.stringify(validatedFields.error?.flatten().fieldErrors))
   if (!validatedFields.success) {
     return {
       message: "Failed to update user",
-      errors: validatedFields.error.flatten().fieldErrors,
+      errors: toFieldErrors(validatedFields.error),
     }
   }
 
-  const { id, name, hourlywages, currency, taxincluded } =
-    validatedFields.data
-
-  await updateUser({ id, name, hourlywages, currency, taxincluded })
+  await updateUser(validatedFields.data)
 
   revalidatePath("/app")
   revalidatePath("/app/setting")
-  redirect("/")
+  redirect("/app/setting")
 }

@@ -12,7 +12,7 @@ import {
   getFormattedTimeString
 } from '@/app/lib/helpers'
 
-export default function ButtonGroup({user, record, status}: {user: User, record: IRecord | null, status: TStatus}) {
+export default function ButtonGroup({user, threadId, record, status}: {user: User, threadId: string, record: IRecord | null, status: TStatus}) {
   const [date, setDate] = useState(new Date())
 
   const dateStr = useMemo(() => dateToStr(date), [date])
@@ -29,13 +29,14 @@ export default function ButtonGroup({user, record, status}: {user: User, record:
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StartWorkingButton
         userid={user.id!}
+        threadId={threadId}
         disabled={status !== "BEFORE-WORK"}
         dateStr={dateStr}
         starttimeStr={timeStr}
       />
-      <StartBreakButton record={record} disabled={status !== "IN-WORK"} starttimeStr={timeStr} />
-      <EndBreakButton record={record} disabled={status !== "IN-BREAK"} endtimeStr={timeStr} />
-      <EndWorkingButton record={record} disabled={status !== "IN-WORK"} endtimeStr={timeStr} />
+      <StartBreakButton threadId={threadId} record={record} disabled={status !== "IN-WORK"} starttimeStr={timeStr} />
+      <EndBreakButton threadId={threadId} record={record} disabled={status !== "IN-BREAK"} endtimeStr={timeStr} />
+      <EndWorkingButton threadId={threadId} record={record} disabled={status !== "IN-WORK"} endtimeStr={timeStr} />
     </div>
   )
 }

@@ -291,9 +291,6 @@ export const userBaseSchema = z
     name: z.string({message: 'Name is required'}),
     email: z.string({message: 'Email is required'}).email(),
     password: z.string({message: 'Password is required'}).min(6, {message: 'Password must have at least 6 characters'}),
-    hourlywages: z.coerce.number().optional(),
-    currency: z.string().optional(),
-    taxincluded: booleanSchema.optional()
   })
 
 export const userCreationSchema = userBaseSchema
@@ -305,19 +302,24 @@ export const userUpdateSchema = z
 .object({
   id: z.string().uuid(),
   name: z.string().min(1, {message: 'Name cannot be empty'}),
-  hourlywages: z.coerce.number({message: 'Hourly wages cannot be empty'}).refine((val) => val > 0, {
-    message: 'Hourly wages must be greater than 0'
-  }),
-  currency: z.string().min(1, {message: 'Please select a currency'}),
-  taxincluded: booleanSchema
 })
 
-export const userSettingsSchema = userBaseSchema
-.omit({
-  id: true,
-  name: true,
-  email: true,
-  password: true,
+const weekdaySchema = z.coerce.number().int().min(0).max(6)
+
+export const threadBaseSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1, {message: 'Name is required'}),
+  hourlywage: z.coerce.number({message: 'Hourly wage is required'}).positive({
+    message: 'Hourly wage must be greater than 0'
+  }),
+  currency: z.string().min(1, {message: 'Please select a currency'}),
+  taxincluded: booleanSchema,
+  taxrate: z.coerce.number().min(0, {message: 'Tax rate cannot be negative'}).max(100, {message: 'Tax rate cannot exceed 100'}),
+  schedule: z.array(weekdaySchema),
 })
+
+export const threadCreationSchema = threadBaseSchema.omit({ id: true })
+
+export const threadUpdateSchema = threadBaseSchema
 
 

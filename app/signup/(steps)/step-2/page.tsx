@@ -1,6 +1,6 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
-import SignupStepTwoForm from '@/app/ui/Form/signup-form-step-2'
+import ThreadForm from '@/app/ui/Form/thread-form'
 import { auth } from '@/auth'
 
 export default async function SignupStepTwo() {
@@ -10,7 +10,12 @@ export default async function SignupStepTwo() {
   }
   return (
     <div className="mx-auto py-24 max-w-lg">
-      <SignupStepTwoForm />
+      <h1 className="text-center text-2xl text-slate-400 font-bold mb-12">
+        Step 2: Add your first thread
+      </h1>
+      <div className="rounded-lg bg-white shadow p-8">
+        <ThreadForm />
+      </div>
     </div>
   );
 }

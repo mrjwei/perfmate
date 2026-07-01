@@ -6,9 +6,11 @@ import Button from "@/app/ui/Button/Button"
 import { deleteRecord } from "@/app/lib/actions"
 
 export default function DeleteButton({
+  threadId,
   id,
   month,
 }: {
+  threadId: string
   id: string | undefined
   month?: string
 }) {
@@ -18,7 +20,7 @@ export default function DeleteButton({
       return
     }
     setIsPending(true)
-    await deleteRecord(id, month)
+    await deleteRecord(threadId, id, month)
     setIsPending(false)
   }
   return (

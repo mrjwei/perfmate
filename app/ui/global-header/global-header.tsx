@@ -8,12 +8,21 @@ import { League_Spartan } from "next/font/google";
 import { ChevronDownIcon, ChevronUpIcon, ArrowRightIcon } from "@heroicons/react/24/outline"
 import Button from "@/app/ui/Button/Button"
 import LinkItem from "@/app/ui/link-item/link-item"
+import ThreadSwitcher from "@/app/ui/global-header/thread-switcher"
 import { signOut } from '@/app/lib/actions'
-import { INotification } from "@/app/lib/types"
+import { INotification, IThread } from "@/app/lib/types"
 
 const spartan = League_Spartan({ subsets: ["latin"] });
 
-export default function GlobalHeader({ user, notifications }: { user: User, notifications: INotification[] | null }) {
+export default function GlobalHeader({
+  user,
+  threads,
+  notifications,
+}: {
+  user: User
+  threads: IThread[]
+  notifications: INotification[] | null
+}) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -45,11 +54,14 @@ export default function GlobalHeader({ user, notifications }: { user: User, noti
 
   return (
     <header className="flex items-center justify-between py-2 px-8 shadow bg-white fixed z-50 w-full">
-      <h1 className={`${spartan.className} text-slate-800 text-2xl font-bold align-middle`}>
-        <Link href='/app' className="align-[-8px]">
-          PERFMATE
-        </Link>
-      </h1>
+      <div className="flex items-center">
+        <h1 className={`${spartan.className} text-slate-800 text-2xl font-bold align-middle mr-8`}>
+          <Link href='/app' className="align-[-8px]">
+            PERFMATE
+          </Link>
+        </h1>
+        <ThreadSwitcher threads={threads} />
+      </div>
       <div className="flex items-center">
         <Button
           type="button"

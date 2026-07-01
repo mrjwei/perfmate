@@ -7,17 +7,19 @@ import { startWorking } from "@/app/lib/actions"
 
 export default function StartWorkingButton({
   userid,
+  threadId,
   disabled,
   dateStr,
   starttimeStr,
   ...props
 }: {
   userid: string
+  threadId: string
   disabled?: boolean
   dateStr: string
   starttimeStr: string
 }) {
-  const startWorkingAction = startWorking.bind(null, userid, dateStr, starttimeStr)
+  const startWorkingAction = startWorking.bind(null, userid, threadId, dateStr, starttimeStr)
   const [state, formAction, isPending] = useActionState(startWorkingAction, null)
   return (
     <form action={formAction}>

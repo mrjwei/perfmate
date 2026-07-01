@@ -12,7 +12,7 @@ import Button from "@/app/ui/Button/Button"
 import { IGenericBreak, IRecord } from "@/app/lib/types"
 import { deleteBreak, editForm } from "@/app/lib/actions"
 
-export default function RecordEditForm({ record }: { record: IRecord }) {
+export default function RecordEditForm({ record, threadId }: { record: IRecord, threadId: string }) {
   const searchParams = useSearchParams()
   const month = searchParams.get("month")
 
@@ -33,7 +33,7 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
     setBreaks(filteredBreaks)
   }
 
-  const editFormAction = editForm.bind(null, record.id, month)
+  const editFormAction = editForm.bind(null, threadId, record.id, month)
   const initialState: any = {
     message: "",
     errors: {},
@@ -195,7 +195,7 @@ export default function RecordEditForm({ record }: { record: IRecord }) {
           )}
         </Button>
         <Link
-          href={`/app/records?month=${month}`}
+          href={`/app/${threadId}/records?month=${month}`}
           className="box-border px-4 py-2 font-medium rounded-lg disabled:bg-slate-300 whitespace-nowrap  border-2 border-slate-800"
         >
           Cancel

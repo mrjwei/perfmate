@@ -14,15 +14,14 @@ import {
   Tooltip,
   Legend,
 } from "chart.js"
-import { User } from "next-auth"
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline"
-import { IRecord } from "@/app/lib/types"
+import { IRecord, IThread } from "@/app/lib/types"
 import Button from "@/app/ui/Button/Button"
 import {
   placeholder,
   calculateMonthlyTotalWorkMins,
   getFormattedTimeString,
-  calculateWageFromMins,
+  calculateWage,
   mapCurrencyToMark,
   generatePaddedRecordsForMonth,
   timeStringToMins,
@@ -30,11 +29,11 @@ import {
 
 export default function Aggregates({
   records,
-  user,
+  thread,
   month,
 }: {
   records: IRecord[]
-  user: User
+  thread: IThread
   month: string
 }) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
@@ -168,10 +167,10 @@ export default function Aggregates({
             r.endtime &&
             r.endtime !== placeholder
           ) {
-            return calculateWageFromMins(
+            return calculateWage(
               timeStringToMins(r.totalworkhours),
-              user.hourlywages
-            )
+              thread
+            ).inclTax
           }
           return 0
         }),
@@ -192,7 +191,7 @@ export default function Aggregates({
         callbacks: {
           label: (ctx: any) => {
             const wages = ctx.dataset.data[ctx.dataIndex]
-            return `Wages: ${mapCurrencyToMark(user.currency)} ${wages}`
+            return `Wages: ${mapCurrencyToMark(thread.currency)} ${wages}`
           },
         },
       },
@@ -208,14 +207,11 @@ export default function Aggregates({
             <strong>{getFormattedTimeString(monthlyTotalWorkMins)}</strong>
           </div>
           <div className="flex items-center">
-            <p className="mr-2">Total Wages: </p>
+            <p className="mr-2">Total Wages{thread.taxrate > 0 ? " (incl. tax)" : ""}: </p>
             <p>
-              <span>{mapCurrencyToMark(user.currency)} </span>
+              <span>{mapCurrencyToMark(thread.currency)} </span>
               <strong>
-                {calculateWageFromMins(
-                  monthlyTotalWorkMins,
-                  user.hourlywages
-                ).toLocaleString()}
+                {calculateWage(monthlyTotalWorkMins, thread).inclTax.toLocaleString()}
               </strong>
             </p>
           </div>
