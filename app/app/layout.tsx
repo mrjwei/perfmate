@@ -34,7 +34,7 @@ export default async function RootLayout({
           threads={threads}
           notifications={recordsToNotify ? mapRecordsToNoticifications(recordsToNotify) : null}
         />
-        <Sidebar />
+        <Sidebar threads={threads} />
         <div className="flex h-full justify-end">
           <main className="relative h-full w-[calc(100%-178px)]">
             <div className="mx-auto px-10 py-24 xl:max-w-5xl">{children}</div>

@@ -1,11 +1,12 @@
 "use client"
 
-import React, { useActionState } from "react"
+import React, { useActionState, useState } from "react"
 import clsx from "clsx"
 import FormControl from "@/app/ui/Form/form-control"
 import Button from "@/app/ui/Button/Button"
 import { createThreadForm, updateThreadForm } from "@/app/lib/actions"
 import { IThread, TActionState } from "@/app/lib/types"
+import { calculateWage, mapCurrencyToMark } from "@/app/lib/helpers"
 
 const WEEKDAYS: { value: number; label: string }[] = [
   { value: 0, label: "Sun" },
@@ -21,6 +22,15 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
   const action = thread ? updateThreadForm.bind(null, thread.id) : createThreadForm
   const initialState: TActionState = { message: "", errors: {} }
   const [state, formAction, isPending] = useActionState(action, initialState)
+  const errors = state?.errors ?? {}
+  const message = state?.message
+
+  const [currency, setCurrency] = useState(thread?.currency ?? "yen")
+  const [hourlywage, setHourlywage] = useState(thread?.hourlywage ?? 0)
+  const [taxincluded, setTaxincluded] = useState(thread ? thread.taxincluded : true)
+  const [taxrate, setTaxrate] = useState(thread?.taxrate ?? 0)
+  const breakdown = calculateWage(60, { hourlywage, taxincluded, taxrate })
+  const mark = mapCurrencyToMark(currency)
 
   return (
     <form action={formAction}>
@@ -37,27 +47,8 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
           defaultValue={thread?.name}
           placeholder="e.g. Acme Corp, Freelance Design"
           className={clsx("col-span-12 border-1 p-2", {
-            "border-slate-400": !state.errors?.name,
-            "border-red-500": state.errors?.name,
-          })}
-          required
-        />
-      </FormControl>
-      <FormControl
-        label="Hourly wage"
-        htmlFor="hourlywage"
-        className="items-center mb-6"
-        labelClassName="col-span-12 font-bold mb-2"
-      >
-        <input
-          type="number"
-          id="hourlywage"
-          name="hourlywage"
-          step={10}
-          defaultValue={thread?.hourlywage}
-          className={clsx("col-span-12 border-1 p-2", {
-            "border-slate-400": !state.errors?.hourlywage,
-            "border-red-500": state.errors?.hourlywage,
+            "border-slate-400": !errors.name,
+            "border-red-500": errors.name,
           })}
           required
         />
@@ -71,10 +62,11 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
         <select
           name="currency"
           id="currency"
-          defaultValue={thread?.currency ?? ""}
+          value={currency}
+          onChange={(e) => setCurrency(e.target.value)}
           className={clsx("col-span-12 border-1 p-2", {
-            "border-slate-400": !state.errors?.currency,
-            "border-red-500": state.errors?.currency,
+            "border-slate-400": !errors.currency,
+            "border-red-500": errors.currency,
           })}
           required
         >
@@ -85,7 +77,30 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
         </select>
       </FormControl>
       <FormControl
-        label="Tax included in wage"
+        label="Hourly wage"
+        htmlFor="hourlywage"
+        className="items-center mb-2"
+        labelClassName="col-span-12 font-bold mb-2"
+      >
+        <input
+          type="number"
+          id="hourlywage"
+          name="hourlywage"
+          step={10}
+          value={hourlywage}
+          onChange={(e) => setHourlywage(Number(e.target.value))}
+          className={clsx("col-span-12 border-1 p-2", {
+            "border-slate-400": !errors.hourlywage,
+            "border-red-500": errors.hourlywage,
+          })}
+          required
+        />
+      </FormControl>
+      <p className="text-sm text-slate-400 mb-6">
+        Enter your rate exactly as agreed with the client, then say below whether it already includes tax.
+      </p>
+      <FormControl
+        label="Tax included in the rate above"
         htmlFor="taxincluded"
         className="items-center mb-6"
         labelClassName="col-span-12 font-bold mb-2"
@@ -102,7 +117,8 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
               id="taxincluded-yes"
               name="taxincluded"
               value="true"
-              defaultChecked={thread ? thread.taxincluded : true}
+              checked={taxincluded}
+              onChange={() => setTaxincluded(true)}
               className="mx-4 col-span-2 w-4"
             />
           </FormControl>
@@ -117,7 +133,8 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
               id="taxincluded-no"
               name="taxincluded"
               value="false"
-              defaultChecked={thread ? !thread.taxincluded : false}
+              checked={!taxincluded}
+              onChange={() => setTaxincluded(false)}
               className="mx-4 col-span-2 w-4"
             />
           </FormControl>
@@ -136,13 +153,28 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
           step={0.1}
           min={0}
           max={100}
-          defaultValue={thread?.taxrate ?? 0}
+          value={taxrate}
+          onChange={(e) => setTaxrate(Number(e.target.value))}
           className={clsx("col-span-12 border-1 p-2", {
-            "border-slate-400": !state.errors?.taxrate,
-            "border-red-500": state.errors?.taxrate,
+            "border-slate-400": !errors.taxrate,
+            "border-red-500": errors.taxrate,
           })}
         />
       </FormControl>
+      <div className="col-span-12 rounded-lg bg-slate-50 border border-slate-200 p-4 mb-6">
+        <p className="text-xs font-bold text-slate-400 uppercase mb-2">Rate breakdown (per hour)</p>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-slate-500">Excl. tax</span>
+          <span>{mark} {breakdown.exclTax.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="font-bold">Incl. tax</span>
+          <strong>{mark} {breakdown.inclTax.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong>
+        </div>
+        <p className="text-xs text-slate-400 mt-2">
+          The tax-included figure is what's used everywhere else in the app (records, totals).
+        </p>
+      </div>
       <FormControl
         label="Work schedule"
         htmlFor="schedule"
@@ -169,8 +201,8 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
         aria-live="polite"
         aria-atomic="true"
       >
-        {state.message && (
-          <p className="text-sm text-red-500">{state.message}</p>
+        {message && (
+          <p className="text-sm text-red-500">{message}</p>
         )}
       </div>
       <Button

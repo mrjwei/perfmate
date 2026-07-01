@@ -15,14 +15,17 @@ import {
   Cog6ToothIcon as Cog6ToothSolidIcon
 } from "@heroicons/react/24/solid"
 import LinkItem from "@/app/ui/link-item/link-item"
+import { IThread } from "@/app/lib/types"
 
 // Matches /app/<threadId>/... (but not /app/threads or /app/setting, which
 // aren't scoped to a thread).
 const THREAD_ID_PATTERN = /^\/app\/(?!threads|setting)([^/]+)/
 
-export default function Sidebar() {
+export default function Sidebar({ threads }: { threads: IThread[] }) {
   const pathname = usePathname()
-  const threadId = pathname.match(THREAD_ID_PATTERN)?.[1]
+  // Fall back to the first active thread so Home/Records stay reachable even
+  // from pages that aren't scoped to a thread (e.g. /app/threads, /app/setting).
+  const threadId = pathname.match(THREAD_ID_PATTERN)?.[1] ?? threads.find((t) => !t.archived)?.id
 
   const links = [
     ...(threadId

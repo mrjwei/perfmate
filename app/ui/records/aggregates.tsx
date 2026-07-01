@@ -191,7 +191,7 @@ export default function Aggregates({
         callbacks: {
           label: (ctx: any) => {
             const wages = ctx.dataset.data[ctx.dataIndex]
-            return `Wages: ${mapCurrencyToMark(thread.currency)} ${wages}`
+            return `Wages (incl. tax): ${mapCurrencyToMark(thread.currency)} ${wages}`
           },
         },
       },
@@ -207,7 +207,7 @@ export default function Aggregates({
             <strong>{getFormattedTimeString(monthlyTotalWorkMins)}</strong>
           </div>
           <div className="flex items-center">
-            <p className="mr-2">Total Wages{thread.taxrate > 0 ? " (incl. tax)" : ""}: </p>
+            <p className="mr-2">Total Wages (incl. tax): </p>
             <p>
               <span>{mapCurrencyToMark(thread.currency)} </span>
               <strong>
