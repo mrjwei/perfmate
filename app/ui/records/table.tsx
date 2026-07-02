@@ -50,8 +50,8 @@ export default function Table({
           <th className="text-left px-1">Break Hours</th>
           <th className="text-left px-1">Work Hours</th>
           <th className="text-left pl-1 pr-4">
-            <div className="flex items-center justify-end text-blue-500 text-sm">
-              <div className="w-3 h-3 bg-blue-500 mr-2"></div>
+            <div className="flex items-center justify-end text-primary text-sm">
+              <div className="w-3 h-3 bg-primary mr-2"></div>
               <p>Today</p>
             </div>
           </th>
@@ -75,10 +75,10 @@ export default function Table({
                 id={date === today ? 'today' : ''}
                 className={clsx("box-border", {
                   "animate-fadeOutBackground": targetDate === date,
-                  "bg-red-50": isSunday(new Date(date)) || isHoliday,
-                  "bg-blue-50": isSaturday(new Date(date)),
-                  "border-l-8 border-2 border-blue-500": date === today,
-                  "border-t-1 border-slate-200 first:border-none": date !== today
+                  "bg-destructive/5": isSunday(new Date(date)) || isHoliday,
+                  "bg-info/5": isSaturday(new Date(date)),
+                  "border-l-8 border-2 border-primary": date === today,
+                  "border-t-1 border-border first:border-none": date !== today
                 })}
               >
                 <td className="py-4 pl-4">
@@ -96,14 +96,14 @@ export default function Table({
                 <td className="py-4 text-right flex items-center justify-end">
                   {id ? (
                     <Link
-                      className="text-sky-500"
+                      className="text-primary"
                       href={`/app/${threadId}/records/${id}/edit?month=${month}`}
                     >
                       <PencilIcon className="w-5" />
                     </Link>
                   ) : (
                     <Link
-                      className="text-sky-500"
+                      className="text-primary"
                       href={`/app/${threadId}/records/create?month=${month}&date=${date}`}
                     >
                       <PencilIcon className="w-5" />

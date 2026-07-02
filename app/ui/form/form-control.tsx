@@ -1,5 +1,6 @@
 import React from "react"
 import clsx from "clsx"
+import { Label } from "@/components/ui/label"
 
 export default function FormControl({
   className,
@@ -23,9 +24,9 @@ export default function FormControl({
       },
       className
     )}>
-      <label htmlFor={htmlFor} className={labelClassName}>
+      <Label htmlFor={htmlFor} className={labelClassName}>
         {label}
-      </label>
+      </Label>
       {children}
     </div>
   )

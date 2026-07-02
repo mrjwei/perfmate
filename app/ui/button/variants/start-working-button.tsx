@@ -1,7 +1,7 @@
 "use client"
 
 import React, {useActionState} from "react"
-import Button from "@/app/ui/button/button"
+import { Button } from "@/components/ui/button"
 import { startWorking } from "@/app/lib/actions"
 
 
@@ -27,7 +27,7 @@ export default function StartWorkingButton({
         type="submit"
         disabled={disabled}
         name="startWorking"
-        className="w-full text-white bg-lime-600 mr-4"
+        className="w-full text-white bg-success hover:bg-success/90 mr-4"
         {...props}
       >
         {isPending ? (

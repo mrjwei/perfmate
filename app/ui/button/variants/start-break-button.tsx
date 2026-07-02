@@ -1,7 +1,7 @@
 "use client"
 
 import React, {useActionState} from "react"
-import Button from "@/app/ui/button/button"
+import { Button } from "@/components/ui/button"
 import { startBreak } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
 
@@ -33,7 +33,7 @@ export default function StartBreakButton({
         type="submit"
         disabled={disabled}
         name="startBreak"
-        className="w-full text-white bg-purple-500 mr-4"
+        className="w-full text-neutral-900 bg-warning hover:bg-warning/90 mr-4"
         {...props}
       >
         {isPending ? (

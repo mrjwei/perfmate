@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from "uuid"
 import { useSearchParams } from "next/navigation"
 import FormControl from "@/app/ui/form/form-control"
 import BreakField from "@/app/ui/form/break-field"
-import Button from "@/app/ui/button/button"
+import { Button } from "@/components/ui/button"
 import { IGenericBreak, IRecord, TRecordFormState } from "@/app/lib/types"
 import { deleteBreak, editForm } from "@/app/lib/actions"
 
@@ -73,7 +73,7 @@ export default function RecordEditForm({ record, threadId }: { record: IRecord, 
           name="date"
           value={record.date}
           readOnly
-          className="col-span-8 border-1 border-slate-400 bg-slate-100 p-2 mx-4 mb-2"
+          className="col-span-8 border-1 border-input bg-muted p-2 mx-4 mb-2"
         />
       </FormControl>
       <FormControl
@@ -88,8 +88,8 @@ export default function RecordEditForm({ record, threadId }: { record: IRecord, 
           name="starttime"
           defaultValue={record.starttime}
           className={clsx("col-span-8 border-1 p-2 mx-4 mb-2", {
-            "border-slate-400": !state?.errors?.starttime,
-            "border-red-500": state?.errors?.starttime,
+            "border-input": !state?.errors?.starttime,
+            "border-destructive": state?.errors?.starttime,
           })}
           aria-describedby="starttime-error"
         />
@@ -100,14 +100,14 @@ export default function RecordEditForm({ record, threadId }: { record: IRecord, 
           aria-atomic="true"
         >
           {state?.errors?.starttime && (
-            <p className="text-red-500" key={state?.errors?.starttime.message}>
+            <p className="text-destructive" key={state?.errors?.starttime.message}>
               {state?.errors?.starttime.message}
             </p>
           )}
         </div>
       </FormControl>
       <div
-        className={clsx("border-slate-200", {
+        className={clsx("border-border", {
           "border-y-1 py-8 mb-8": breaks.length > 0,
         })}
       >
@@ -132,7 +132,7 @@ export default function RecordEditForm({ record, threadId }: { record: IRecord, 
                 state?.errors?.breaks?.errors?.find(
                   (error) => error.id === b.id
                 ) && (
-                  <p className="text-red-500" key={b.id}>
+                  <p className="text-destructive" key={b.id}>
                     {state?.errors?.breaks?.message}
                   </p>
                 )}
@@ -142,7 +142,8 @@ export default function RecordEditForm({ record, threadId }: { record: IRecord, 
         <Button
           type="button"
           onClick={handleAddBreak}
-          className="text-blue-500 flex items-center -ml-4"
+          variant="ghost"
+          className="flex items-center -ml-4"
         >
           <span className="mr-2">
             <PlusIcon className="w-6" />
@@ -162,8 +163,8 @@ export default function RecordEditForm({ record, threadId }: { record: IRecord, 
           name="endtime"
           defaultValue={record.endtime ? record.endtime : undefined}
           className={clsx("col-span-8 border-1 p-2 mx-4 mb-2", {
-            "border-slate-400": !state?.errors?.starttime,
-            "border-red-500": state?.errors?.starttime,
+            "border-input": !state?.errors?.starttime,
+            "border-destructive": state?.errors?.starttime,
           })}
           aria-describedby="endtime-error"
         />
@@ -174,14 +175,14 @@ export default function RecordEditForm({ record, threadId }: { record: IRecord, 
           aria-atomic="true"
         >
           {state?.errors?.endtime && (
-            <p className="text-red-500" key={state?.errors?.endtime.message}>
+            <p className="text-destructive" key={state?.errors?.endtime.message}>
               {state?.errors?.endtime.message}
             </p>
           )}
         </div>
       </FormControl>
       <div className="flex items-center">
-        <Button type="submit" className="bg-neutral-800 text-white mr-4">
+        <Button type="submit" className="mr-4">
           {isPending ? (
             <div className="flex items-center">
               <div className="relative flex justify-center items-center h-6 w-6 mr-2">
@@ -196,7 +197,7 @@ export default function RecordEditForm({ record, threadId }: { record: IRecord, 
         </Button>
         <Link
           href={`/app/${threadId}/records?month=${month}`}
-          className="box-border px-4 py-2 font-medium rounded-lg disabled:bg-slate-300 whitespace-nowrap  border-2 border-slate-800"
+          className="box-border px-4 py-2 font-medium rounded-lg disabled:bg-muted whitespace-nowrap border-2 border-border"
         >
           Cancel
         </Link>

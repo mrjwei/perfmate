@@ -59,7 +59,7 @@ export default function Sidebar({ threads }: { threads: IThread[] }) {
   ]
 
   return (
-    <div className="self-stretch bg-slate-800 px-3 py-6 shadow-md fixed top-[56px] h-full z-10">
+    <div className="self-stretch bg-neutral-900 px-3 py-6 shadow-md fixed top-[56px] h-full z-10">
       <ul>
         {links.map((l) => {
           const { href, children, outlineIcon, solidIcon } = l
@@ -69,7 +69,7 @@ export default function Sidebar({ threads }: { threads: IThread[] }) {
               <LinkItem
                 href={href}
                 className={{
-                  "w-full px-8 py-2 rounded-lg text-slate-800 bg-white hover:text-slate-600":
+                  "w-full px-8 py-2 rounded-lg text-foreground bg-card hover:text-muted-foreground":
                     isActive,
                   "w-full px-8 py-2 rounded-lg text-white hover:bg-white/10":
                     !isActive,

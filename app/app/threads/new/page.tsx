@@ -5,7 +5,7 @@ export default function NewThreadPage() {
   return (
     <div className="mx-auto max-w-lg">
       <h2 className="text-3xl font-bold mb-12">Add thread</h2>
-      <div className="rounded-lg bg-white shadow p-8">
+      <div className="rounded-lg bg-card shadow-sm p-8">
         <ThreadForm />
       </div>
     </div>

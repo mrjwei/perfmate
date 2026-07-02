@@ -6,7 +6,8 @@ import {
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline"
 import { ArrowRightIcon } from "@heroicons/react/20/solid"
-import Button from "@/app/ui/button/button"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import FormControl from "@/app/ui/form/form-control"
 
 export default function SignupStepOneForm() {
@@ -17,9 +18,9 @@ export default function SignupStepOneForm() {
 
   return (
     <form action={formAction}>
-      <div className="rounded-lg bg-white shadow">
+      <div className="rounded-lg bg-card shadow-sm">
         <div className="px-12 pb-4 pt-8">
-          <h1 className="text-center text-2xl text-slate-400 font-bold mb-12">
+          <h1 className="text-center text-2xl text-muted-foreground font-bold mb-12">
             Step 1: Create user
           </h1>
           <FormControl
@@ -28,8 +29,8 @@ export default function SignupStepOneForm() {
             className="items-center mb-6"
             labelClassName="col-span-12 font-bold mb-2"
           >
-            <input
-              className="col-span-12 border-1 p-2"
+            <Input
+              className="col-span-12"
               type="text"
               id="name"
               name="name"
@@ -43,8 +44,8 @@ export default function SignupStepOneForm() {
             className="items-center mb-6"
             labelClassName="col-span-12 font-bold mb-2"
           >
-            <input
-              className="col-span-12 border-1 p-2"
+            <Input
+              className="col-span-12"
               type="email"
               id="email"
               name="email"
@@ -58,8 +59,8 @@ export default function SignupStepOneForm() {
             className="items-center mb-6"
             labelClassName="col-span-12 font-bold mb-2"
           >
-            <input
-              className="col-span-12 border-1 p-2"
+            <Input
+              className="col-span-12"
               type="password"
               id="password"
               name="password"
@@ -69,7 +70,7 @@ export default function SignupStepOneForm() {
           </FormControl>
           <Button
             type="submit"
-            className="w-full bg-slate-600 hover:bg-slate-400 text-white p-2 rounded-lg"
+            className="w-full"
             aria-disabled={isPending}
           >
             {isPending ? (
@@ -94,8 +95,8 @@ export default function SignupStepOneForm() {
           >
             {errorMessage && (
               <>
-                <ExclamationCircleIcon className="w-5 text-red-500 mr-2" />
-                <p className="text-sm text-red-500">{errorMessage}</p>
+                <ExclamationCircleIcon className="w-5 text-destructive mr-2" />
+                <p className="text-sm text-destructive">{errorMessage}</p>
               </>
             )}
           </div>

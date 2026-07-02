@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState, useMemo } from "react"
-import clsx from "clsx"
 import { Line, Bar } from "react-chartjs-2"
 import {
   Chart as ChartJS,
@@ -18,7 +17,9 @@ import {
 } from "chart.js"
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline"
 import { IRecord, IThread } from "@/app/lib/types"
-import Button from "@/app/ui/button/button"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
   placeholder,
   calculateMonthlyTotalWorkMins,
@@ -226,14 +227,14 @@ export default function Aggregates({
 
   return (
     <div className="mb-4">
-      <div className="flex items-center justify-between p-4 bg-slate-100 mb-2 rounded-md">
+      <Card className="flex-row items-center justify-between p-4 mb-2">
         <div className="flex">
           <div className="flex items-center mr-8">
-            <p className="mr-2">Total Hours: </p>
+            <p className="mr-2 text-muted-foreground">Total Hours: </p>
             <strong>{getFormattedTimeString(monthlyTotalWorkMins)}</strong>
           </div>
           <div className="flex items-center">
-            <p className="mr-2">Total Wages (incl. tax): </p>
+            <p className="mr-2 text-muted-foreground">Total Wages (incl. tax): </p>
             <p>
               <span>{mapCurrencyToMark(thread.currency)} </span>
               <strong>
@@ -244,59 +245,39 @@ export default function Aggregates({
         </div>
         <Button
           type="button"
-          className={`flex items-center text-blue-500 ${isDetailsOpen ? "bg-slate-200" : ""}`}
+          variant="ghost"
+          size="sm"
           onClick={() => setIsDetailsOpen(!isDetailsOpen)}
         >
-          <span className="mr-2">Show details</span>
+          Show details
           {isDetailsOpen ? (
             <ChevronUpIcon className="w-4" />
           ) : (
             <ChevronDownIcon className="w-4" />
           )}
         </Button>
-      </div>
+      </Card>
       {isDetailsOpen && (
-        <div>
-          <div className="flex items-end mb-2">
-            <Button
-              type="button"
-              className={clsx("rounded-none border-b-2", {
-                "text-blue-500 border-blue-500": activeTab === "work hours",
-                "text-blue-400 border-transparent": activeTab !== "work hours",
-              })}
-              onClick={() => setActiveTab("work hours")}
-            >
-              Work hours
-            </Button>
-            <Button
-              type="button"
-              className={clsx("rounded-none border-b-2", {
-                "text-blue-500 border-blue-500":
-                  activeTab === "work start and end times",
-                "text-blue-400 border-transparent":
-                  activeTab !== "work start and end times",
-              })}
-              onClick={() => setActiveTab("work start and end times")}
-            >
-              Work start and end times
-            </Button>
-            <Button
-              type="button"
-              className={clsx("rounded-none border-b-2", {
-                "text-blue-500 border-blue-500": activeTab === "wages",
-                "text-blue-400 border-transparent": activeTab !== "wages",
-              })}
-              onClick={() => setActiveTab("wages")}
-            >
-              Wages
-            </Button>
-          </div>
-          {activeTab === "work hours" && <Line data={workHoursData} options={workHoursOptions} />}
-          {activeTab === "work start and end times" && (
-            <Bar data={startAndEndTimesdata} options={startAndEndTimesOptions} />
-          )}
-          {activeTab === "wages" && <Bar data={wagesData} options={wagesOptions} />}
-        </div>
+        <Card>
+          <CardContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList variant="line" className="mb-4">
+                <TabsTrigger value="work hours">Work hours</TabsTrigger>
+                <TabsTrigger value="work start and end times">Work start and end times</TabsTrigger>
+                <TabsTrigger value="wages">Wages</TabsTrigger>
+              </TabsList>
+              <TabsContent value="work hours">
+                <Line data={workHoursData} options={workHoursOptions} />
+              </TabsContent>
+              <TabsContent value="work start and end times">
+                <Bar data={startAndEndTimesdata} options={startAndEndTimesOptions} />
+              </TabsContent>
+              <TabsContent value="wages">
+                <Bar data={wagesData} options={wagesOptions} />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       )}
     </div>
   )

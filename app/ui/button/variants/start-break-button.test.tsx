@@ -38,7 +38,7 @@ describe('StartBreakButton', () => {
 
   it('has an expected class name for background color', () => {
     renderEl()
-    expect(getButton('Start Break')).toHaveClass('bg-purple-500')
+    expect(getButton('Start Break')).toHaveClass('bg-warning')
   })
 
   it('is not disabled when status is "IN-WORK"', () => {

@@ -4,7 +4,8 @@ import React, { useActionState } from "react"
 import { authenticate } from "@/app/lib/actions"
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline"
 import { ArrowRightIcon } from "@heroicons/react/20/solid"
-import Button from "@/app/ui/button/button"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import FormControl from "@/app/ui/form/form-control"
 import LinkItem from "@/app/ui/link-item/link-item"
 
@@ -16,9 +17,9 @@ export default function LoginForm() {
 
   return (
     <form action={formAction}>
-      <div className="rounded-lg bg-white shadow">
+      <div className="rounded-lg bg-card shadow-sm">
         <div className="px-12 pb-4 pt-8">
-          <h1 className="text-center text-2xl text-slate-400 font-bold mb-12">
+          <h1 className="text-center text-2xl text-muted-foreground font-bold mb-12">
             Log in to your account
           </h1>
           <FormControl
@@ -27,8 +28,8 @@ export default function LoginForm() {
             className="items-center mb-6"
             labelClassName="col-span-12 font-bold mb-2"
           >
-            <input
-              className="col-span-12 border-1 p-2"
+            <Input
+              className="col-span-12"
               type="email"
               id="email"
               name="email"
@@ -42,8 +43,8 @@ export default function LoginForm() {
             className="items-center mb-6"
             labelClassName="col-span-12 font-bold mb-2"
           >
-            <input
-              className="col-span-12 border-1 p-2"
+            <Input
+              className="col-span-12"
               type="password"
               id="password"
               name="password"
@@ -53,7 +54,7 @@ export default function LoginForm() {
           </FormControl>
           <Button
             type="submit"
-            className="w-full bg-slate-600 hover:bg-slate-400 text-white p-2 rounded-lg"
+            className="w-full"
             aria-disabled={isPending}
           >
             {isPending ? (
@@ -75,17 +76,17 @@ export default function LoginForm() {
           >
             {errorMessage && (
               <>
-                <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-                <p className="text-sm text-red-500">{errorMessage}</p>
+                <ExclamationCircleIcon className="h-5 w-5 text-destructive" />
+                <p className="text-sm text-destructive">{errorMessage}</p>
               </>
             )}
           </div>
         </div>
-        <div className="flex items-center justify-center bg-slate-200 px-12 py-4 rounded-b-lg">
+        <div className="flex items-center justify-center bg-muted px-12 py-4 rounded-b-lg">
           <span className="whitespace-nowrap mr-4">New to Perfmate?</span>
           <LinkItem
             href="/signup/step-1"
-            className="text-blue-500 hover:text-blue-400"
+            className="text-primary hover:opacity-80"
           >
             <span className="whitespace-nowrap mr-2">Sign Up</span>
             <ArrowRightIcon className="w-5" />

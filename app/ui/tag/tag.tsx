@@ -9,10 +9,10 @@ export default function Tag({testid, children, className}: {testid?: string, chi
       clsx(
         'px-4 py-2 font-bold whitespace-nowrap',
         {
-          'text-slate-400': children === 'BEFORE-WORK',
-          'text-lime-600': children === 'IN-WORK',
-          'text-purple-500': children === 'IN-BREAK',
-          'text-red-500': children === 'AFTER-WORK',
+          'text-muted-foreground': children === 'BEFORE-WORK',
+          'text-success': children === 'IN-WORK',
+          'text-warning': children === 'IN-BREAK',
+          'text-destructive': children === 'AFTER-WORK',
         },
         className
       )

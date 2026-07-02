@@ -8,6 +8,7 @@ import {
 import {useSearchParams, useRouter, usePathname} from 'next/navigation'
 import Link from 'next/link'
 import FormControl from "@/app/ui/form/form-control"
+import { Input } from "@/components/ui/input"
 import {
   createPageURL,
   dateStrOneMonthOffset,
@@ -40,7 +41,7 @@ export default function MonthPicker({ timezone }: { timezone: string }) {
       <Link href={createPageURL(pathname, searchParams, 'month', dateStrOneMonthOffset(new Date(currentMonth), 'prev'))} className="flex justify-end mr-2">
         <ChevronLeftIcon className="w-6" strokeWidth={2} />
       </Link>
-      <input ref={pickerRef} type="month" name="month" id="month" defaultValue={currentMonth} onChange={handleChange} className="border-1 border-slate-400 p-2 rounded" />
+      <Input ref={pickerRef} type="month" name="month" id="month" defaultValue={currentMonth} onChange={handleChange} className="w-auto" />
       <Link href={createPageURL(pathname, searchParams, 'month', dateStrOneMonthOffset(new Date(currentMonth), 'next'))} className="flex justify-start ml-2">
         <ChevronRightIcon className="w-6"  strokeWidth={2} />
       </Link>

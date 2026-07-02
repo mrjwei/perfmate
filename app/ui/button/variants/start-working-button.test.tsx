@@ -57,7 +57,7 @@ describe('StartWorkingButton', () => {
 
   it('has an expected class name for background color', () => {
     renderEl()
-    expect(getButton('Start Working')).toHaveClass('bg-lime-600')
+    expect(getButton('Start Working')).toHaveClass('bg-success')
   })
 
   it('changes label to "Processing" during submission and reverts to "Start Working" when completed', async () => {

@@ -1,7 +1,7 @@
 "use client"
 
 import React, {useActionState} from "react"
-import Button from "@/app/ui/button/button"
+import { Button } from "@/components/ui/button"
 import { endWorking } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
 
@@ -33,7 +33,7 @@ export default function EndWorkingButton({
         type="submit"
         disabled={disabled}
         name="endWorking"
-        className="w-full text-white bg-red-500"
+        className="w-full text-white bg-destructive hover:bg-destructive/90"
         {...props}
       >
         {isPending ? (

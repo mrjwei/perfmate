@@ -6,7 +6,7 @@ import { z } from 'zod'
 import bcrypt from 'bcrypt'
 import { fetchUserAuthByEmail } from '@/app/lib/api'
 
-export const { auth, signIn, signOut } = NextAuth({
+export const { auth, signIn, signOut, handlers } = NextAuth({
   ...authConfig,
   providers: [
     Credentials({

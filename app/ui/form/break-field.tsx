@@ -3,7 +3,7 @@
 import React from "react"
 import { TrashIcon } from "@heroicons/react/24/outline"
 import FormControl from "@/app/ui/form/form-control"
-import Button from "@/app/ui/button/button"
+import { Button } from "@/components/ui/button"
 import { IGenericBreak } from "@/app/lib/types"
 import clsx from "clsx"
 
@@ -57,8 +57,8 @@ export default function BreakField({
             className={clsx(
               "col-span-10 border-1 p-2",
               {
-                'border-slate-400': !isStarttimeError,
-                'border-red-500': isStarttimeError,
+                'border-input': !isStarttimeError,
+                'border-destructive': isStarttimeError,
               }
             )}
             aria-describedby="break-error"
@@ -78,8 +78,8 @@ export default function BreakField({
             className={clsx(
               "col-span-10 border-1 p-2",
               {
-                'border-slate-400': !isEndtimeError,
-                'border-red-500': isEndtimeError,
+                'border-input': !isEndtimeError,
+                'border-destructive': isEndtimeError,
               }
             )}
             aria-describedby="break-error"
@@ -87,9 +87,10 @@ export default function BreakField({
         </FormControl>
         <Button
           type="button"
+          variant="ghost"
           onClick={(e) => handleRemoveBreak(e, b.id)}
           name={b.starttime ? 'existing' : 'new'}
-          className="col-span-2 text-red-500 flex items-center"
+          className="col-span-2 text-destructive hover:text-destructive flex items-center"
         >
           <span className="mr-2">
             <TrashIcon className="w-6" />

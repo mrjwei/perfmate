@@ -37,19 +37,19 @@ export default async function Home({ params }: { params: { threadId: string } })
   return (
     <>
       <Clock suppressHydrationWarning timezone={thread.timezone} />
-      <div className="w-full flex justify-between items-start lg:items-center py-8 px-8 bg-white rounded-lg shadow mb-4">
+      <div className="w-full flex justify-between items-start lg:items-center py-8 px-8 bg-card rounded-lg shadow-sm mb-4">
         <Tag testid="status" className="mr-2 text-xl lg:text-2xl lg:mr-8">
           {status}
         </Tag>
         <ButtonGroup user={user} threadId={threadId} timezone={thread.timezone} record={record} status={status} />
       </div>
       <ul
-        className={`px-8 py-8 bg-white rounded-lg shadow mb-4 ${
+        className={`px-8 py-8 bg-card rounded-lg shadow-sm mb-4 ${
           status === "BEFORE-WORK" && "hidden"
         }`}
       >
         {record && record.starttime && (
-          <li className="py-4 border-b-2 border-gray-100">
+          <li className="py-4 border-b-2 border-border">
             <TimeStamp heading="Started work at" timeStamp={record.starttime} />
           </li>
         )}
@@ -61,7 +61,7 @@ export default async function Home({ params }: { params: { threadId: string } })
                   className={clsx(
                     'py-2',
                     {
-                      'border-b-2 border-gray-100': i !== record.breaks.length -  1
+                      'border-b-2 border-border': i !== record.breaks.length -  1
                     }
                   )}
                   key={`${b.starttime}-${i}`}
@@ -77,13 +77,13 @@ export default async function Home({ params }: { params: { threadId: string } })
         </li>
         {record && record.endtime && (
           <>
-            <li className="border-t-2 border-gray-100 py-4">
+            <li className="border-t-2 border-border py-4">
               <TimeStamp
                 heading="Finished work at"
                 timeStamp={record.endtime}
               />
             </li>
-            <li className="border-t-2 border-gray-100 py-4">
+            <li className="border-t-2 border-border py-4">
               <TimeStamp
                 heading="Total hours"
                 timeStamp={getFormattedTotalWorkHours(record)}

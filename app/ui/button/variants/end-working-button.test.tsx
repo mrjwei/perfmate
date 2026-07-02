@@ -59,7 +59,7 @@ describe('EndWorkingButton', () => {
 
   it('has an expected class name for background color', () => {
     renderEl()
-    expect(getButton('End Working')).toHaveClass('bg-red-500')
+    expect(getButton('End Working')).toHaveClass('bg-destructive')
   })
 
   it('changes label to "Processing" during submission and reverts to "End Working" when completed', async () => {
