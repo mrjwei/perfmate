@@ -1,0 +1,47 @@
+/* ──────────────────────────────────────────────────────────
+   Typography — type scale, weights, line-heights, tracking
+   Scale is a modular ramp tuned for product UI + marketing.
+   ────────────────────────────────────────────────────────── */
+:root {
+  /* Font sizes (rem, 1rem = 16px) */
+  --text-xs:   0.75rem;   /* 12 */
+  --text-sm:   0.875rem;  /* 14 */
+  --text-base: 1rem;      /* 16 */
+  --text-lg:   1.125rem;  /* 18 */
+  --text-xl:   1.25rem;   /* 20 */
+  --text-2xl:  1.5rem;    /* 24 */
+  --text-3xl:  1.875rem;  /* 30 */
+  --text-4xl:  2.25rem;   /* 36 */
+  --text-5xl:  3rem;      /* 48 */
+  --text-6xl:  3.75rem;   /* 60 */
+  --text-7xl:  4.5rem;    /* 72 */
+
+  /* Weights */
+  --weight-normal:   400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* Line heights */
+  --leading-none:    1;
+  --leading-tight:   1.2;
+  --leading-snug:    1.35;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.625;
+
+  /* Letter spacing */
+  --tracking-tighter: -0.04em;
+  --tracking-tight:   -0.02em;
+  --tracking-normal:  0em;
+  --tracking-wide:    0.025em;
+  --tracking-wider:   0.05em;
+  --tracking-caps:    0.08em;
+
+  /* Semantic roles */
+  --text-display: var(--text-6xl);
+  --text-heading: var(--text-3xl);
+  --text-title:   var(--text-xl);
+  --text-body:    var(--text-base);
+  --text-label:   var(--text-sm);
+  --text-caption: var(--text-xs);
+}

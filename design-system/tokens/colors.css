@@ -1,0 +1,97 @@
+/* ──────────────────────────────────────────────────────────
+   Colors — neutral base scale + shadcn semantic aliases (oklch)
+   The neutral scale is the raw palette; semantic tokens below map
+   intent → scale so child systems can re-skin by editing aliases.
+   ────────────────────────────────────────────────────────── */
+:root {
+  /* Raw neutral scale (zinc-flavoured, hue-free greys) */
+  --neutral-50:  oklch(0.985 0 0);
+  --neutral-100: oklch(0.97 0 0);
+  --neutral-200: oklch(0.922 0 0);
+  --neutral-300: oklch(0.87 0 0);
+  --neutral-400: oklch(0.708 0 0);
+  --neutral-500: oklch(0.556 0 0);
+  --neutral-600: oklch(0.439 0 0);
+  --neutral-700: oklch(0.371 0 0);
+  --neutral-800: oklch(0.269 0 0);
+  --neutral-900: oklch(0.205 0 0);
+  --neutral-950: oklch(0.145 0 0);
+
+  /* Accent/status hues (kept restrained for a neutral base) */
+  --blue-500:   oklch(0.62 0.19 256);
+  --green-600:  oklch(0.59 0.13 163);
+  --amber-500:  oklch(0.77 0.16 70);
+  --red-500:    oklch(0.637 0.237 25.331);
+  --red-600:    oklch(0.577 0.245 27.325);
+
+  /* ── Semantic aliases (shadcn token contract) ── */
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-950);
+
+  --card: oklch(1 0 0);
+  --card-foreground: var(--neutral-950);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--neutral-950);
+
+  --primary: var(--neutral-900);
+  --primary-foreground: var(--neutral-50);
+
+  --secondary: var(--neutral-100);
+  --secondary-foreground: var(--neutral-900);
+
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-500);
+
+  --accent: var(--neutral-100);
+  --accent-foreground: var(--neutral-900);
+
+  --destructive: var(--red-600);
+  --destructive-foreground: var(--neutral-50);
+
+  --success: var(--green-600);
+  --warning: var(--amber-500);
+  --info: var(--blue-500);
+
+  --border: var(--neutral-200);
+  --input: var(--neutral-200);
+  --ring: var(--neutral-400);
+
+  /* Chart sequence */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+}
+
+/* ── Dark theme — apply .dark to <html> or any scope ── */
+.dark {
+  --background: var(--neutral-950);
+  --foreground: var(--neutral-50);
+
+  --card: var(--neutral-900);
+  --card-foreground: var(--neutral-50);
+
+  --popover: var(--neutral-900);
+  --popover-foreground: var(--neutral-50);
+
+  --primary: var(--neutral-200);
+  --primary-foreground: var(--neutral-900);
+
+  --secondary: var(--neutral-800);
+  --secondary-foreground: var(--neutral-50);
+
+  --muted: var(--neutral-800);
+  --muted-foreground: var(--neutral-400);
+
+  --accent: var(--neutral-800);
+  --accent-foreground: var(--neutral-50);
+
+  --destructive: var(--red-500);
+  --destructive-foreground: var(--neutral-50);
+
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: var(--neutral-500);
+}

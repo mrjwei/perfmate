@@ -1,0 +1,22 @@
+/* ──────────────────────────────────────────────────────────
+   Elevation — soft, low-contrast shadows tuned for neutral UI.
+   Restrained on purpose: borders do most of the separation work.
+   ────────────────────────────────────────────────────────── */
+:root {
+  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.06), 0 1px 3px 0 oklch(0 0 0 / 0.08);
+  --shadow-md: 0 2px 4px -1px oklch(0 0 0 / 0.06), 0 4px 8px -1px oklch(0 0 0 / 0.08);
+  --shadow-lg: 0 4px 6px -2px oklch(0 0 0 / 0.05), 0 12px 20px -4px oklch(0 0 0 / 0.10);
+  --shadow-xl: 0 8px 10px -4px oklch(0 0 0 / 0.06), 0 24px 38px -8px oklch(0 0 0 / 0.14);
+
+  /* Focus ring composition */
+  --ring-width: 3px;
+  --ring-offset: 2px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* @kind other */
+  --duration-fast: 120ms; /* @kind other */
+  --duration-base: 180ms; /* @kind other */
+  --duration-slow: 260ms; /* @kind other */
+}

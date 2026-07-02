@@ -1,0 +1,12 @@
+/* ──────────────────────────────────────────────────────────
+   Fonts — Geist Sans + Geist Mono
+   Neutral, professional grotesque. Ships with shadcn by default.
+   Loaded from Google Fonts CDN. To self-host, replace the @import
+   with local @font-face rules pointing at woff2 binaries.
+   ────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap');
+
+:root {
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
