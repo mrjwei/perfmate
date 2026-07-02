@@ -1,6 +1,6 @@
 import {unstable_noStore as noStore} from 'next/cache'
-import {sql} from '@vercel/postgres'
-import { dateToStr, getFormattedTimeString } from "@/app/lib/helpers"
+import {sql} from '@/app/lib/db'
+import { getFormattedTimeString } from "@/app/lib/helpers"
 import { IBreak, IThread, TWeekday } from "@/app/lib/types"
 
 // Shapes of the raw rows @vercel/postgres returns, before mapping to the
@@ -18,7 +18,8 @@ type TRecordRow = {
   id: string
   userid: string
   thread_id: string
-  date: Date
+  // Registered as a raw 'YYYY-MM-DD' string in db.ts, not parsed to a Date.
+  date: string
   starttime: Date | string
   endtime: Date | string | null
 }
@@ -59,7 +60,7 @@ const mapRecordRow = (record: TRecordRow, breaks: IBreak[]) => ({
   id: record.id,
   userid: record.userid,
   threadid: record.thread_id,
-  date: dateToStr(record.date),
+  date: record.date,
   starttime: getFormattedTimeString(record.starttime),
   breaks,
   endtime: record.endtime ? getFormattedTimeString(record.endtime) : null,

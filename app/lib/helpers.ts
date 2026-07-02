@@ -221,13 +221,11 @@ export const getMonthIndex = (month: string, uniqueMonths: string[]) => {
 }
 
 export const getWeekdayName = (date: string | Date, locale: string = 'en-US', isShort: boolean = true) => {
-  let d
-  if (typeof date === 'string') {
-    d = new Date(date)
-  } else {
-    d = date
-  }
-  return d.toLocaleDateString(locale, {weekday: isShort ? 'short' : 'long'})
+  // A bare date string parses as UTC midnight; formatting without an
+  // explicit timeZone would read it back in the process's local timezone
+  // instead, which can name the wrong weekday in timezones behind UTC.
+  const d = typeof date === 'string' ? new Date(date) : date
+  return d.toLocaleDateString(locale, {weekday: isShort ? 'short' : 'long', timeZone: 'UTC'})
 }
 
 export const createPageURL = (
@@ -278,18 +276,27 @@ export const generatePaddedRecordsForMonth = (
   const paddedRecords: IPaddedRecord[] = []
 
   const [year, month] = monthStr.split("-").map(Number)
-  const date = new Date(year, month - 1, 1)
+  // Built via string arithmetic rather than a Date object: constructing
+  // `new Date(year, month - 1, day)` uses the process's local system
+  // timezone, and reformatting that through `dateToStr` (which targets a
+  // fixed timezone) can silently roll the date back or forward a day
+  // whenever the two don't match — e.g. records showing a day earlier when
+  // run locally than on a UTC production server. A calendar day has no
+  // timezone of its own, so plain string math sidesteps the whole class of
+  // bug.
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate()
 
-  while (date.getMonth() === month - 1) {
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`
     let paddedRecord: IPaddedRecord = {
-      date: dateToStr(date),
+      date: dateStr,
       starttime: placeholder,
       breaks: [],
       endtime: placeholder,
       totalbreakhours: placeholder,
       totalworkhours: placeholder,
     }
-    const record = dateIndexedRecords[dateToStr(date)]
+    const record = dateIndexedRecords[dateStr]
     if (record) {
       paddedRecord = {
         ...record,
@@ -298,7 +305,6 @@ export const generatePaddedRecordsForMonth = (
       }
     }
     paddedRecords.push(paddedRecord)
-    date.setDate(date.getDate() + 1)
   }
   return paddedRecords
 }
@@ -357,12 +363,17 @@ export const fetchNationalHolidays = async (year: string | number, countryCode: 
   return res.json()
 }
 
+// Callers pass a date-only string (e.g. "2026-07-02") through `new Date(...)`,
+// which the spec always parses as UTC midnight regardless of the process's
+// local timezone. Reading it back with the UTC getter keeps that parsing
+// consistent everywhere; `.getDay()` would re-introduce a local-timezone
+// dependency and roll the weekday back a day in timezones behind UTC.
 export const isSaturday = (date: Date) => {
-  return date.getDay() === 6
+  return date.getUTCDay() === 6
 }
 
 export const isSunday = (date: Date) => {
-  return date.getDay() === 0
+  return date.getUTCDay() === 0
 }
 
 export const isNationalHoliday = (date: string, nationalHolidays: INationalHoliday[]) => {

@@ -8,7 +8,9 @@ import {
   isNationalHoliday,
   isSaturday,
   isSunday,
-  calculateWage
+  calculateWage,
+  generatePaddedRecordsForMonth,
+  getWeekdayName,
 } from '@/app/lib/helpers'
 import {
   todayRecord,
@@ -122,6 +124,35 @@ describe('Function isSunday', () => {
     const result2 = isSunday(new Date('2024-12-09'))
     expect(result1).toBeTruthy()
     expect(result2).toBeFalsy()
+  })
+})
+
+describe('Function getWeekdayName', () => {
+  it('names the weekday of a bare date string without shifting to the local timezone', () => {
+    // 2024-12-08 is a Sunday; a naive `toLocaleDateString()` without an
+    // explicit UTC timeZone would read this UTC-midnight date back in the
+    // process's local timezone and could report Saturday in zones behind UTC.
+    expect(getWeekdayName('2024-12-08')).toBe('Sun')
+  })
+})
+
+describe('Function generatePaddedRecordsForMonth', () => {
+  it('produces one entry per calendar day of the month, dated by plain string arithmetic', () => {
+    // Regression test: this used to build each day via
+    // `new Date(year, month - 1, day)` (local system midnight) and reformat
+    // it through a fixed-timezone formatter, which could roll dates a day
+    // off from the real record dates in any timezone that doesn't match.
+    const padded = generatePaddedRecordsForMonth('2024-02', [])
+    expect(padded).toHaveLength(29) // 2024 is a leap year
+    expect(padded[0].date).toBe('2024-02-01')
+    expect(padded[28].date).toBe('2024-02-29')
+  })
+
+  it('matches a real record to its padded day by exact date string, regardless of local timezone', () => {
+    const record = { ...todayRecord, date: '2024-07-15' }
+    const padded = generatePaddedRecordsForMonth('2024-07', [record])
+    const matched = padded.find((r) => r.date === '2024-07-15')
+    expect(matched?.starttime).toBe(record.starttime)
   })
 })
 

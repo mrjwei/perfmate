@@ -4,6 +4,7 @@ const sqlMock = Object.assign(vi.fn(), { query: vi.fn() })
 
 vi.mock('@vercel/postgres', () => ({
   sql: sqlMock,
+  types: { setTypeParser: vi.fn() },
 }))
 
 vi.mock('next/cache', () => ({
