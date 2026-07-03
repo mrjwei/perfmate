@@ -306,7 +306,7 @@ export const userUpdateSchema = z
 
 const weekdaySchema = z.coerce.number().int().min(0).max(6)
 
-export const threadBaseSchema = z.object({
+export const workspaceBaseSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1, {message: 'Name is required'}),
   hourlywage: z.coerce.number({message: 'Hourly wage is required'}).positive({
@@ -319,8 +319,8 @@ export const threadBaseSchema = z.object({
   timezone: z.string().min(1, {message: 'Please select a timezone'}),
 })
 
-export const threadCreationSchema = threadBaseSchema.omit({ id: true })
+export const workspaceCreationSchema = workspaceBaseSchema.omit({ id: true })
 
-export const threadUpdateSchema = threadBaseSchema
+export const workspaceUpdateSchema = workspaceBaseSchema
 
 

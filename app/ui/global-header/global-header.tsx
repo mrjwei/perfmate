@@ -8,19 +8,16 @@ import { League_Spartan } from "next/font/google";
 import { ChevronDownIcon, ChevronUpIcon, ArrowRightIcon } from "@heroicons/react/24/outline"
 import { Button } from "@/components/ui/button"
 import LinkItem from "@/app/ui/link-item/link-item"
-import ThreadSwitcher from "@/app/ui/global-header/thread-switcher"
 import { signOut } from '@/app/lib/actions'
-import { INotification, IThread } from "@/app/lib/types"
+import { INotification } from "@/app/lib/types"
 
 const spartan = League_Spartan({ subsets: ["latin"] });
 
 export default function GlobalHeader({
   user,
-  threads,
   notifications,
 }: {
   user: User
-  threads: IThread[]
   notifications: INotification[] | null
 }) {
   const pathname = usePathname()
@@ -60,7 +57,6 @@ export default function GlobalHeader({
             PERFMATE
           </Link>
         </h1>
-        <ThreadSwitcher threads={threads} />
       </div>
       <div className="flex items-center">
         <Button

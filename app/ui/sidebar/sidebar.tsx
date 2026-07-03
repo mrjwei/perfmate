@@ -5,51 +5,44 @@ import { usePathname } from "next/navigation"
 import {
   HomeModernIcon,
   DocumentChartBarIcon,
-  RectangleStackIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline"
 import {
   HomeModernIcon as HomeModernSolidIcon,
   DocumentChartBarIcon as DocumentChartBarSolidIcon,
-  RectangleStackIcon as RectangleStackSolidIcon,
   Cog6ToothIcon as Cog6ToothSolidIcon
 } from "@heroicons/react/24/solid"
 import LinkItem from "@/app/ui/link-item/link-item"
-import { IThread } from "@/app/lib/types"
+import WorkspaceSwitcher from "@/app/ui/sidebar/workspace-switcher"
+import { IWorkspace } from "@/app/lib/types"
 
-// Matches /app/<threadId>/... (but not /app/threads or /app/setting, which
-// aren't scoped to a thread).
-const THREAD_ID_PATTERN = /^\/app\/(?!threads|setting)([^/]+)/
+// Matches /app/<workspaceId>/... (but not /app/workspaces or /app/setting, which
+// aren't scoped to a workspace).
+const WORKSPACE_ID_PATTERN = /^\/app\/(?!workspaces|setting)([^/]+)/
 
-export default function Sidebar({ threads }: { threads: IThread[] }) {
+export default function Sidebar({ workspaces }: { workspaces: IWorkspace[] }) {
   const pathname = usePathname()
-  // Fall back to the first active thread so Home/Records stay reachable even
-  // from pages that aren't scoped to a thread (e.g. /app/threads, /app/setting).
-  const threadId = pathname.match(THREAD_ID_PATTERN)?.[1] ?? threads.find((t) => !t.archived)?.id
+  // Fall back to the first active workspace so Home/Records stay reachable even
+  // from pages that aren't scoped to a workspace (e.g. /app/workspaces, /app/setting).
+  const workspaceId = pathname.match(WORKSPACE_ID_PATTERN)?.[1] ?? workspaces.find((t) => !t.archived)?.id
 
   const links = [
-    ...(threadId
+    ...(workspaceId
       ? [
           {
-            href: `/app/${threadId}`,
+            href: `/app/${workspaceId}`,
             children: "Home",
             outlineIcon: <HomeModernIcon className="w-5" />,
             solidIcon: <HomeModernSolidIcon className="w-5" />,
           },
           {
-            href: `/app/${threadId}/records`,
+            href: `/app/${workspaceId}/records`,
             children: "Records",
             outlineIcon: <DocumentChartBarIcon className="w-5" />,
             solidIcon: <DocumentChartBarSolidIcon className="w-5" />,
           },
         ]
       : []),
-    {
-      href: "/app/threads",
-      children: "Threads",
-      outlineIcon: <RectangleStackIcon className="w-5" />,
-      solidIcon: <RectangleStackSolidIcon className="w-5" />,
-    },
     {
       href: "/app/setting",
       children: "Setting",
@@ -60,6 +53,9 @@ export default function Sidebar({ threads }: { threads: IThread[] }) {
 
   return (
     <div className="self-stretch bg-neutral-900 px-3 py-6 shadow-md fixed top-[56px] h-full z-10">
+      <div className="mb-4">
+        <WorkspaceSwitcher workspaces={workspaces} />
+      </div>
       <ul>
         {links.map((l) => {
           const { href, children, outlineIcon, solidIcon } = l

@@ -6,7 +6,7 @@ import * as actions from '@/app/lib/actions'
 
 describe('StartBreakButton', () => {
   const renderEl = (status: string = "IN-WORK") => {
-    render(<StartBreakButton threadId="threadid" record={null} disabled={status === "BEFORE-WORK" || status === "AFTER-WORK" || status === "IN-BREAK"} starttimeStr="12:00" />)
+    render(<StartBreakButton workspaceId="workspaceid" record={null} disabled={status === "BEFORE-WORK" || status === "AFTER-WORK" || status === "IN-BREAK"} starttimeStr="12:00" />)
   }
   const getButton = (name: string) => {
     return screen.getByRole('button', {name})

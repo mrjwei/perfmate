@@ -12,7 +12,7 @@ import {
   getCurrentTimeInTimezone
 } from '@/app/lib/helpers'
 
-export default function ButtonGroup({user, threadId, timezone, record, status}: {user: User, threadId: string, timezone: string, record: IRecord | null, status: TStatus}) {
+export default function ButtonGroup({user, workspaceId, timezone, record, status}: {user: User, workspaceId: string, timezone: string, record: IRecord | null, status: TStatus}) {
   const [date, setDate] = useState(new Date())
 
   const dateStr = useMemo(() => getTodayInTimezone(timezone), [date, timezone])
@@ -29,14 +29,14 @@ export default function ButtonGroup({user, threadId, timezone, record, status}: 
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StartWorkingButton
         userid={user.id!}
-        threadId={threadId}
+        workspaceId={workspaceId}
         disabled={status !== "BEFORE-WORK"}
         dateStr={dateStr}
         starttimeStr={timeStr}
       />
-      <StartBreakButton threadId={threadId} record={record} disabled={status !== "IN-WORK"} starttimeStr={timeStr} />
-      <EndBreakButton threadId={threadId} record={record} disabled={status !== "IN-BREAK"} endtimeStr={timeStr} />
-      <EndWorkingButton threadId={threadId} record={record} disabled={status !== "IN-WORK"} endtimeStr={timeStr} />
+      <StartBreakButton workspaceId={workspaceId} record={record} disabled={status !== "IN-WORK"} starttimeStr={timeStr} />
+      <EndBreakButton workspaceId={workspaceId} record={record} disabled={status !== "IN-BREAK"} endtimeStr={timeStr} />
+      <EndWorkingButton workspaceId={workspaceId} record={record} disabled={status !== "IN-WORK"} endtimeStr={timeStr} />
     </div>
   )
 }

@@ -11,8 +11,8 @@ import {
   creationSchema,
   userCreationSchema,
   userUpdateSchema,
-  threadCreationSchema,
-  threadUpdateSchema,
+  workspaceCreationSchema,
+  workspaceUpdateSchema,
 } from "@/app/lib/schemas"
 import { auth, signIn, signOut as authSignOut } from "@/auth"
 import { AuthError } from "next-auth"
@@ -83,7 +83,7 @@ export async function updateRecord(
   }
 }
 
-export async function deleteRecord(threadId: string, id: string, month?: string) {
+export async function deleteRecord(workspaceId: string, id: string, month?: string) {
   let date
   try {
     const data = await sql`
@@ -96,17 +96,17 @@ export async function deleteRecord(threadId: string, id: string, month?: string)
       message: "Database error: failed to delete record",
     }
   }
-  revalidatePath(`/app/${threadId}/records`)
+  revalidatePath(`/app/${workspaceId}/records`)
   if (month) {
-    redirect(`/app/${threadId}/records?month=${month}&date=${date}`)
+    redirect(`/app/${workspaceId}/records?month=${month}&date=${date}`)
   } else {
-    redirect(`/app/${threadId}/records?date=${date}`)
+    redirect(`/app/${workspaceId}/records?date=${date}`)
   }
 }
 
 export async function createRecord(
   userId: string,
-  threadId: string,
+  workspaceId: string,
   date: string,
   starttime: string,
   endtime?: string | null
@@ -115,14 +115,14 @@ export async function createRecord(
     let data
     if (endtime && endtime !== null) {
       data = await sql`
-        INSERT INTO records (userid, thread_id, date, starttime, endtime)
-        VALUES (${userId}, ${threadId}, ${date}, ${starttime}, ${endtime})
+        INSERT INTO records (userid, workspace_id, date, starttime, endtime)
+        VALUES (${userId}, ${workspaceId}, ${date}, ${starttime}, ${endtime})
         RETURNING id;
       `
     } else {
       data = await sql`
-        INSERT INTO records (userid, thread_id, date, starttime)
-        VALUES (${userId}, ${threadId}, ${date}, ${starttime})
+        INSERT INTO records (userid, workspace_id, date, starttime)
+        VALUES (${userId}, ${workspaceId}, ${date}, ${starttime})
         RETURNING id;
       `
     }
@@ -200,26 +200,26 @@ export async function createBreak(
 
 export async function startWorking(
   userId: string,
-  threadId: string,
+  workspaceId: string,
   date: string,
   starttime: string
 ) {
-  await createRecord(userId, threadId, date, starttime)
-  revalidatePath(`/app/${threadId}`)
-  redirect(`/app/${threadId}`)
+  await createRecord(userId, workspaceId, date, starttime)
+  revalidatePath(`/app/${workspaceId}`)
+  redirect(`/app/${workspaceId}`)
 }
 
-export async function endWorking(threadId: string, id: string | null, endtime: string) {
+export async function endWorking(workspaceId: string, id: string | null, endtime: string) {
   if (!id) {
     return
   }
   await updateRecord(id, endtime)
-  revalidatePath(`/app/${threadId}`)
-  redirect(`/app/${threadId}`)
+  revalidatePath(`/app/${workspaceId}`)
+  redirect(`/app/${workspaceId}`)
 }
 
 export async function editForm(
-  threadId: string,
+  workspaceId: string,
   id: string,
   month: string | null,
   prevState: TRecordFormState,
@@ -257,7 +257,7 @@ export async function editForm(
   try {
     if (!validatedStarttime && !validatedEndtime) {
       // If both start and end times are empty, delete the record
-      await deleteRecord(threadId, validatedRecordId)
+      await deleteRecord(workspaceId, validatedRecordId)
     } else if (validatedStarttime) {
       // Otherwise update record
       const endtime = validatedEndtime ? validatedEndtime : null
@@ -291,25 +291,25 @@ export async function editForm(
       errors: {},
     }
   }
-  revalidatePath(`/app/${threadId}`)
-  revalidatePath(`/app/${threadId}/records`)
+  revalidatePath(`/app/${workspaceId}`)
+  revalidatePath(`/app/${workspaceId}/records`)
   if (month) {
-    redirect(`/app/${threadId}/records?month=${month}&date=${validatedDate}`)
+    redirect(`/app/${workspaceId}/records?month=${month}&date=${validatedDate}`)
   } else {
-    redirect(`/app/${threadId}/records?date=${validatedDate}`)
+    redirect(`/app/${workspaceId}/records?date=${validatedDate}`)
   }
 }
 
-export async function startBreak(threadId: string, recordId: string | null, starttime: string) {
+export async function startBreak(workspaceId: string, recordId: string | null, starttime: string) {
   if (!recordId) {
     return
   }
   await createBreak(recordId, starttime)
-  revalidatePath(`/app/${threadId}`)
-  redirect(`/app/${threadId}`)
+  revalidatePath(`/app/${workspaceId}`)
+  redirect(`/app/${workspaceId}`)
 }
 
-export async function endBreak(threadId: string, recordId: string | null, endtime: string) {
+export async function endBreak(workspaceId: string, recordId: string | null, endtime: string) {
   if (!recordId) {
     return
   }
@@ -322,13 +322,13 @@ export async function endBreak(threadId: string, recordId: string | null, endtim
     return
   }
   await updateBreak(targetBreak.id, undefined, endtime)
-  revalidatePath(`/app/${threadId}`)
-  redirect(`/app/${threadId}`)
+  revalidatePath(`/app/${workspaceId}`)
+  redirect(`/app/${workspaceId}`)
 }
 
 export async function creationForm(
   userId: string,
-  threadId: string,
+  workspaceId: string,
   month: string | null,
   prevState: TRecordFormState,
   formData: FormData
@@ -370,7 +370,7 @@ export async function creationForm(
 
       const data = await createRecord(
         userId,
-        threadId,
+        workspaceId,
         validatedDate,
         validatedStarttime,
         endtime
@@ -397,11 +397,11 @@ export async function creationForm(
       errors: {},
     }
   }
-  revalidatePath(`/app/${threadId}/records`)
+  revalidatePath(`/app/${workspaceId}/records`)
   if (month) {
-    redirect(`/app/${threadId}/records?month=${month}&date=${validatedDate}`)
+    redirect(`/app/${workspaceId}/records?month=${month}&date=${validatedDate}`)
   } else {
-    redirect(`/app/${threadId}/records?date=${validatedDate}`)
+    redirect(`/app/${workspaceId}/records?date=${validatedDate}`)
   }
 }
 
@@ -502,26 +502,26 @@ export async function signup(prevState: unknown, formData: FormData) {
   }
 }
 
-async function replaceThreadSchedule(threadId: string, schedule: number[]) {
-  await sql`DELETE FROM thread_schedules WHERE thread_id = ${threadId};`
+async function replaceWorkspaceSchedule(workspaceId: string, schedule: number[]) {
+  await sql`DELETE FROM workspace_schedules WHERE workspace_id = ${workspaceId};`
   if (schedule.length === 0) {
     return
   }
   await Promise.all(
     schedule.map((weekday) => sql`
-      INSERT INTO thread_schedules (thread_id, weekday)
-      VALUES (${threadId}, ${weekday});
+      INSERT INTO workspace_schedules (workspace_id, weekday)
+      VALUES (${workspaceId}, ${weekday});
     `)
   )
 }
 
-export async function createThreadForm(prevState: unknown, formData: FormData) {
+export async function createWorkspaceForm(prevState: unknown, formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) {
     return { message: "Not authenticated", errors: {} }
   }
 
-  const validatedFields = threadCreationSchema.safeParse({
+  const validatedFields = workspaceCreationSchema.safeParse({
     name: formData.get("name"),
     hourlywage: formData.get("hourlywage"),
     currency: formData.get("currency"),
@@ -532,35 +532,35 @@ export async function createThreadForm(prevState: unknown, formData: FormData) {
   })
   if (!validatedFields.success) {
     return {
-      message: "Failed to create thread",
+      message: "Failed to create workspace",
       errors: toFieldErrors(validatedFields.error),
     }
   }
   const { name, hourlywage, currency, taxincluded, taxrate, schedule, timezone } = validatedFields.data
 
-  let threadId
+  let workspaceId
   try {
     const data = await sql`
-      INSERT INTO threads (userid, name, hourly_wage, currency, tax_included, tax_rate, timezone)
+      INSERT INTO workspaces (userid, name, hourly_wage, currency, tax_included, tax_rate, timezone)
       VALUES (${session.user.id}, ${name}, ${hourlywage}, ${currency}, ${taxincluded}, ${taxrate}, ${timezone})
       RETURNING id;
     `
-    threadId = data.rows[0].id
-    await replaceThreadSchedule(threadId, schedule)
+    workspaceId = data.rows[0].id
+    await replaceWorkspaceSchedule(workspaceId, schedule)
   } catch (error) {
-    return { message: "Database error: failed to create thread", errors: {} }
+    return { message: "Database error: failed to create workspace", errors: {} }
   }
   revalidatePath("/app")
-  redirect(`/app/${threadId}`)
+  redirect(`/app/${workspaceId}`)
 }
 
-export async function updateThreadForm(
-  threadId: string,
+export async function updateWorkspaceForm(
+  workspaceId: string,
   prevState: unknown,
   formData: FormData
 ) {
-  const validatedFields = threadUpdateSchema.safeParse({
-    id: threadId,
+  const validatedFields = workspaceUpdateSchema.safeParse({
+    id: workspaceId,
     name: formData.get("name"),
     hourlywage: formData.get("hourlywage"),
     currency: formData.get("currency"),
@@ -571,7 +571,7 @@ export async function updateThreadForm(
   })
   if (!validatedFields.success) {
     return {
-      message: "Failed to update thread",
+      message: "Failed to update workspace",
       errors: toFieldErrors(validatedFields.error),
     }
   }
@@ -579,32 +579,32 @@ export async function updateThreadForm(
 
   try {
     await sql`
-      UPDATE threads
+      UPDATE workspaces
       SET name=${name}, hourly_wage=${hourlywage}, currency=${currency}, tax_included=${taxincluded}, tax_rate=${taxrate}, timezone=${timezone}
       WHERE id=${id};
     `
-    await replaceThreadSchedule(id, schedule)
+    await replaceWorkspaceSchedule(id, schedule)
   } catch (error) {
     return {
-      message: "Database error: failed to update thread",
+      message: "Database error: failed to update workspace",
       errors: {},
     }
   }
-  revalidatePath(`/app/${threadId}`)
-  revalidatePath("/app/threads")
-  redirect(`/app/${threadId}/settings`)
+  revalidatePath(`/app/${workspaceId}`)
+  revalidatePath("/app/workspaces")
+  redirect(`/app/${workspaceId}/settings`)
 }
 
-export async function archiveThread(threadId: string) {
-  await sql`UPDATE threads SET archived = true WHERE id = ${threadId};`
-  revalidatePath("/app/threads")
-  redirect("/app/threads")
+export async function archiveWorkspace(workspaceId: string) {
+  await sql`UPDATE workspaces SET archived = true WHERE id = ${workspaceId};`
+  revalidatePath("/app/workspaces")
+  redirect("/app/workspaces")
 }
 
-export async function unarchiveThread(threadId: string) {
-  await sql`UPDATE threads SET archived = false WHERE id = ${threadId};`
-  revalidatePath("/app/threads")
-  redirect("/app/threads")
+export async function unarchiveWorkspace(workspaceId: string) {
+  await sql`UPDATE workspaces SET archived = false WHERE id = ${workspaceId};`
+  revalidatePath("/app/workspaces")
+  redirect("/app/workspaces")
 }
 
 export async function signOut() {

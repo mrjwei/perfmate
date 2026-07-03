@@ -1,7 +1,7 @@
 import {unstable_noStore as noStore} from 'next/cache'
 import {sql} from '@/app/lib/db'
 import { getFormattedTimeString } from "@/app/lib/helpers"
-import { IBreak, IThread, TWeekday } from "@/app/lib/types"
+import { IBreak, IWorkspace, TWeekday } from "@/app/lib/types"
 
 // Shapes of the raw rows @vercel/postgres returns, before mapping to the
 // app's I* types (columns are snake_case/Date-typed as Postgres returns them).
@@ -17,7 +17,7 @@ type TRecordRow = {
   [column: string]: any
   id: string
   userid: string
-  thread_id: string
+  workspace_id: string
   // Registered as a raw 'YYYY-MM-DD' string in db.ts, not parsed to a Date.
   date: string
   starttime: Date | string
@@ -35,7 +35,7 @@ type TUserAuthRow = TUserRow & {
   password: string
 }
 
-type TThreadRow = {
+type TWorkspaceRow = {
   [column: string]: any
   id: string
   userid: string
@@ -59,7 +59,7 @@ const mapBreakRow = (b: TBreakRow, recordId: string): IBreak => ({
 const mapRecordRow = (record: TRecordRow, breaks: IBreak[]) => ({
   id: record.id,
   userid: record.userid,
-  threadid: record.thread_id,
+  workspaceid: record.workspace_id,
   date: record.date,
   starttime: getFormattedTimeString(record.starttime),
   breaks,
@@ -102,12 +102,12 @@ export const fetchRecordById = async (id: string) => {
   }
 }
 
-export const fetchPaginatedRecords = async (threadId: string, month: string) => {
+export const fetchPaginatedRecords = async (workspaceId: string, month: string) => {
   noStore()
   try {
     const data = await sql<TRecordRow>`
       SELECT * FROM records
-      WHERE thread_id = ${threadId}
+      WHERE workspace_id = ${workspaceId}
       AND TO_CHAR(date, 'YYYY-MM') = ${month}
       ORDER BY date ASC;
     `
@@ -124,11 +124,11 @@ export const fetchPaginatedRecords = async (threadId: string, month: string) => 
 export const fetchRecordsToNotify = async (userId: string) => {
   noStore()
   try {
-    // "Not today" is evaluated per-thread since each thread can have its own
+    // "Not today" is evaluated per-workspace since each workspace can have its own
     // business timezone (e.g. working for companies in different countries).
     const data = await sql<TRecordRow>`
       SELECT r.* FROM records r
-      JOIN threads t ON t.id = r.thread_id
+      JOIN workspaces t ON t.id = r.workspace_id
       WHERE r.userid = ${userId}
         AND r.date != (now() AT TIME ZONE t.timezone)::date
         AND r.endtime IS NULL;
@@ -159,12 +159,12 @@ export const fetchBreaksByRecordId = async (recordId: string) => {
   }
 }
 
-export const fetchLastRecord = async (threadId: string) => {
+export const fetchLastRecord = async (workspaceId: string) => {
   noStore()
   try {
     const data = await sql<TRecordRow>`
       SELECT * FROM records
-      WHERE thread_id = ${threadId}
+      WHERE workspace_id = ${workspaceId}
       ORDER BY date DESC
       LIMIT 1;
     `
@@ -211,7 +211,7 @@ export const fetchUserAuthByEmail = async (email: string) => {
   }
 }
 
-const mapThreadRow = (row: TThreadRow): IThread => ({
+const mapWorkspaceRow = (row: TWorkspaceRow): IWorkspace => ({
   id: row.id,
   userid: row.userid,
   name: row.name,
@@ -224,36 +224,36 @@ const mapThreadRow = (row: TThreadRow): IThread => ({
   timezone: row.timezone,
 })
 
-export const fetchThreadsByUserId = async (userId: string) => {
+export const fetchWorkspacesByUserId = async (userId: string) => {
   noStore()
   try {
-    const data = await sql<TThreadRow>`
+    const data = await sql<TWorkspaceRow>`
       SELECT t.*, array_agg(ts.weekday) AS schedule
-      FROM threads t
-      LEFT JOIN thread_schedules ts ON ts.thread_id = t.id
+      FROM workspaces t
+      LEFT JOIN workspace_schedules ts ON ts.workspace_id = t.id
       WHERE t.userid = ${userId}
       GROUP BY t.id
       ORDER BY t.archived ASC, t.created_at ASC;
     `
-    return data.rows.map(mapThreadRow)
+    return data.rows.map(mapWorkspaceRow)
   } catch (error) {
     console.error(`Database error: ${error}`);
-    throw new Error('Failed to fetch threads.');
+    throw new Error('Failed to fetch workspaces.');
   }
 }
 
-export const fetchThreadById = async (id: string) => {
+export const fetchWorkspaceById = async (id: string) => {
   noStore()
   try {
-    const data = await sql<TThreadRow>`
+    const data = await sql<TWorkspaceRow>`
       SELECT t.*, array_agg(ts.weekday) AS schedule
-      FROM threads t
-      LEFT JOIN thread_schedules ts ON ts.thread_id = t.id
+      FROM workspaces t
+      LEFT JOIN workspace_schedules ts ON ts.workspace_id = t.id
       WHERE t.id = ${id}
       GROUP BY t.id;
     `
     const row = data.rows[0]
-    return row ? mapThreadRow(row) : null
+    return row ? mapWorkspaceRow(row) : null
   } catch (error) {
     console.error(`Database error: ${error}`);
     return null

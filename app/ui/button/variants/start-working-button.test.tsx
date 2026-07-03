@@ -15,7 +15,7 @@ import * as actions from '@/app/lib/actions'
 
 describe('StartWorkingButton', () => {
   const renderEl = (status: string = "BEFORE-WORK") => {
-    render(<StartWorkingButton userid="userid" threadId="threadid" dateStr="2024-11-20" starttimeStr="10:00" disabled={status !== "BEFORE-WORK"} />)
+    render(<StartWorkingButton userid="userid" workspaceId="workspaceid" dateStr="2024-11-20" starttimeStr="10:00" disabled={status !== "BEFORE-WORK"} />)
   }
   const getButton = (name: string) => {
     return screen.getByRole('button', {name})

@@ -6,13 +6,13 @@ import { endWorking } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
 
 export default function EndWorkingButton({
-  threadId,
+  workspaceId,
   record,
   disabled,
   endtimeStr,
   ...props
 }: {
-  threadId: string
+  workspaceId: string
   record: IRecord | null
   disabled: boolean
   endtimeStr: string
@@ -25,7 +25,7 @@ export default function EndWorkingButton({
     recordId = record.id
   }
 
-  const endWorkingAction = endWorking.bind(null, threadId, recordId, endtimeStr)
+  const endWorkingAction = endWorking.bind(null, workspaceId, recordId, endtimeStr)
   const [state, formAction, isPending] = useActionState(endWorkingAction, null)
   return (
     <form action={formAction}>

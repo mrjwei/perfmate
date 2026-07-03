@@ -1,19 +1,19 @@
 import { z } from "zod"
-import { userBaseSchema, threadBaseSchema } from "@/app/lib/schemas"
+import { userBaseSchema, workspaceBaseSchema } from "@/app/lib/schemas"
 
 export type TStatus = 'BEFORE-WORK' | 'IN-WORK' | 'IN-BREAK' | 'AFTER-WORK'
 
 export interface IRecord {
   id: string
   userid: string
-  threadid: string
+  workspaceid: string
   date: string
   starttime: string
   breaks: IBreak[]
   endtime: string | null
 }
 
-export interface IPaddedRecord extends Omit<IRecord, 'id' | 'userid' | 'threadid'> {
+export interface IPaddedRecord extends Omit<IRecord, 'id' | 'userid' | 'workspaceid'> {
   id?: string
   totalbreakhours: string
   totalworkhours: string
@@ -34,7 +34,7 @@ export interface INationalHoliday {
   types: string[]
 }
 
-export interface IThread extends Omit<z.infer<typeof threadBaseSchema>, 'schedule'> {
+export interface IWorkspace extends Omit<z.infer<typeof workspaceBaseSchema>, 'schedule'> {
   userid: string
   archived: boolean
   schedule: TWeekday[]

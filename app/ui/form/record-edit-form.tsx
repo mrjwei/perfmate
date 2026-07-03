@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { IGenericBreak, IRecord, TRecordFormState } from "@/app/lib/types"
 import { deleteBreak, editForm } from "@/app/lib/actions"
 
-export default function RecordEditForm({ record, threadId }: { record: IRecord, threadId: string }) {
+export default function RecordEditForm({ record, workspaceId }: { record: IRecord, workspaceId: string }) {
   const searchParams = useSearchParams()
   const month = searchParams.get("month")
 
@@ -33,7 +33,7 @@ export default function RecordEditForm({ record, threadId }: { record: IRecord, 
     setBreaks(filteredBreaks)
   }
 
-  const editFormAction = editForm.bind(null, threadId, record.id, month)
+  const editFormAction = editForm.bind(null, workspaceId, record.id, month)
   const initialState: TRecordFormState = {
     message: "",
     errors: {},
@@ -196,7 +196,7 @@ export default function RecordEditForm({ record, threadId }: { record: IRecord, 
           )}
         </Button>
         <Link
-          href={`/app/${threadId}/records?month=${month}`}
+          href={`/app/${workspaceId}/records?month=${month}`}
           className="box-border px-4 py-2 font-medium rounded-lg disabled:bg-muted whitespace-nowrap border-2 border-border"
         >
           Cancel

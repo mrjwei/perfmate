@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button"
 import { deleteRecord } from "@/app/lib/actions"
 
 export default function DeleteButton({
-  threadId,
+  workspaceId,
   id,
   month,
 }: {
-  threadId: string
+  workspaceId: string
   id: string | undefined
   month?: string
 }) {
@@ -20,7 +20,7 @@ export default function DeleteButton({
       return
     }
     setIsPending(true)
-    await deleteRecord(threadId, id, month)
+    await deleteRecord(workspaceId, id, month)
     setIsPending(false)
   }
   return (

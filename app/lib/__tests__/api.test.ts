@@ -11,18 +11,18 @@ vi.mock('next/cache', () => ({
   unstable_noStore: vi.fn(),
 }))
 
-const { fetchThreadById, fetchRecordById, fetchUserByEmail } = await import('@/app/lib/api')
+const { fetchWorkspaceById, fetchRecordById, fetchUserByEmail } = await import('@/app/lib/api')
 
 beforeEach(() => {
   sqlMock.mockReset()
   sqlMock.query.mockReset()
 })
 
-describe('fetchThreadById', () => {
-  it('maps a DB row to IThread, coercing numeric columns and dropping null schedule slots', async () => {
+describe('fetchWorkspaceById', () => {
+  it('maps a DB row to IWorkspace, coercing numeric columns and dropping null schedule slots', async () => {
     sqlMock.mockResolvedValueOnce({
       rows: [{
-        id: 'thread-1',
+        id: 'workspace-1',
         userid: 'user-1',
         name: 'Acme Inc',
         hourly_wage: '2000',
@@ -35,10 +35,10 @@ describe('fetchThreadById', () => {
       }],
     })
 
-    const thread = await fetchThreadById('thread-1')
+    const workspace = await fetchWorkspaceById('workspace-1')
 
-    expect(thread).toEqual({
-      id: 'thread-1',
+    expect(workspace).toEqual({
+      id: 'workspace-1',
       userid: 'user-1',
       name: 'Acme Inc',
       hourlywage: 2000,
@@ -51,16 +51,16 @@ describe('fetchThreadById', () => {
     })
   })
 
-  it('returns null when no thread matches', async () => {
+  it('returns null when no workspace matches', async () => {
     sqlMock.mockResolvedValueOnce({ rows: [] })
-    const thread = await fetchThreadById('missing')
-    expect(thread).toBeNull()
+    const workspace = await fetchWorkspaceById('missing')
+    expect(workspace).toBeNull()
   })
 
   it('returns null (not throw) when the query fails', async () => {
     sqlMock.mockRejectedValueOnce(new Error('connection lost'))
-    const thread = await fetchThreadById('thread-1')
-    expect(thread).toBeNull()
+    const workspace = await fetchWorkspaceById('workspace-1')
+    expect(workspace).toBeNull()
   })
 })
 
@@ -71,7 +71,7 @@ describe('fetchRecordById', () => {
         rows: [{
           id: 'record-1',
           userid: 'user-1',
-          thread_id: 'thread-1',
+          workspace_id: 'workspace-1',
           date: new Date('2024-07-27T00:00:00Z'),
           starttime: '09:05:00',
           endtime: '18:00:00',
@@ -89,7 +89,7 @@ describe('fetchRecordById', () => {
     const record = await fetchRecordById('record-1')
 
     expect(record?.id).toBe('record-1')
-    expect(record?.threadid).toBe('thread-1')
+    expect(record?.workspaceid).toBe('workspace-1')
     expect(record?.starttime).toBe('09:05')
     expect(record?.endtime).toBe('18:00')
     expect(record?.breaks).toEqual([

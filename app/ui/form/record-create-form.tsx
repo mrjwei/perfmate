@@ -14,7 +14,7 @@ import { IGenericBreak, TRecordFormState } from "@/app/lib/types"
 import { creationForm } from "@/app/lib/actions"
 import { dateToStr } from "@/app/lib/helpers"
 
-export default function RecordCreateForm({ threadId }: { threadId: string }) {
+export default function RecordCreateForm({ workspaceId }: { workspaceId: string }) {
   const { data: session } = useSession()
 
   if (!session) {
@@ -47,7 +47,7 @@ export default function RecordCreateForm({ threadId }: { threadId: string }) {
     errors: {},
   }
 
-  const creationFormAction = creationForm.bind(null, session.user.id!, threadId, month)
+  const creationFormAction = creationForm.bind(null, session.user.id!, workspaceId, month)
   const [state, formAction, isPending] = useActionState(
     creationFormAction,
     initialState
@@ -198,7 +198,7 @@ export default function RecordCreateForm({ threadId }: { threadId: string }) {
           )}
         </Button>
         <Link
-          href={`/app/${threadId}/records?month=${dateToStr(new Date(date), 'yyyy-mm')}`}
+          href={`/app/${workspaceId}/records?month=${dateToStr(new Date(date), 'yyyy-mm')}`}
           className="box-border px-4 py-2 font-medium rounded-lg disabled:bg-muted whitespace-nowrap border-2 border-border"
         >
           Cancel

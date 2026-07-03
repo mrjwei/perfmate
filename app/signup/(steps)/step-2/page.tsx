@@ -1,6 +1,6 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
-import ThreadForm from '@/app/ui/form/thread-form'
+import WorkspaceForm from '@/app/ui/form/workspace-form'
 import { auth } from '@/auth'
 
 export default async function SignupStepTwo() {
@@ -11,10 +11,10 @@ export default async function SignupStepTwo() {
   return (
     <div className="mx-auto py-24 max-w-lg">
       <h1 className="text-center text-2xl text-muted-foreground font-bold mb-12">
-        Step 2: Add your first thread
+        Step 2: Add your first workspace
       </h1>
       <div className="rounded-lg bg-card shadow-sm p-8">
-        <ThreadForm />
+        <WorkspaceForm />
       </div>
     </div>
   );

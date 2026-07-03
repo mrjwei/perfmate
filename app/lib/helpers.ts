@@ -3,7 +3,7 @@ import {
   TStatus,
   IRecord,
   IBreak,
-  IThread,
+  IWorkspace,
   TDateIndexedRecords,
   IPaddedRecord,
   TNotificationType,
@@ -25,9 +25,9 @@ export const formatter = new Intl.DateTimeFormat("en-US", {
   timeZone: "Asia/Tokyo"
 })
 
-// Timezone is a per-thread setting (thread.timezone) since a user can work
+// Timezone is a per-workspace setting (workspace.timezone) since a user can work
 // for companies in different countries. These helpers answer "what is today"
-// and "what time is it right now" for a specific thread's timezone — unlike
+// and "what time is it right now" for a specific workspace's timezone — unlike
 // `formatter` above, this genuinely depends on the timezone since it's
 // evaluating the current instant, not reformatting an already-known date.
 const timezoneDateFormatterCache = new Map<string, Intl.DateTimeFormat>()
@@ -343,16 +343,16 @@ export interface IWageBreakdown {
   inclTax: number
 }
 
-// A thread's hourlywage is either tax-inclusive or tax-exclusive (per its
+// A workspace's hourlywage is either tax-inclusive or tax-exclusive (per its
 // taxincluded flag); this derives the other figure from taxrate (a percentage,
 // e.g. 10 for a 10% consumption/sales tax) so both can be displayed.
 export const calculateWage = (
   mins: number,
-  thread: Pick<IThread, "hourlywage" | "taxincluded" | "taxrate">
+  workspace: Pick<IWorkspace, "hourlywage" | "taxincluded" | "taxrate">
 ): IWageBreakdown => {
-  const base = (Math.round(mins) / 60) * thread.hourlywage
-  const taxMultiplier = 1 + thread.taxrate / 100
-  if (thread.taxincluded) {
+  const base = (Math.round(mins) / 60) * workspace.hourlywage
+  const taxMultiplier = 1 + workspace.taxrate / 100
+  if (workspace.taxincluded) {
     return { inclTax: base, exclTax: base / taxMultiplier }
   }
   return { exclTax: base, inclTax: base * taxMultiplier }

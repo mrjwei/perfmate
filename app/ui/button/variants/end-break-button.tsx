@@ -6,13 +6,13 @@ import { endBreak } from "@/app/lib/actions"
 import { IRecord } from "@/app/lib/types"
 
 export default function EndBreakButton({
-  threadId,
+  workspaceId,
   record,
   disabled,
   endtimeStr,
   ...props
 }: {
-  threadId: string
+  workspaceId: string
   record: IRecord | null
   disabled: boolean
   endtimeStr: string
@@ -25,7 +25,7 @@ export default function EndBreakButton({
     recordId = record.id
   }
 
-  const endBreakAction = endBreak.bind(null, threadId, recordId, endtimeStr)
+  const endBreakAction = endBreak.bind(null, workspaceId, recordId, endtimeStr)
   const [state, formAction, isPending] = useActionState(endBreakAction, null)
 
   return (

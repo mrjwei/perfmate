@@ -12,13 +12,13 @@ export default function Table({
   records,
   month,
   targetDate,
-  threadId,
+  workspaceId,
   timezone,
 }: {
   records: IRecord[]
   month: string
   targetDate?: string
-  threadId: string
+  workspaceId: string
   timezone: string
 }) {
   const [holidays, setHolidays] = React.useState<INationalHoliday[]>([])
@@ -97,19 +97,19 @@ export default function Table({
                   {id ? (
                     <Link
                       className="text-primary"
-                      href={`/app/${threadId}/records/${id}/edit?month=${month}`}
+                      href={`/app/${workspaceId}/records/${id}/edit?month=${month}`}
                     >
                       <PencilIcon className="w-5" />
                     </Link>
                   ) : (
                     <Link
                       className="text-primary"
-                      href={`/app/${threadId}/records/create?month=${month}&date=${date}`}
+                      href={`/app/${workspaceId}/records/create?month=${month}&date=${date}`}
                     >
                       <PencilIcon className="w-5" />
                     </Link>
                   )}
-                  <DeleteButton threadId={threadId} id={record.id} month={month} />
+                  <DeleteButton workspaceId={workspaceId} id={record.id} month={month} />
                 </td>
               </tr>
             )

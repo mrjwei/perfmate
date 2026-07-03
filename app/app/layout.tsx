@@ -4,7 +4,7 @@ import { SessionProvider } from "next-auth/react"
 import { auth } from "@/auth"
 import Sidebar from "@/app/ui/sidebar/sidebar"
 import GlobalHeader from "@/app/ui/global-header/global-header"
-import { fetchRecordsToNotify, fetchThreadsByUserId } from "@/app/lib/api"
+import { fetchRecordsToNotify, fetchWorkspacesByUserId } from "@/app/lib/api"
 import {mapRecordsToNoticifications} from '@/app/lib/helpers'
 
 export default async function RootLayout({
@@ -21,9 +21,9 @@ export default async function RootLayout({
   if (!userId) {
     redirect("/login")
   }
-  const [recordsToNotify, threads] = await Promise.all([
+  const [recordsToNotify, workspaces] = await Promise.all([
     fetchRecordsToNotify(userId),
-    fetchThreadsByUserId(userId),
+    fetchWorkspacesByUserId(userId),
   ])
 
   return (
@@ -31,10 +31,9 @@ export default async function RootLayout({
       <div className="min-h-full h-full">
         <GlobalHeader
           user={session.user}
-          threads={threads}
           notifications={recordsToNotify ? mapRecordsToNoticifications(recordsToNotify) : null}
         />
-        <Sidebar threads={threads} />
+        <Sidebar workspaces={workspaces} />
         <div className="flex h-full justify-end">
           <main className="relative h-full w-[calc(100%-178px)]">
             <div className="mx-auto px-10 py-24 xl:max-w-5xl">{children}</div>

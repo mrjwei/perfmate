@@ -16,7 +16,7 @@ import {
   TooltipItem,
 } from "chart.js"
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline"
-import { IRecord, IThread } from "@/app/lib/types"
+import { IRecord, IWorkspace } from "@/app/lib/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -45,17 +45,17 @@ ChartJS.register(
 
 export default function Aggregates({
   records,
-  thread,
+  workspace,
   month,
 }: {
   records: IRecord[]
-  thread: IThread
+  workspace: IWorkspace
   month: string
 }) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("work hours")
 
-  // Derives entirely from records/thread/month, so this shouldn't be
+  // Derives entirely from records/workspace/month, so this shouldn't be
   // recomputed when only isDetailsOpen/activeTab (unrelated UI state) change.
   const {
     monthlyTotalWorkMins,
@@ -185,7 +185,7 @@ export default function Aggregates({
             ) {
               return calculateWage(
                 timeStringToMins(r.totalworkhours),
-                thread
+                workspace
               ).inclTax
             }
             return 0
@@ -207,7 +207,7 @@ export default function Aggregates({
           callbacks: {
             label: (ctx: TooltipItem<'bar'>) => {
               const wages = ctx.dataset.data[ctx.dataIndex]
-              return `Wages (incl. tax): ${mapCurrencyToMark(thread.currency)} ${wages}`
+              return `Wages (incl. tax): ${mapCurrencyToMark(workspace.currency)} ${wages}`
             },
           },
         },
@@ -223,7 +223,7 @@ export default function Aggregates({
       wagesData,
       wagesOptions,
     }
-  }, [records, thread, month])
+  }, [records, workspace, month])
 
   return (
     <div className="mb-4">
@@ -236,9 +236,9 @@ export default function Aggregates({
           <div className="flex items-center">
             <p className="mr-2 text-muted-foreground">Total Wages (incl. tax): </p>
             <p>
-              <span>{mapCurrencyToMark(thread.currency)} </span>
+              <span>{mapCurrencyToMark(workspace.currency)} </span>
               <strong>
-                {calculateWage(monthlyTotalWorkMins, thread).inclTax.toLocaleString()}
+                {calculateWage(monthlyTotalWorkMins, workspace).inclTax.toLocaleString()}
               </strong>
             </p>
           </div>

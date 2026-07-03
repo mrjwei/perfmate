@@ -6,8 +6,8 @@ import FormControl from "@/app/ui/form/form-control"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { createThreadForm, updateThreadForm } from "@/app/lib/actions"
-import { IThread, TActionState, TWeekday } from "@/app/lib/types"
+import { createWorkspaceForm, updateWorkspaceForm } from "@/app/lib/actions"
+import { IWorkspace, TActionState, TWeekday } from "@/app/lib/types"
 import { calculateWage, mapCurrencyToMark } from "@/app/lib/helpers"
 
 const TIMEZONES: string[] = (() => {
@@ -30,17 +30,17 @@ const WEEKDAYS: { value: TWeekday; label: string }[] = [
 
 const selectClassName = "col-span-12 flex h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
 
-export default function ThreadForm({ thread }: { thread?: IThread }) {
-  const action = thread ? updateThreadForm.bind(null, thread.id) : createThreadForm
+export default function WorkspaceForm({ workspace }: { workspace?: IWorkspace }) {
+  const action = workspace ? updateWorkspaceForm.bind(null, workspace.id) : createWorkspaceForm
   const initialState: TActionState = { message: "", errors: {} }
   const [state, formAction, isPending] = useActionState(action, initialState)
   const errors = state?.errors ?? {}
   const message = state?.message
 
-  const [currency, setCurrency] = useState(thread?.currency ?? "yen")
-  const [hourlywage, setHourlywage] = useState(thread?.hourlywage ?? 0)
-  const [taxincluded, setTaxincluded] = useState(thread ? thread.taxincluded : true)
-  const [taxrate, setTaxrate] = useState(thread?.taxrate ?? 0)
+  const [currency, setCurrency] = useState(workspace?.currency ?? "yen")
+  const [hourlywage, setHourlywage] = useState(workspace?.hourlywage ?? 0)
+  const [taxincluded, setTaxincluded] = useState(workspace ? workspace.taxincluded : true)
+  const [taxrate, setTaxrate] = useState(workspace?.taxrate ?? 0)
   const breakdown = calculateWage(60, { hourlywage, taxincluded, taxrate })
   const mark = mapCurrencyToMark(currency)
 
@@ -56,7 +56,7 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
           type="text"
           id="name"
           name="name"
-          defaultValue={thread?.name}
+          defaultValue={workspace?.name}
           placeholder="e.g. Acme Corp, Freelance Design"
           className={clsx("col-span-12", { "border-destructive": errors.name })}
           required
@@ -91,7 +91,7 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
         <select
           name="timezone"
           id="timezone"
-          defaultValue={thread?.timezone ?? "Asia/Tokyo"}
+          defaultValue={workspace?.timezone ?? "Asia/Tokyo"}
           className={clsx(selectClassName, { "border-destructive": errors.timezone })}
           required
         >
@@ -100,7 +100,7 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
           ))}
         </select>
         <p className="col-span-12 text-xs text-muted-foreground mt-1">
-          This thread's business timezone — used to decide what "today" is and to record accurate start/end times, independent of your own device's timezone.
+          This workspace's business timezone — used to decide what "today" is and to record accurate start/end times, independent of your own device's timezone.
         </p>
       </FormControl>
       <FormControl
@@ -211,7 +211,7 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
                 type="checkbox"
                 name="schedule"
                 value={w.value}
-                defaultChecked={thread ? thread.schedule.includes(w.value) : w.value >= 1 && w.value <= 5}
+                defaultChecked={workspace ? workspace.schedule.includes(w.value) : w.value >= 1 && w.value <= 5}
                 className="mr-1.5 w-4 h-4 accent-primary"
               />
               {w.label}
@@ -233,7 +233,7 @@ export default function ThreadForm({ thread }: { thread?: IThread }) {
         className="w-full"
         aria-disabled={isPending}
       >
-        {isPending ? "Saving..." : thread ? "Save" : "Create thread"}
+        {isPending ? "Saving..." : workspace ? "Save" : "Create workspace"}
       </Button>
     </form>
   )

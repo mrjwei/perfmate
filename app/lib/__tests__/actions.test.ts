@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { editForm, creationForm, signup, createThreadForm, updateUserInfo } from '@/app/lib/actions'
+import { editForm, creationForm, signup, createWorkspaceForm, updateUserInfo } from '@/app/lib/actions'
 
 // These functions only reach the DB (sql`...`) after validation succeeds.
 // Every case here is a validation failure, so no @vercel/postgres/next
@@ -13,7 +13,7 @@ describe('editForm validation', () => {
     formData.set('date', '2024-07-27')
     formData.set('endtime', '18:00')
 
-    const result = await editForm('threadid', '2e1fa58c-6b94-4c1a-8f03-d858453a66fb', null, undefined, formData)
+    const result = await editForm('workspaceid', '2e1fa58c-6b94-4c1a-8f03-d858453a66fb', null, undefined, formData)
 
     expect(result?.message).toBe('Failed to update record')
     expect(result?.errors.starttime?.message).toBeTruthy()
@@ -32,7 +32,7 @@ describe('editForm validation', () => {
     formData.append('breakstarttime', '10:30')
     formData.append('breakendtime', '11:30')
 
-    const result = await editForm('threadid', '2e1fa58c-6b94-4c1a-8f03-d858453a66fb', null, undefined, formData)
+    const result = await editForm('workspaceid', '2e1fa58c-6b94-4c1a-8f03-d858453a66fb', null, undefined, formData)
 
     expect(result?.message).toBe('Failed to update record')
     const breakErrors = result?.errors.breaks?.errors
@@ -58,7 +58,7 @@ describe('creationForm validation', () => {
     formData.append('breakstarttime', '10:30')
     formData.append('breakendtime', '11:30')
 
-    const result = await creationForm('userid', 'threadid', null, undefined, formData)
+    const result = await creationForm('userid', 'workspaceid', null, undefined, formData)
 
     expect(result?.message).toBe('Failed to create record')
     const breakErrors = result?.errors.breaks?.errors
@@ -72,7 +72,7 @@ describe('creationForm validation', () => {
     formData.set('date', '2024-07-27')
     formData.set('endtime', '18:00')
 
-    const result = await creationForm('userid', 'threadid', null, undefined, formData)
+    const result = await creationForm('userid', 'workspaceid', null, undefined, formData)
 
     expect(result?.message).toBe('Failed to create record')
     expect(result?.errors.starttime?.message).toBeTruthy()
@@ -95,13 +95,13 @@ describe('signup validation', () => {
   })
 })
 
-describe('createThreadForm validation', () => {
+describe('createWorkspaceForm validation', () => {
   it('returns "Not authenticated" when there is no session', async () => {
     vi.mock('@/auth', () => ({
       auth: vi.fn().mockResolvedValue(null),
     }))
     const formData = new FormData()
-    const result = await createThreadForm(undefined, formData)
+    const result = await createWorkspaceForm(undefined, formData)
     expect(result).toEqual({ message: 'Not authenticated', errors: {} })
   })
 })

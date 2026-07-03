@@ -7,22 +7,22 @@ import BreakUnit from "@/app/ui/break-unit/break-unit"
 import TimeStamp from "@/app/ui/time-stamp/time-stamp"
 import { TStatus } from "@/app/lib/types"
 import { returnStatus, getFormattedTotalWorkHours, placeholder } from "@/app/lib/helpers"
-import { fetchLastRecord, fetchThreadById } from "@/app/lib/api"
+import { fetchLastRecord, fetchWorkspaceById } from "@/app/lib/api"
 import { auth } from "@/auth"
 import { notFound } from "next/navigation"
 import clsx from "clsx"
 
 const Clock = dynamic(() => import("@/app/ui/clock/clock"), { ssr: false })
 
-export default async function Home({ params }: { params: { threadId: string } }) {
-  const { threadId } = params
+export default async function Home({ params }: { params: { workspaceId: string } }) {
+  const { workspaceId } = params
   const session = await auth()
   const user = session!.user as User
-  const [thread, record] = await Promise.all([
-    fetchThreadById(threadId),
-    fetchLastRecord(threadId),
+  const [workspace, record] = await Promise.all([
+    fetchWorkspaceById(workspaceId),
+    fetchLastRecord(workspaceId),
   ])
-  if (!thread) {
+  if (!workspace) {
     notFound()
   }
 
@@ -31,17 +31,17 @@ export default async function Home({ params }: { params: { threadId: string } })
   if (!record) {
     status = "BEFORE-WORK"
   } else {
-    status = returnStatus(record, thread.timezone)
+    status = returnStatus(record, workspace.timezone)
   }
 
   return (
     <>
-      <Clock suppressHydrationWarning timezone={thread.timezone} />
+      <Clock suppressHydrationWarning timezone={workspace.timezone} />
       <div className="w-full flex justify-between items-start lg:items-center py-8 px-8 bg-card rounded-lg shadow-sm mb-4">
         <Tag testid="status" className="mr-2 text-xl lg:text-2xl lg:mr-8">
           {status}
         </Tag>
-        <ButtonGroup user={user} threadId={threadId} timezone={thread.timezone} record={record} status={status} />
+        <ButtonGroup user={user} workspaceId={workspaceId} timezone={workspace.timezone} record={record} status={status} />
       </div>
       <ul
         className={`px-8 py-8 bg-card rounded-lg shadow-sm mb-4 ${
