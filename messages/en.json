@@ -9,7 +9,30 @@
       "submit": "Log In",
       "processing": "Processing",
       "newToPerfmate": "New to Perfmate?",
-      "signUp": "Sign Up"
+      "signUp": "Sign Up",
+      "forgotPassword": "Forgot password?"
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "instructions": "Enter your email address and we'll send you a link to reset your password.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email address",
+      "submit": "Send reset link",
+      "sending": "Sending..."
+    },
+    "resetPassword": {
+      "title": "Choose a new password",
+      "passwordLabel": "New password",
+      "passwordPlaceholder": "Enter a new password",
+      "submit": "Reset password",
+      "saving": "Saving..."
+    },
+    "verifyEmail": {
+      "successTitle": "Email verified",
+      "successBody": "Your email address has been verified.",
+      "failureTitle": "Verification link invalid",
+      "failureBody": "This verification link is invalid or has expired.",
+      "continue": "Continue to Perfmate"
     },
     "signup": {
       "step1Title": "Step 1: Create user",

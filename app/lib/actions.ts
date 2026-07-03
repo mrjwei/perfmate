@@ -5,8 +5,10 @@ import { revalidatePath } from "next/cache"
 import { redirect, getPathname } from "@/i18n/navigation"
 import { getLocale } from "next-intl/server"
 import bcrypt from "bcrypt"
+import crypto from "crypto"
 import { zip } from "@/app/lib/helpers"
 import { fetchRecordById, fetchUserByEmail } from "@/app/lib/api"
+import { sendPasswordResetEmail, sendVerificationEmail } from "@/app/lib/email"
 import {
   updateSchema,
   creationSchema,
@@ -14,6 +16,8 @@ import {
   userUpdateSchema,
   workspaceCreationSchema,
   workspaceUpdateSchema,
+  requestPasswordResetSchema,
+  resetPasswordSchema,
 } from "@/app/lib/schemas"
 import { auth, signIn, signOut as authSignOut } from "@/auth"
 import { AuthError } from "next-auth"
@@ -446,9 +450,9 @@ export async function createUser(data: Omit<IUser, "id">) {
     const data = await sql`
       INSERT INTO users (name, email, password)
       VALUES (${name}, ${email}, ${password})
-      RETURNING email;
+      RETURNING id, email;
     `
-    return data.rows[0].email
+    return data.rows[0]
   } catch (error) {
     return {
       message: "Database error: failed to create user",
@@ -482,20 +486,22 @@ export async function signup(prevState: unknown, formData: FormData) {
   const plainPassword = validatedFields.data.password
   const password = await bcrypt.hash(validatedFields.data.password, 10)
 
-  let email
+  let user
 
   try {
-    email = await createUser({
+    user = await createUser({
       ...validatedFields.data,
       password,
     })
-    if (!email) {
+    if (!user || !("email" in user)) {
       return "Email address unavailable. Please use another one."
     }
 
     const locale = await getLocale()
+    await sendEmailVerificationToken(user.id, user.email, locale)
+
     await signIn("credentials", {
-      email,
+      email: user.email,
       password: plainPassword,
       redirectTo: getPathname({ href: "/signup/step-2", locale }),
     })
@@ -510,6 +516,114 @@ export async function signup(prevState: unknown, formData: FormData) {
     }
     throw error
   }
+}
+
+// Tokens are single-use, high-entropy random values, not secrets a user
+// chooses — a fast SHA-256 lookup hash is appropriate here, unlike bcrypt
+// for passwords (see the migration's header comment for why).
+const generateToken = () => {
+  const raw = crypto.randomBytes(32).toString("hex")
+  const hash = crypto.createHash("sha256").update(raw).digest("hex")
+  return { raw, hash }
+}
+const hashToken = (raw: string) => crypto.createHash("sha256").update(raw).digest("hex")
+
+// NEXTAUTH_URL isn't required for auth itself (trustHost: true), so it isn't
+// set anywhere yet — falls back to Vercel's auto-populated VERCEL_URL (no
+// scheme) in deployed environments, then localhost for local dev.
+const getBaseUrl = () =>
+  process.env.NEXTAUTH_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+
+async function sendEmailVerificationToken(userId: string, email: string, locale: string) {
+  const { raw, hash } = generateToken()
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+  await sql`
+    INSERT INTO email_verification_tokens (user_id, token_hash, expires_at)
+    VALUES (${userId}, ${hash}, ${expiresAt.toISOString()});
+  `
+  const verifyUrl = new URL(getPathname({ href: `/verify-email/${raw}`, locale }), getBaseUrl()).toString()
+  await sendVerificationEmail(email, verifyUrl, locale)
+}
+
+export async function requestPasswordReset(prevState: unknown, formData: FormData) {
+  const validatedFields = requestPasswordResetSchema.safeParse({
+    email: formData.get("email"),
+  })
+  if (!validatedFields.success) {
+    return {
+      message: "Failed to send reset email",
+      errors: toFieldErrors(validatedFields.error),
+    }
+  }
+
+  const locale = await getLocale()
+  const { email } = validatedFields.data
+  const user = await fetchUserByEmail(email)
+  // Don't reveal whether the address is registered — same success message
+  // either way, so this can't be used to enumerate accounts.
+  if (user) {
+    const { raw, hash } = generateToken()
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000)
+    await sql`
+      INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
+      VALUES (${user.id}, ${hash}, ${expiresAt.toISOString()});
+    `
+    const resetUrl = new URL(getPathname({ href: `/reset-password/${raw}`, locale }), getBaseUrl()).toString()
+    await sendPasswordResetEmail(email, resetUrl, locale)
+  }
+
+  return { message: "If that email is registered, we've sent a password reset link.", errors: {} }
+}
+
+export async function resetPassword(token: string, prevState: unknown, formData: FormData) {
+  const validatedFields = resetPasswordSchema.safeParse({
+    token,
+    password: formData.get("password"),
+  })
+  if (!validatedFields.success) {
+    return {
+      message: "Failed to reset password",
+      errors: toFieldErrors(validatedFields.error),
+    }
+  }
+
+  const tokenHash = hashToken(validatedFields.data.token)
+  const result = await sql`
+    SELECT id, user_id FROM password_reset_tokens
+    WHERE token_hash = ${tokenHash} AND used_at IS NULL AND expires_at > now()
+    LIMIT 1;
+  `
+  const tokenRow = result.rows[0]
+  if (!tokenRow) {
+    return {
+      message: "This password reset link is invalid or has expired. Please request a new one.",
+      errors: {},
+    }
+  }
+
+  const hashedPassword = await bcrypt.hash(validatedFields.data.password, 10)
+  await sql`UPDATE users SET password = ${hashedPassword} WHERE id = ${tokenRow.user_id};`
+  await sql`UPDATE password_reset_tokens SET used_at = now() WHERE id = ${tokenRow.id};`
+
+  const locale = await getLocale()
+  redirect({ href: "/login", locale })
+}
+
+export async function verifyEmail(token: string) {
+  const tokenHash = hashToken(token)
+  const result = await sql`
+    SELECT id, user_id FROM email_verification_tokens
+    WHERE token_hash = ${tokenHash} AND used_at IS NULL AND expires_at > now()
+    LIMIT 1;
+  `
+  const tokenRow = result.rows[0]
+  if (!tokenRow) {
+    return { success: false }
+  }
+
+  await sql`UPDATE users SET email_verified_at = now() WHERE id = ${tokenRow.user_id};`
+  await sql`UPDATE email_verification_tokens SET used_at = now() WHERE id = ${tokenRow.id};`
+  return { success: true }
 }
 
 async function replaceWorkspaceSchedule(workspaceId: string, schedule: number[]) {

@@ -9,7 +9,30 @@
       "submit": "ログイン",
       "processing": "処理中",
       "newToPerfmate": "Perfmateは初めてですか?",
-      "signUp": "新規登録"
+      "signUp": "新規登録",
+      "forgotPassword": "パスワードをお忘れですか?"
+    },
+    "forgotPassword": {
+      "title": "パスワードをリセット",
+      "instructions": "メールアドレスを入力してください。パスワードリセット用のリンクをお送りします。",
+      "emailLabel": "メールアドレス",
+      "emailPlaceholder": "メールアドレスを入力してください",
+      "submit": "リセットリンクを送信",
+      "sending": "送信中..."
+    },
+    "resetPassword": {
+      "title": "新しいパスワードを設定",
+      "passwordLabel": "新しいパスワード",
+      "passwordPlaceholder": "新しいパスワードを入力してください",
+      "submit": "パスワードをリセット",
+      "saving": "保存中..."
+    },
+    "verifyEmail": {
+      "successTitle": "メールアドレスが確認されました",
+      "successBody": "メールアドレスの確認が完了しました。",
+      "failureTitle": "確認リンクが無効です",
+      "failureBody": "この確認リンクは無効か、有効期限が切れています。",
+      "continue": "Perfmateを続ける"
     },
     "signup": {
       "step1Title": "ステップ1: ユーザー作成",

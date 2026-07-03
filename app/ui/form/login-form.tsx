@@ -54,6 +54,11 @@ export default function LoginForm() {
               required
             />
           </FormControl>
+          <div className="flex justify-end mb-6">
+            <LinkItem href="/forgot-password" className="text-sm text-primary hover:opacity-80">
+              {t("forgotPassword")}
+            </LinkItem>
+          </div>
           <Button
             type="submit"
             className="w-full"

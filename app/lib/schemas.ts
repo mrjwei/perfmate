@@ -304,6 +304,15 @@ export const userUpdateSchema = z
   name: z.string().min(1, {message: 'Name cannot be empty'}),
 })
 
+export const requestPasswordResetSchema = z.object({
+  email: z.string({message: 'Email is required'}).email({message: 'Enter a valid email address'}),
+})
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1),
+  password: z.string({message: 'Password is required'}).min(6, {message: 'Password must have at least 6 characters'}),
+})
+
 const weekdaySchema = z.coerce.number().int().min(0).max(6)
 
 export const workspaceBaseSchema = z.object({
