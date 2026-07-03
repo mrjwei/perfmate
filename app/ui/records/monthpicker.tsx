@@ -5,8 +5,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from '@heroicons/react/24/outline'
-import {useSearchParams, useRouter, usePathname} from 'next/navigation'
-import Link from 'next/link'
+import {useSearchParams} from 'next/navigation'
+import {Link, useRouter, usePathname} from '@/i18n/navigation'
 import FormControl from "@/app/ui/form/form-control"
 import { Input } from "@/components/ui/input"
 import {

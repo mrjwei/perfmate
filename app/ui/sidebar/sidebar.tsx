@@ -1,7 +1,8 @@
 "use client"
 
 import React from "react"
-import { usePathname } from "next/navigation"
+import { useTranslations } from "next-intl"
+import { usePathname } from "@/i18n/navigation"
 import {
   HomeModernIcon,
   DocumentChartBarIcon,
@@ -21,23 +22,24 @@ import { IWorkspace } from "@/app/lib/types"
 const WORKSPACE_ID_PATTERN = /^\/app\/(?!workspaces|setting)([^/]+)/
 
 export default function Sidebar({ workspaces }: { workspaces: IWorkspace[] }) {
+  const t = useTranslations("Nav")
   const pathname = usePathname()
   // Fall back to the first active workspace so Home/Records stay reachable even
   // from pages that aren't scoped to a workspace (e.g. /app/workspaces, /app/setting).
-  const workspaceId = pathname.match(WORKSPACE_ID_PATTERN)?.[1] ?? workspaces.find((t) => !t.archived)?.id
+  const workspaceId = pathname.match(WORKSPACE_ID_PATTERN)?.[1] ?? workspaces.find((w) => !w.archived)?.id
 
   const links = [
     ...(workspaceId
       ? [
           {
             href: `/app/${workspaceId}`,
-            children: "Home",
+            children: t("home"),
             outlineIcon: <HomeModernIcon className="w-5" />,
             solidIcon: <HomeModernSolidIcon className="w-5" />,
           },
           {
             href: `/app/${workspaceId}/records`,
-            children: "Records",
+            children: t("records"),
             outlineIcon: <DocumentChartBarIcon className="w-5" />,
             solidIcon: <DocumentChartBarSolidIcon className="w-5" />,
           },
@@ -45,7 +47,7 @@ export default function Sidebar({ workspaces }: { workspaces: IWorkspace[] }) {
       : []),
     {
       href: "/app/setting",
-      children: "Setting",
+      children: t("setting"),
       outlineIcon: <Cog6ToothIcon className="w-5" />,
       solidIcon: <Cog6ToothSolidIcon className="w-5" />,
     },

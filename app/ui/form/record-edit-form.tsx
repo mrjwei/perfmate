@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useActionState } from "react"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 import clsx from "clsx"
 import { PlusIcon } from "@heroicons/react/24/outline"
 import { v4 as uuidv4 } from "uuid"

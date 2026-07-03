@@ -1,0 +1,66 @@
+{
+  "Auth": {
+    "login": {
+      "title": "Log in to your account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email address",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "submit": "Log In",
+      "processing": "Processing",
+      "newToPerfmate": "New to Perfmate?",
+      "signUp": "Sign Up"
+    },
+    "signup": {
+      "step1Title": "Step 1: Create user",
+      "nameLabel": "Name (Required)",
+      "namePlaceholder": "Enter your name",
+      "emailLabel": "Email (Required)",
+      "emailPlaceholder": "Enter your email address",
+      "passwordLabel": "Password (Required)",
+      "passwordPlaceholder": "Enter your password",
+      "saveNext": "Save & Next",
+      "processing": "Processing",
+      "step2Title": "Step 2: Add your first workspace"
+    }
+  },
+  "Nav": {
+    "home": "Home",
+    "records": "Records",
+    "setting": "Setting",
+    "signOut": "Sign Out",
+    "noNotification": "No notification",
+    "selectWorkspace": "Select a workspace",
+    "manageWorkspaces": "Manage workspaces"
+  },
+  "WorkspaceForm": {
+    "name": "Name",
+    "namePlaceholder": "e.g. Acme Corp, Freelance Design",
+    "currency": "Currency",
+    "selectOne": "Select one",
+    "timezone": "Timezone",
+    "timezoneHint": "This workspace's business timezone — used to decide what \"today\" is and to record accurate start/end times, independent of your own device's timezone.",
+    "hourlyWage": "Hourly wage",
+    "hourlyWageHint": "Enter your rate exactly as agreed with the client, then say below whether it already includes tax.",
+    "taxIncluded": "Tax included in the rate above",
+    "yes": "Yes",
+    "no": "No",
+    "taxRate": "Tax rate (%)",
+    "rateBreakdown": "Rate breakdown (per hour)",
+    "exclTax": "Excl. tax",
+    "inclTax": "Incl. tax",
+    "inclTaxHint": "The tax-included figure is what's used everywhere else in the app (records, totals).",
+    "workSchedule": "Work schedule",
+    "saving": "Saving...",
+    "save": "Save",
+    "create": "Create workspace"
+  },
+  "RecordsTable": {
+    "date": "Date",
+    "start": "Start",
+    "end": "End",
+    "breakHours": "Break Hours",
+    "workHours": "Work Hours",
+    "today": "Today"
+  }
+}

@@ -23,6 +23,7 @@
     "lucide-react": "^1.23.0",
     "next": "^15.0.0-rc.0",
     "next-auth": "^5.0.0-beta.20",
+    "next-intl": "^4.13.1",
     "radix-ui": "^1.6.1",
     "react": "19.0.0-rc-1eaccd82-20240816",
     "react-chartjs-2": "^5.2.0",

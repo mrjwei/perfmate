@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useActionState } from "react"
+import { useTranslations } from "next-intl"
 import { signup } from "@/app/lib/actions"
 import {
   ExclamationCircleIcon,
@@ -11,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import FormControl from "@/app/ui/form/form-control"
 
 export default function SignupStepOneForm() {
+  const t = useTranslations("Auth.signup")
   const [errorMessage, formAction, isPending] = useActionState(
     signup,
     undefined
@@ -21,10 +23,10 @@ export default function SignupStepOneForm() {
       <div className="rounded-lg bg-card shadow-sm">
         <div className="px-12 pb-4 pt-8">
           <h1 className="text-center text-2xl text-muted-foreground font-bold mb-12">
-            Step 1: Create user
+            {t("step1Title")}
           </h1>
           <FormControl
-            label="Name (Required)"
+            label={t("nameLabel")}
             htmlFor="name"
             className="items-center mb-6"
             labelClassName="col-span-12 font-bold mb-2"
@@ -34,12 +36,12 @@ export default function SignupStepOneForm() {
               type="text"
               id="name"
               name="name"
-              placeholder="Enter your name"
+              placeholder={t("namePlaceholder")}
               required
             />
           </FormControl>
           <FormControl
-            label="Email (Required)"
+            label={t("emailLabel")}
             htmlFor="email"
             className="items-center mb-6"
             labelClassName="col-span-12 font-bold mb-2"
@@ -49,12 +51,12 @@ export default function SignupStepOneForm() {
               type="email"
               id="email"
               name="email"
-              placeholder="Enter your email address"
+              placeholder={t("emailPlaceholder")}
               required
             />
           </FormControl>
           <FormControl
-            label="Password (Required)"
+            label={t("passwordLabel")}
             htmlFor="password"
             className="items-center mb-6"
             labelClassName="col-span-12 font-bold mb-2"
@@ -64,7 +66,7 @@ export default function SignupStepOneForm() {
               type="password"
               id="password"
               name="password"
-              placeholder="Enter your password"
+              placeholder={t("passwordPlaceholder")}
               required
             />
           </FormControl>
@@ -79,11 +81,11 @@ export default function SignupStepOneForm() {
                   <div className="absolute rounded-full h-6 w-6 border-4 border-white opacity-50"></div>
                   <div className="absolute animate-spin rounded-full h-6 w-6 border-4 border-t-white border-transparent"></div>
                 </div>
-                <span>Processing</span>
+                <span>{t("processing")}</span>
               </div>
             ) : (
               <div className="flex items-center justify-center">
-                <span className="whitespace-nowrap mr-2">Save & Next</span>
+                <span className="whitespace-nowrap mr-2">{t("saveNext")}</span>
                 <ArrowRightIcon className="w-5" />
               </div>
             )}

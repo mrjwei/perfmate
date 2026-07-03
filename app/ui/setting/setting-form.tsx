@@ -49,12 +49,12 @@ export default function SettingForm({ user }: { user: User }) {
           defaultValue={user.name!}
           className={clsx(
             "col-span-8 mx-4 mb-2",
-            { "border-destructive": state.errors?.name }
+            { "border-destructive": state?.errors?.name }
           )}
           aria-describedby="username-error"
         />
         <div id="username-error" className="col-span-12" aria-live="polite" aria-atomic="true">
-          {state.errors?.name && (
+          {state?.errors?.name && (
             <p className="mt-2 text-sm text-destructive">
               {state.errors.name}
             </p>

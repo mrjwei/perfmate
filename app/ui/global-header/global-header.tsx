@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useRef } from "react"
 import { User } from "next-auth"
-import Link from 'next/link'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { useTranslations } from "next-intl"
+import { useSearchParams } from 'next/navigation'
+import { Link, usePathname } from '@/i18n/navigation'
 import { League_Spartan } from "next/font/google";
 import { ChevronDownIcon, ChevronUpIcon, ArrowRightIcon } from "@heroicons/react/24/outline"
 import { Button } from "@/components/ui/button"
@@ -20,6 +21,7 @@ export default function GlobalHeader({
   user: User
   notifications: INotification[] | null
 }) {
+  const t = useTranslations("Nav")
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -86,11 +88,11 @@ export default function GlobalHeader({
       {isProfileMenuOpen && (
         <ul className="absolute right-8 top-[68px] bg-card shadow-md rounded-lg p-2" ref={profileMenuRef}>
           <li>
-            <LinkItem href="/app/setting" className="w-full px-8 py-2 rounded-lg hover:bg-muted">Setting</LinkItem>
+            <LinkItem href="/app/setting" className="w-full px-8 py-2 rounded-lg hover:bg-muted">{t("setting")}</LinkItem>
           </li>
           <li>
             <form action={signOut}>
-              <Button type="submit" variant="ghost" className="w-full px-8 py-2 flex items-center justify-start rounded-lg font-medium">Sign Out</Button>
+              <Button type="submit" variant="ghost" className="w-full px-8 py-2 flex items-center justify-start rounded-lg font-medium">{t("signOut")}</Button>
             </form>
           </li>
         </ul>
@@ -110,7 +112,7 @@ export default function GlobalHeader({
               )
             })
           ) : (
-            <li className="text-muted-foreground">No notification</li>
+            <li className="text-muted-foreground">{t("noNotification")}</li>
           )}
         </ul>
       )}

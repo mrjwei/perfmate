@@ -1,0 +1,66 @@
+{
+  "Auth": {
+    "login": {
+      "title": "アカウントにログイン",
+      "emailLabel": "メールアドレス",
+      "emailPlaceholder": "メールアドレスを入力してください",
+      "passwordLabel": "パスワード",
+      "passwordPlaceholder": "パスワードを入力してください",
+      "submit": "ログイン",
+      "processing": "処理中",
+      "newToPerfmate": "Perfmateは初めてですか?",
+      "signUp": "新規登録"
+    },
+    "signup": {
+      "step1Title": "ステップ1: ユーザー作成",
+      "nameLabel": "名前(必須)",
+      "namePlaceholder": "お名前を入力してください",
+      "emailLabel": "メールアドレス(必須)",
+      "emailPlaceholder": "メールアドレスを入力してください",
+      "passwordLabel": "パスワード(必須)",
+      "passwordPlaceholder": "パスワードを入力してください",
+      "saveNext": "保存して次へ",
+      "processing": "処理中",
+      "step2Title": "ステップ2: 最初のワークスペースを追加"
+    }
+  },
+  "Nav": {
+    "home": "ホーム",
+    "records": "記録",
+    "setting": "設定",
+    "signOut": "ログアウト",
+    "noNotification": "通知はありません",
+    "selectWorkspace": "ワークスペースを選択",
+    "manageWorkspaces": "ワークスペースを管理"
+  },
+  "WorkspaceForm": {
+    "name": "名前",
+    "namePlaceholder": "例: Acme Corp、フリーランスデザイン",
+    "currency": "通貨",
+    "selectOne": "選択してください",
+    "timezone": "タイムゾーン",
+    "timezoneHint": "このワークスペースの業務タイムゾーンです。「今日」の判定や、開始・終了時刻の正確な記録に使用され、お使いの端末のタイムゾーンとは独立しています。",
+    "hourlyWage": "時給",
+    "hourlyWageHint": "クライアントと合意した金額をそのまま入力し、それが税込かどうかを下で指定してください。",
+    "taxIncluded": "上記の金額に税金が含まれる",
+    "yes": "はい",
+    "no": "いいえ",
+    "taxRate": "税率 (%)",
+    "rateBreakdown": "時給の内訳",
+    "exclTax": "税抜",
+    "inclTax": "税込",
+    "inclTaxHint": "税込の金額がアプリの他の箇所(記録、合計)で使用されます。",
+    "workSchedule": "勤務スケジュール",
+    "saving": "保存中...",
+    "save": "保存",
+    "create": "ワークスペースを作成"
+  },
+  "RecordsTable": {
+    "date": "日付",
+    "start": "開始",
+    "end": "終了",
+    "breakHours": "休憩時間",
+    "workHours": "勤務時間",
+    "today": "今日"
+  }
+}

@@ -2,7 +2,8 @@
 
 import { sql } from "@/app/lib/db"
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
+import { redirect, getPathname } from "@/i18n/navigation"
+import { getLocale } from "next-intl/server"
 import bcrypt from "bcrypt"
 import { zip } from "@/app/lib/helpers"
 import { fetchRecordById, fetchUserByEmail } from "@/app/lib/api"
@@ -96,11 +97,12 @@ export async function deleteRecord(workspaceId: string, id: string, month?: stri
       message: "Database error: failed to delete record",
     }
   }
-  revalidatePath(`/app/${workspaceId}/records`)
+  const locale = await getLocale()
+  revalidatePath(getPathname({ href: `/app/${workspaceId}/records`, locale }))
   if (month) {
-    redirect(`/app/${workspaceId}/records?month=${month}&date=${date}`)
+    redirect({ href: `/app/${workspaceId}/records?month=${month}&date=${date}`, locale })
   } else {
-    redirect(`/app/${workspaceId}/records?date=${date}`)
+    redirect({ href: `/app/${workspaceId}/records?date=${date}`, locale })
   }
 }
 
@@ -205,8 +207,9 @@ export async function startWorking(
   starttime: string
 ) {
   await createRecord(userId, workspaceId, date, starttime)
-  revalidatePath(`/app/${workspaceId}`)
-  redirect(`/app/${workspaceId}`)
+  const locale = await getLocale()
+  revalidatePath(getPathname({ href: `/app/${workspaceId}`, locale }))
+  redirect({ href: `/app/${workspaceId}`, locale })
 }
 
 export async function endWorking(workspaceId: string, id: string | null, endtime: string) {
@@ -214,8 +217,9 @@ export async function endWorking(workspaceId: string, id: string | null, endtime
     return
   }
   await updateRecord(id, endtime)
-  revalidatePath(`/app/${workspaceId}`)
-  redirect(`/app/${workspaceId}`)
+  const locale = await getLocale()
+  revalidatePath(getPathname({ href: `/app/${workspaceId}`, locale }))
+  redirect({ href: `/app/${workspaceId}`, locale })
 }
 
 export async function editForm(
@@ -291,12 +295,13 @@ export async function editForm(
       errors: {},
     }
   }
-  revalidatePath(`/app/${workspaceId}`)
-  revalidatePath(`/app/${workspaceId}/records`)
+  const locale = await getLocale()
+  revalidatePath(getPathname({ href: `/app/${workspaceId}`, locale }))
+  revalidatePath(getPathname({ href: `/app/${workspaceId}/records`, locale }))
   if (month) {
-    redirect(`/app/${workspaceId}/records?month=${month}&date=${validatedDate}`)
+    redirect({ href: `/app/${workspaceId}/records?month=${month}&date=${validatedDate}`, locale })
   } else {
-    redirect(`/app/${workspaceId}/records?date=${validatedDate}`)
+    redirect({ href: `/app/${workspaceId}/records?date=${validatedDate}`, locale })
   }
 }
 
@@ -305,8 +310,9 @@ export async function startBreak(workspaceId: string, recordId: string | null, s
     return
   }
   await createBreak(recordId, starttime)
-  revalidatePath(`/app/${workspaceId}`)
-  redirect(`/app/${workspaceId}`)
+  const locale = await getLocale()
+  revalidatePath(getPathname({ href: `/app/${workspaceId}`, locale }))
+  redirect({ href: `/app/${workspaceId}`, locale })
 }
 
 export async function endBreak(workspaceId: string, recordId: string | null, endtime: string) {
@@ -322,8 +328,9 @@ export async function endBreak(workspaceId: string, recordId: string | null, end
     return
   }
   await updateBreak(targetBreak.id, undefined, endtime)
-  revalidatePath(`/app/${workspaceId}`)
-  redirect(`/app/${workspaceId}`)
+  const locale = await getLocale()
+  revalidatePath(getPathname({ href: `/app/${workspaceId}`, locale }))
+  redirect({ href: `/app/${workspaceId}`, locale })
 }
 
 export async function creationForm(
@@ -397,20 +404,22 @@ export async function creationForm(
       errors: {},
     }
   }
-  revalidatePath(`/app/${workspaceId}/records`)
+  const locale = await getLocale()
+  revalidatePath(getPathname({ href: `/app/${workspaceId}/records`, locale }))
   if (month) {
-    redirect(`/app/${workspaceId}/records?month=${month}&date=${validatedDate}`)
+    redirect({ href: `/app/${workspaceId}/records?month=${month}&date=${validatedDate}`, locale })
   } else {
-    redirect(`/app/${workspaceId}/records?date=${validatedDate}`)
+    redirect({ href: `/app/${workspaceId}/records?date=${validatedDate}`, locale })
   }
 }
 
 export async function authenticate(prevState: unknown, formData: FormData) {
   try {
+    const locale = await getLocale()
     await signIn("credentials", {
       email: formData.get("email"),
       password: formData.get("password"),
-      redirectTo: "/app",
+      redirectTo: getPathname({ href: "/app", locale }),
     })
   } catch (error: unknown) {
     if (error instanceof AuthError) {
@@ -484,10 +493,11 @@ export async function signup(prevState: unknown, formData: FormData) {
       return "Email address unavailable. Please use another one."
     }
 
+    const locale = await getLocale()
     await signIn("credentials", {
       email,
       password: plainPassword,
-      redirectTo: `/signup/step-2`,
+      redirectTo: getPathname({ href: "/signup/step-2", locale }),
     })
   } catch (error: unknown) {
     if (error instanceof AuthError) {
@@ -550,8 +560,9 @@ export async function createWorkspaceForm(prevState: unknown, formData: FormData
   } catch (error) {
     return { message: "Database error: failed to create workspace", errors: {} }
   }
-  revalidatePath("/app")
-  redirect(`/app/${workspaceId}`)
+  const locale = await getLocale()
+  revalidatePath(getPathname({ href: "/app", locale }))
+  redirect({ href: `/app/${workspaceId}`, locale })
 }
 
 export async function updateWorkspaceForm(
@@ -590,25 +601,29 @@ export async function updateWorkspaceForm(
       errors: {},
     }
   }
-  revalidatePath(`/app/${workspaceId}`)
-  revalidatePath("/app/workspaces")
-  redirect(`/app/${workspaceId}/settings`)
+  const locale = await getLocale()
+  revalidatePath(getPathname({ href: `/app/${workspaceId}`, locale }))
+  revalidatePath(getPathname({ href: "/app/workspaces", locale }))
+  redirect({ href: `/app/${workspaceId}/settings`, locale })
 }
 
 export async function archiveWorkspace(workspaceId: string) {
   await sql`UPDATE workspaces SET archived = true WHERE id = ${workspaceId};`
-  revalidatePath("/app/workspaces")
-  redirect("/app/workspaces")
+  const locale = await getLocale()
+  revalidatePath(getPathname({ href: "/app/workspaces", locale }))
+  redirect({ href: "/app/workspaces", locale })
 }
 
 export async function unarchiveWorkspace(workspaceId: string) {
   await sql`UPDATE workspaces SET archived = false WHERE id = ${workspaceId};`
-  revalidatePath("/app/workspaces")
-  redirect("/app/workspaces")
+  const locale = await getLocale()
+  revalidatePath(getPathname({ href: "/app/workspaces", locale }))
+  redirect({ href: "/app/workspaces", locale })
 }
 
 export async function signOut() {
-  await authSignOut({ redirectTo: "/login" })
+  const locale = await getLocale()
+  await authSignOut({ redirectTo: getPathname({ href: "/login", locale }) })
 }
 
 export async function updateUserInfo(prevState: unknown, formData: FormData) {
@@ -625,7 +640,8 @@ export async function updateUserInfo(prevState: unknown, formData: FormData) {
 
   await updateUser(validatedFields.data)
 
-  revalidatePath("/app")
-  revalidatePath("/app/setting")
-  redirect("/app/setting")
+  const locale = await getLocale()
+  revalidatePath(getPathname({ href: "/app", locale }))
+  revalidatePath(getPathname({ href: "/app/setting", locale }))
+  redirect({ href: "/app/setting", locale })
 }

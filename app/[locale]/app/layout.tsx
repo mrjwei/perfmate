@@ -1,5 +1,6 @@
 import React from "react"
-import { redirect } from "next/navigation"
+import { redirect } from "@/i18n/navigation"
+import { getLocale } from "next-intl/server"
 import { SessionProvider } from "next-auth/react"
 import { auth } from "@/auth"
 import Sidebar from "@/app/ui/sidebar/sidebar"
@@ -13,24 +14,25 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const session = await auth()
+  const locale = await getLocale()
 
   if (!session) {
-    redirect("/login")
+    redirect({ href: "/login", locale })
   }
-  const userId = session.user.id
+  const userId = session!.user.id
   if (!userId) {
-    redirect("/login")
+    redirect({ href: "/login", locale })
   }
   const [recordsToNotify, workspaces] = await Promise.all([
-    fetchRecordsToNotify(userId),
-    fetchWorkspacesByUserId(userId),
+    fetchRecordsToNotify(userId!),
+    fetchWorkspacesByUserId(userId!),
   ])
 
   return (
-    <SessionProvider session={session}>
+    <SessionProvider session={session!}>
       <div className="min-h-full h-full">
         <GlobalHeader
-          user={session.user}
+          user={session!.user}
           notifications={recordsToNotify ? mapRecordsToNoticifications(recordsToNotify) : null}
         />
         <Sidebar workspaces={workspaces} />

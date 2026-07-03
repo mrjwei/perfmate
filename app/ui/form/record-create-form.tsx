@@ -1,12 +1,13 @@
 "use client"
 
 import React, { useState, useActionState } from "react"
-import Link from "next/link"
 import { useSession } from "next-auth/react"
 import clsx from "clsx"
 import { PlusIcon } from "@heroicons/react/24/outline"
 import { v4 as uuidv4 } from "uuid"
-import { useSearchParams, redirect } from "next/navigation"
+import { useSearchParams } from "next/navigation"
+import { useLocale } from "next-intl"
+import { Link, redirect } from "@/i18n/navigation"
 import FormControl from "@/app/ui/form/form-control"
 import BreakField from "@/app/ui/form/break-field"
 import { Button } from "@/components/ui/button"
@@ -16,9 +17,10 @@ import { dateToStr } from "@/app/lib/helpers"
 
 export default function RecordCreateForm({ workspaceId }: { workspaceId: string }) {
   const { data: session } = useSession()
+  const locale = useLocale()
 
   if (!session) {
-    redirect("/login")
+    redirect({ href: "/login", locale })
   }
 
   const searchParams = useSearchParams()
@@ -47,7 +49,7 @@ export default function RecordCreateForm({ workspaceId }: { workspaceId: string 
     errors: {},
   }
 
-  const creationFormAction = creationForm.bind(null, session.user.id!, workspaceId, month)
+  const creationFormAction = creationForm.bind(null, session!.user.id!, workspaceId, month)
   const [state, formAction, isPending] = useActionState(
     creationFormAction,
     initialState

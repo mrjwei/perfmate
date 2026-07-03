@@ -1,7 +1,8 @@
 'use client'
 
 import React from 'react'
-import Link from "next/link"
+import { useLocale, useTranslations } from "next-intl"
+import { Link } from "@/i18n/navigation"
 import clsx from "clsx"
 import { PencilIcon } from "@heroicons/react/24/outline"
 import { generatePaddedRecordsForMonth, isSaturday, isSunday, isNationalHoliday, getWeekdayName, getTodayInTimezone, fetchNationalHolidays } from "@/app/lib/helpers"
@@ -21,8 +22,10 @@ export default function Table({
   workspaceId: string
   timezone: string
 }) {
+  const t = useTranslations("RecordsTable")
   const [holidays, setHolidays] = React.useState<INationalHoliday[]>([])
   const today = getTodayInTimezone(timezone)
+  const locale = useLocale()
 
   React.useEffect(() => {
     const data = localStorage.getItem('holidays')
@@ -44,15 +47,15 @@ export default function Table({
     <table className="w-full border-collapse">
       <thead>
         <tr>
-          <th className="text-left pl-4 pr-1 pb-2">Date</th>
-          <th className="text-left px-1">Start</th>
-          <th className="text-left px-1">End</th>
-          <th className="text-left px-1">Break Hours</th>
-          <th className="text-left px-1">Work Hours</th>
+          <th className="text-left pl-4 pr-1 pb-2">{t("date")}</th>
+          <th className="text-left px-1">{t("start")}</th>
+          <th className="text-left px-1">{t("end")}</th>
+          <th className="text-left px-1">{t("breakHours")}</th>
+          <th className="text-left px-1">{t("workHours")}</th>
           <th className="text-left pl-1 pr-4">
             <div className="flex items-center justify-end text-primary text-sm">
               <div className="w-3 h-3 bg-primary mr-2"></div>
-              <p>Today</p>
+              <p>{t("today")}</p>
             </div>
           </th>
         </tr>
@@ -86,7 +89,7 @@ export default function Table({
                     {date}
                   </span>
                   <span className="">
-                    ({getWeekdayName(date)})
+                    ({getWeekdayName(date, locale)})
                   </span>
                 </td>
                 <td className="py-4">{starttime}</td>

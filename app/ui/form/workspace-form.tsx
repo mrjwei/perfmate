@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useActionState, useState } from "react"
+import React, { useActionState, useEffect, useState } from "react"
+import { useTranslations } from "next-intl"
 import clsx from "clsx"
 import FormControl from "@/app/ui/form/form-control"
 import { Button } from "@/components/ui/button"
@@ -10,13 +11,29 @@ import { createWorkspaceForm, updateWorkspaceForm } from "@/app/lib/actions"
 import { IWorkspace, TActionState, TWeekday } from "@/app/lib/types"
 import { calculateWage, mapCurrencyToMark } from "@/app/lib/helpers"
 
-const TIMEZONES: string[] = (() => {
-  try {
-    return Intl.supportedValuesOf("timeZone")
-  } catch {
-    return ["Asia/Tokyo", "America/New_York", "America/Los_Angeles", "Europe/London", "UTC"]
-  }
-})()
+// Node's (SSR) and the browser's (hydration) bundled ICU can genuinely
+// disagree on the full Intl.supportedValuesOf("timeZone") set/order, which
+// caused a hydration mismatch on this <select>'s <option> list. Render a
+// small fixed fallback (identical in both environments) for the first
+// paint, then swap in the real full list client-side after mount — a
+// post-hydration state update, not a mismatch.
+const FALLBACK_TIMEZONES = ["Asia/Tokyo", "America/New_York", "America/Los_Angeles", "Europe/London", "UTC"]
+
+const useTimezones = (current?: string) => {
+  const [timezones, setTimezones] = useState<string[]>(() =>
+    current && !FALLBACK_TIMEZONES.includes(current)
+      ? [...FALLBACK_TIMEZONES, current].sort()
+      : FALLBACK_TIMEZONES
+  )
+  useEffect(() => {
+    try {
+      setTimezones(Intl.supportedValuesOf("timeZone").sort())
+    } catch {
+      // Keep the fallback list.
+    }
+  }, [])
+  return timezones
+}
 
 const WEEKDAYS: { value: TWeekday; label: string }[] = [
   { value: 0, label: "Sun" },
@@ -31,6 +48,8 @@ const WEEKDAYS: { value: TWeekday; label: string }[] = [
 const selectClassName = "col-span-12 flex h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
 
 export default function WorkspaceForm({ workspace }: { workspace?: IWorkspace }) {
+  const t = useTranslations("WorkspaceForm")
+  const timezones = useTimezones(workspace?.timezone)
   const action = workspace ? updateWorkspaceForm.bind(null, workspace.id) : createWorkspaceForm
   const initialState: TActionState = { message: "", errors: {} }
   const [state, formAction, isPending] = useActionState(action, initialState)
@@ -47,7 +66,7 @@ export default function WorkspaceForm({ workspace }: { workspace?: IWorkspace })
   return (
     <form action={formAction}>
       <FormControl
-        label="Name"
+        label={t("name")}
         htmlFor="name"
         className="items-center mb-6"
         labelClassName="col-span-12 font-bold mb-2"
@@ -57,13 +76,13 @@ export default function WorkspaceForm({ workspace }: { workspace?: IWorkspace })
           id="name"
           name="name"
           defaultValue={workspace?.name}
-          placeholder="e.g. Acme Corp, Freelance Design"
+          placeholder={t("namePlaceholder")}
           className={clsx("col-span-12", { "border-destructive": errors.name })}
           required
         />
       </FormControl>
       <FormControl
-        label="Currency"
+        label={t("currency")}
         htmlFor="currency"
         className="items-center mb-6"
         labelClassName="col-span-12 font-bold mb-2"
@@ -76,14 +95,14 @@ export default function WorkspaceForm({ workspace }: { workspace?: IWorkspace })
           className={clsx(selectClassName, { "border-destructive": errors.currency })}
           required
         >
-          <option value="" disabled>Select one</option>
+          <option value="" disabled>{t("selectOne")}</option>
           <option value="yen">YEN</option>
           <option value="usd">USD</option>
           <option value="rmb">RMB</option>
         </select>
       </FormControl>
       <FormControl
-        label="Timezone"
+        label={t("timezone")}
         htmlFor="timezone"
         className="items-center mb-6"
         labelClassName="col-span-12 font-bold mb-2"
@@ -95,16 +114,16 @@ export default function WorkspaceForm({ workspace }: { workspace?: IWorkspace })
           className={clsx(selectClassName, { "border-destructive": errors.timezone })}
           required
         >
-          {TIMEZONES.map((tz) => (
+          {timezones.map((tz) => (
             <option key={tz} value={tz}>{tz}</option>
           ))}
         </select>
         <p className="col-span-12 text-xs text-muted-foreground mt-1">
-          This workspace's business timezone — used to decide what "today" is and to record accurate start/end times, independent of your own device's timezone.
+          {t("timezoneHint")}
         </p>
       </FormControl>
       <FormControl
-        label="Hourly wage"
+        label={t("hourlyWage")}
         htmlFor="hourlywage"
         className="items-center mb-2"
         labelClassName="col-span-12 font-bold mb-2"
@@ -121,17 +140,17 @@ export default function WorkspaceForm({ workspace }: { workspace?: IWorkspace })
         />
       </FormControl>
       <p className="text-sm text-muted-foreground mb-6">
-        Enter your rate exactly as agreed with the client, then say below whether it already includes tax.
+        {t("hourlyWageHint")}
       </p>
       <FormControl
-        label="Tax included in the rate above"
+        label={t("taxIncluded")}
         htmlFor="taxincluded"
         className="items-center mb-6"
         labelClassName="col-span-12 font-bold mb-2"
       >
         <div id="taxincluded" className="flex">
           <FormControl
-            label="Yes"
+            label={t("yes")}
             htmlFor="taxincluded-yes"
             className="items-center col-span-6"
             labelClassName="col-span-2 mr-2"
@@ -147,7 +166,7 @@ export default function WorkspaceForm({ workspace }: { workspace?: IWorkspace })
             />
           </FormControl>
           <FormControl
-            label="No"
+            label={t("no")}
             htmlFor="taxincluded-no"
             className="items-center col-span-6"
             labelClassName="col-span-2 mr-2"
@@ -165,7 +184,7 @@ export default function WorkspaceForm({ workspace }: { workspace?: IWorkspace })
         </div>
       </FormControl>
       <FormControl
-        label="Tax rate (%)"
+        label={t("taxRate")}
         htmlFor="taxrate"
         className="items-center mb-6"
         labelClassName="col-span-12 font-bold mb-2"
@@ -184,22 +203,22 @@ export default function WorkspaceForm({ workspace }: { workspace?: IWorkspace })
       </FormControl>
       <Card className="col-span-12 mb-6">
         <CardContent>
-          <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Rate breakdown (per hour)</p>
+          <p className="text-xs font-bold text-muted-foreground uppercase mb-2">{t("rateBreakdown")}</p>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-muted-foreground">Excl. tax</span>
+            <span className="text-muted-foreground">{t("exclTax")}</span>
             <span>{mark} {breakdown.exclTax.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="font-bold">Incl. tax</span>
+            <span className="font-bold">{t("inclTax")}</span>
             <strong>{mark} {breakdown.inclTax.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            The tax-included figure is what's used everywhere else in the app (records, totals).
+            {t("inclTaxHint")}
           </p>
         </CardContent>
       </Card>
       <FormControl
-        label="Work schedule"
+        label={t("workSchedule")}
         htmlFor="schedule"
         className="items-center mb-6"
         labelClassName="col-span-12 font-bold mb-2"
@@ -233,7 +252,7 @@ export default function WorkspaceForm({ workspace }: { workspace?: IWorkspace })
         className="w-full"
         aria-disabled={isPending}
       >
-        {isPending ? "Saving..." : workspace ? "Save" : "Create workspace"}
+        {isPending ? t("saving") : workspace ? t("save") : t("create")}
       </Button>
     </form>
   )

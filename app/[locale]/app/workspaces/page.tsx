@@ -1,5 +1,5 @@
 import React from "react"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 import { auth } from "@/auth"
 import { fetchWorkspacesByUserId } from "@/app/lib/api"
 import { archiveWorkspace, unarchiveWorkspace } from "@/app/lib/actions"
