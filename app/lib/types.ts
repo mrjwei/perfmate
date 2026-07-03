@@ -38,6 +38,10 @@ export interface IWorkspace extends Omit<z.infer<typeof workspaceBaseSchema>, 's
   userid: string
   archived: boolean
   schedule: TWeekday[]
+  // Not user-editable yet — every workspace is 'JP' (see workspaces.tax_country
+  // migration); the seam for a second country's tax module, not exposed in
+  // the create/update form schema since there's nothing to choose yet.
+  taxcountry: string
 }
 
 export interface IBreak {

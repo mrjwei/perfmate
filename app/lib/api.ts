@@ -47,6 +47,7 @@ type TWorkspaceRow = {
   archived: boolean
   schedule: (number | null)[] | null
   timezone: string
+  tax_country: string
 }
 
 const mapBreakRow = (b: TBreakRow, recordId: string): IBreak => ({
@@ -118,6 +119,25 @@ export const fetchPaginatedRecords = async (workspaceId: string, month: string) 
   } catch (error) {
     console.error(`Database error: ${error}`);
     throw new Error('Failed to fetch paginated records.');
+  }
+}
+
+export const fetchRecordsByWorkspaceIdAndYear = async (workspaceId: string, year: string) => {
+  noStore()
+  try {
+    const data = await sql<TRecordRow>`
+      SELECT * FROM records
+      WHERE workspace_id = ${workspaceId}
+      AND TO_CHAR(date, 'YYYY') = ${year}
+      ORDER BY date ASC;
+    `
+    const breaksByRecordId = await fetchBreaksByRecordIds(data.rows.map((r) => r.id))
+    return data.rows.map((record) =>
+      mapRecordRow(record, (breaksByRecordId.get(record.id) ?? []).map((b) => mapBreakRow(b, record.id)))
+    )
+  } catch (error) {
+    console.error(`Database error: ${error}`);
+    throw new Error('Failed to fetch records for year.');
   }
 }
 
@@ -266,6 +286,7 @@ const mapWorkspaceRow = (row: TWorkspaceRow): IWorkspace => ({
   archived: row.archived,
   schedule: (row.schedule ?? []).filter((w): w is TWeekday => w !== null),
   timezone: row.timezone,
+  taxcountry: row.tax_country,
 })
 
 export const fetchWorkspacesByUserId = async (userId: string) => {

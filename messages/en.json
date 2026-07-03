@@ -95,5 +95,14 @@
     "upgrade": "Upgrade to Pro",
     "manageSubscription": "Manage subscription",
     "statusWarning": "Subscription status: {status}"
+  },
+  "TaxExport": {
+    "title": "Tax export",
+    "description": "Export this workspace's annual income summary for your accountant or accounting software.",
+    "upsell": "Tax export is a Pro feature. Upgrade to Pro on the Settings page to export your annual summary.",
+    "accountantCsv": "Accountant CSV",
+    "freeeCsv": "freee CSV",
+    "mfCloudCsv": "MF Cloud CSV",
+    "pdfSummary": "PDF summary"
   }
 }

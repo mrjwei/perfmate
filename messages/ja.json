@@ -95,5 +95,14 @@
     "upgrade": "Proにアップグレード",
     "manageSubscription": "サブスクリプションを管理",
     "statusWarning": "サブスクリプションのステータス: {status}"
+  },
+  "TaxExport": {
+    "title": "税務エクスポート",
+    "description": "このワークスペースの年間収入サマリーを、税理士や会計ソフト用にエクスポートします。",
+    "upsell": "税務エクスポートはProプランの機能です。設定ページからProにアップグレードすると、年間サマリーをエクスポートできます。",
+    "accountantCsv": "税理士用CSV",
+    "freeeCsv": "freee用CSV",
+    "mfCloudCsv": "MFクラウド用CSV",
+    "pdfSummary": "PDFサマリー"
   }
 }
