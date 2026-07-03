@@ -85,5 +85,15 @@
     "breakHours": "Break Hours",
     "workHours": "Work Hours",
     "today": "Today"
+  },
+  "Billing": {
+    "title": "Billing",
+    "freePlan": "Free plan",
+    "proPlan": "Pro plan",
+    "freeDescription": "1 workspace, no tax export.",
+    "proDescription": "Unlimited workspaces and tax export.",
+    "upgrade": "Upgrade to Pro",
+    "manageSubscription": "Manage subscription",
+    "statusWarning": "Subscription status: {status}"
   }
 }

@@ -1,7 +1,7 @@
 import {unstable_noStore as noStore} from 'next/cache'
 import {sql} from '@/app/lib/db'
 import { getFormattedTimeString } from "@/app/lib/helpers"
-import { IBreak, IWorkspace, TWeekday } from "@/app/lib/types"
+import { IBreak, IUserPlan, IWorkspace, TWeekday } from "@/app/lib/types"
 
 // Shapes of the raw rows @vercel/postgres returns, before mapping to the
 // app's I* types (columns are snake_case/Date-typed as Postgres returns them).
@@ -208,6 +208,50 @@ export const fetchUserAuthByEmail = async (email: string) => {
     return data.rows[0] ?? null
   } catch (error) {
     throw new Error('Failed to get user for auth');
+  }
+}
+
+type TUserPlanRow = {
+  [column: string]: any
+  plan: string
+  plan_status: string | null
+  current_period_end: Date | string | null
+  stripe_customer_id: string | null
+}
+
+export const fetchUserPlanInfo = async (userId: string): Promise<IUserPlan | null> => {
+  noStore()
+  try {
+    const data = await sql<TUserPlanRow>`
+      SELECT plan, plan_status, current_period_end, stripe_customer_id
+      FROM users
+      WHERE id = ${userId}
+      LIMIT 1;
+    `
+    const row = data.rows[0]
+    if (!row) {
+      return null
+    }
+    return {
+      plan: row.plan === "pro" ? "pro" : "free",
+      planStatus: row.plan_status,
+      currentPeriodEnd: row.current_period_end ? String(row.current_period_end) : null,
+      stripeCustomerId: row.stripe_customer_id,
+    }
+  } catch (error) {
+    throw new Error('Failed to get user plan info');
+  }
+}
+
+export const fetchUserIdByStripeCustomerId = async (stripeCustomerId: string) => {
+  noStore()
+  try {
+    const data = await sql<{ id: string }>`
+      SELECT id FROM users WHERE stripe_customer_id = ${stripeCustomerId} LIMIT 1;
+    `
+    return data.rows[0]?.id ?? null
+  } catch (error) {
+    throw new Error('Failed to get user by Stripe customer id');
   }
 }
 

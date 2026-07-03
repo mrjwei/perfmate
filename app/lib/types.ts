@@ -66,6 +66,18 @@ export type TRecordsProps = {
 
 export type IUser = z.infer<typeof userBaseSchema>
 
+// Billing fields live on `users` but aren't part of the signup/settings form
+// schema (see IWorkspace's archived/schedule for the same pattern), so this
+// is a separate interface rather than an extension of IUser.
+export type TPlan = 'free' | 'pro'
+
+export interface IUserPlan {
+  plan: TPlan
+  planStatus: string | null
+  currentPeriodEnd: string | null
+  stripeCustomerId: string | null
+}
+
 export type TNotificationType = 'empty break end time' | 'empty work end time'
 
 export interface INotification {

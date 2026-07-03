@@ -3,12 +3,18 @@
 import { sql } from "@/app/lib/db"
 import { revalidatePath } from "next/cache"
 import { redirect, getPathname } from "@/i18n/navigation"
+// Stripe Checkout/portal URLs are external (checkout.stripe.com), not part
+// of this app's locale routing — the plain Next redirect skips next-intl's
+// locale-prefixing, which would otherwise mangle an absolute external URL.
+import { redirect as externalRedirect } from "next/navigation"
 import { getLocale } from "next-intl/server"
 import bcrypt from "bcrypt"
 import crypto from "crypto"
 import { zip } from "@/app/lib/helpers"
-import { fetchRecordById, fetchUserByEmail } from "@/app/lib/api"
+import { fetchRecordById, fetchUserByEmail, fetchUserPlanInfo, fetchWorkspacesByUserId } from "@/app/lib/api"
 import { sendPasswordResetEmail, sendVerificationEmail } from "@/app/lib/email"
+import { assertPlanAllows } from "@/app/lib/plan"
+import { stripe, STRIPE_PRO_PRICE_ID } from "@/app/lib/stripe"
 import {
   updateSchema,
   creationSchema,
@@ -662,6 +668,18 @@ export async function createWorkspaceForm(prevState: unknown, formData: FormData
   }
   const { name, hourlywage, currency, taxincluded, taxrate, schedule, timezone } = validatedFields.data
 
+  const [planInfo, existingWorkspaces] = await Promise.all([
+    fetchUserPlanInfo(session.user.id),
+    fetchWorkspacesByUserId(session.user.id),
+  ])
+  const planCheck = assertPlanAllows(planInfo?.plan ?? "free", {
+    type: "create_workspace",
+    currentWorkspaceCount: existingWorkspaces.filter((w) => !w.archived).length,
+  })
+  if (!planCheck.allowed) {
+    return { message: planCheck.reason, errors: {} }
+  }
+
   let workspaceId
   try {
     const data = await sql`
@@ -758,4 +776,61 @@ export async function updateUserInfo(prevState: unknown, formData: FormData) {
   revalidatePath(getPathname({ href: "/app", locale }))
   revalidatePath(getPathname({ href: "/app/setting", locale }))
   redirect({ href: "/app/setting", locale })
+}
+
+async function getOrCreateStripeCustomerId(userId: string, email: string): Promise<string> {
+  const planInfo = await fetchUserPlanInfo(userId)
+  if (planInfo?.stripeCustomerId) {
+    return planInfo.stripeCustomerId
+  }
+  const customer = await stripe!.customers.create({ email, metadata: { userId } })
+  await sql`UPDATE users SET stripe_customer_id = ${customer.id} WHERE id = ${userId};`
+  return customer.id
+}
+
+export async function createCheckoutSession(prevState: unknown, formData: FormData) {
+  const session = await auth()
+  if (!session?.user?.id || !session.user.email) {
+    return { message: "Not authenticated" }
+  }
+  if (!stripe || !STRIPE_PRO_PRICE_ID) {
+    return { message: "Billing isn't configured yet. Please try again later." }
+  }
+
+  const locale = await getLocale()
+  const customerId = await getOrCreateStripeCustomerId(session.user.id, session.user.email)
+
+  const checkoutSession = await stripe.checkout.sessions.create({
+    customer: customerId,
+    mode: "subscription",
+    line_items: [{ price: STRIPE_PRO_PRICE_ID, quantity: 1 }],
+    success_url: new URL(getPathname({ href: "/app/setting", locale }), getBaseUrl()).toString(),
+    cancel_url: new URL(getPathname({ href: "/app/setting", locale }), getBaseUrl()).toString(),
+  })
+  if (!checkoutSession.url) {
+    return { message: "Failed to start checkout. Please try again." }
+  }
+  externalRedirect(checkoutSession.url)
+}
+
+export async function createPortalSession(prevState: unknown, formData: FormData) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return { message: "Not authenticated" }
+  }
+  if (!stripe) {
+    return { message: "Billing isn't configured yet. Please try again later." }
+  }
+
+  const locale = await getLocale()
+  const planInfo = await fetchUserPlanInfo(session.user.id)
+  if (!planInfo?.stripeCustomerId) {
+    return { message: "No billing account found for this user yet." }
+  }
+
+  const portalSession = await stripe.billingPortal.sessions.create({
+    customer: planInfo.stripeCustomerId,
+    return_url: new URL(getPathname({ href: "/app/setting", locale }), getBaseUrl()).toString(),
+  })
+  externalRedirect(portalSession.url)
 }
