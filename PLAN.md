@@ -1,5 +1,7 @@
 # perfmate review & refactor plan
 
+Phases 0-6 below are a completed technical refactor. Phases 7+ are a **commercial productisation roadmap** (subscription/SaaS conversion) — not yet started.
+
 Freelancer time/wage tracking app, Next.js 15 App Router + raw-SQL Vercel Postgres + NextAuth. This plan covers reviewing the architecture, performance, and structure, refactoring for clarity/type safety, and extending the data model to support multiple time-logging "threads" instead of a single implicit employer.
 
 ## Phase 0 — Fix live bugs, reconstruct real schema — **Done**
@@ -59,3 +61,101 @@ Freelancer time/wage tracking app, Next.js 15 App Router + raw-SQL Vercel Postgr
 - Native `<select>`/checkbox/radio inputs were **restyled but not swapped** to Radix-based shadcn equivalents — those aren't native form elements and would need hidden-input mirroring to keep working with the existing server-action `formData.getAll()`/native-radio-group submission logic; not worth the correctness risk for this pass. `Input`/`Textarea`/`Label`/`Button` are native-element wrappers, so those were safe to swap directly.
 - Verified with a full signup → create-thread → home → records (incl. expanding the new Tabs chart view) → thread-settings browser flow via Playwright screenshots, not just typecheck/build.
 - **Found and fixed (pre-existing, unrelated to this phase):** `app/api/auth/[...nextauth]/route.ts` had never existed in this repo, so client-side `useSession()`/`SessionProvider` calls 404'd against `/api/auth/session` and threw a `ClientFetchError` in the browser console. Fixed by exporting `handlers` from `auth.ts` (NextAuth v5's `NextAuth()` call already returns it, it just wasn't destructured) and adding the route file re-exporting `GET`/`POST`. Verified `/api/auth/session` now returns `200`/`null` instead of `404`, and confirmed zero auth-related console errors across a full signup → dashboard browser flow.
+
+---
+
+# Commercial productisation roadmap (v2 — Japan-first, tax-focused)
+
+Supersedes the v1 draft of this roadmap (auth → billing → generic export → marketing → CI → admin → deferred teams). Sharpened after user feedback on four points: Japanese language is required (not optional), Japan is the beachhead market (not simultaneous global), the core paid differentiator is 確定申告-ready tax export (not generic CSV/invoicing), and "thread" is being renamed to "workspace" (Notion-style) as the occasion to also fix a disorganized header/sidebar.
+
+**Note on scope vs. language**: "Japan-first" is a decision about where to spend effort — tax logic, payment methods, marketing priority — not about which UI languages ship. English is not dropped: Phase 8 builds `en`+`ja` i18n scaffolding together from the outset, since once the locale-routing/middleware layer exists, adding a language is just translating strings, not new architecture. Dropping English now would mean redoing that routing/middleware work later for no savings, and would lose English-speaking users already in Japan (expats, foreign contractors working for JP clients) in the meantime.
+
+## Commercial viability verdict
+
+Generic time tracking has no moat — Toggl/Clockify/Harvest own that space. The real wedge is Japan-specific: per-workspace tax-inclusive/exclusive wage math (`threads.hourly_wage`/`currency`/`tax_rate`/`tax_included`, soon `workspaces.*`) plus a 確定申告-aligned annual export is a narrow pain point existing tools don't address — non-JP trackers ignore Japanese tax entirely, and JP-native tools (freee, MFクラウド) are broad accounting suites, not lightweight multi-employer wage trackers with tax export as a focused bolt-on. Position as *"a freelancer wage tracker for Japan that hands your accountant (or e-Tax) a clean 確定申告-ready summary,"* priced modestly (~¥500–1000/mo), targeting solo freelancers/individual contractors in Japan first. Multi-currency cross-workspace reporting and a second country's tax rules are explicitly backlogged — they dilute the wedge and don't serve the beachhead.
+
+## Revised build order
+
+1. **Phase 7 — Workspace rename** (full-stack) — first, before anything else is built on "thread" naming.
+2. **Phase 8 — i18n foundation** (English + Japanese) — right after, since both touch routing.
+3. **Phase 9 — Auth hardening** (prerequisite for billing).
+4. **Phase 10 — Billing infra (Stripe)**.
+5. **Phase 11 — Tax/export features** (the sharpened core differentiator).
+6. **Phase 12 — Marketing/landing page** (bilingual, JP-first).
+7. **Phase 13 — CI/deployment hardening**.
+8. **Phase 14 — Admin tooling** (once there are real subscribers).
+9. **Phase 15 — Multi-tenancy/teams** — still explicitly deferred.
+10. **Backlog** — multi-currency cross-workspace reporting, second-country tax support, OAuth login, `Intl.NumberFormat` currency formatting.
+
+## Phase 7 — Rename "thread" → "workspace" (full-stack) — **Not started**
+
+Confirmed scope (~39 files touch "thread"):
+- **Routes**: `app/app/[threadId]/` (layout, page, `records/`, `settings/`) → `app/app/[workspaceId]/`; `app/app/threads/` → `app/app/workspaces/`. All `params.threadId` references and `revalidatePath`/redirect strings built from it (~15+ call sites in `app/lib/actions.ts`).
+- **DB**: new migration renaming `threads` → `workspaces`, `thread_schedules` → `workspace_schedules`, `records.thread_id`/`breaks` FK column → `workspace_id` (via `node-pg-migrate`). Write as plain SQL `RENAME TABLE`/`RENAME COLUMN` (identifier rename only, no data movement) to keep it low-risk, and verify current prod schema state first.
+- **Types/schema/data layer**: `IThread`→`IWorkspace`, `TThreadRow`→`TWorkspaceRow`, `threadBaseSchema`/`threadCreationSchema`/`threadUpdateSchema` in `app/lib/schemas.ts`, `fetchThreadsByUserId`/`fetchThreadById`/`mapThreadRow` in `app/lib/api.ts`, `createThreadForm`/`updateThread`/`archiveThread` in `app/lib/actions.ts`.
+- **Components**: `app/ui/form/thread-form.tsx` → `workspace-form.tsx`, `app/ui/global-header/thread-switcher.tsx` → `workspace-switcher.tsx`, references in `aggregates.tsx`, `table.tsx`, `delete-button.tsx`, `button-group.tsx`, `clock.tsx`.
+- **Tests/mocks**: `app/lib/__tests__/{actions,api,helpers}.test.ts`, `test-utils/mock-data.ts`, button-variant tests — update fixtures/assertions alongside the rename, don't blind find-replace.
+
+**Header/sidebar restructure** (the actual UX fix motivating the rename, not just a word swap): currently the header crams a thread switcher into the same flex group as the title, separate from a profile-menu group on the right, while the sidebar *also* has a standalone "Threads" nav item doing similar-but-not-identical work to the header's switcher. Fix: keep the header to identity/account concerns only (logo, notification bell, profile menu); move the workspace switcher into the sidebar as a Notion-style picker at the top (above Home/Records), which both quick-switches and is the entry point to "Manage workspaces" (folding the separate standalone list page into the switcher's dropdown, not a separate top-level nav item). Files: `app/ui/global-header/global-header.tsx` (remove switcher), `app/ui/sidebar/sidebar.tsx` (add switcher at top, remove standalone "Workspaces" link), `thread-switcher.tsx` → `app/ui/sidebar/workspace-switcher.tsx`.
+
+## Phase 8 — i18n foundation (English default + Japanese) — **Not started**
+
+No i18n exists today (confirmed — no `next-intl`/`next-i18next`, no translation files, all strings hardcoded English JSX; dates hardcoded to `Intl.DateTimeFormat("en-US", ...)` in `app/lib/helpers.ts`).
+
+- Adopt **next-intl** (best App Router support, works with Server Components/Server Actions this app relies on).
+- Restructure routing under `app/[locale]/...` (locales: `en`, `ja`; default `en`, but detect `Accept-Language`/saved preference to default JP visitors to `ja`). Sequence after Phase 7 so the routing rename isn't done twice.
+- `middleware.ts` gains next-intl's locale-detection middleware composed with the existing NextAuth `auth` middleware.
+- Message files: `messages/en.json`, `messages/ja.json`, starting with auth, nav, workspace-form, records-table strings.
+- Fix `app/lib/helpers.ts`'s hardcoded `Intl.DateTimeFormat("en-US", ...)` to take a locale parameter, threaded from the request locale.
+- Currency display (`mapCurrencyToMark`, a manual symbol lookup) stays as-is for now — full `Intl.NumberFormat` currency formatting is backlog, not blocking for a JPY-primary JP launch.
+
+## Phase 9 — Auth hardening (prerequisite) — **Not started**
+
+Same as v1: password reset (`password_reset_tokens` migration, `requestPasswordReset`/`resetPassword` actions, `/forgot-password`/`/reset-password/[token]` pages), email verification (`users.email_verified_at`, gate billing on it), transactional email via Resend (`app/lib/email.ts`, template language driven by the user's locale from Phase 8). OAuth (Google) moved to backlog — not essential for a JP-first launch, revisit if signup friction becomes a real issue.
+
+## Phase 10 — Billing & subscription infrastructure (Stripe) — **Not started**
+
+Same mechanics as v1 (`users.stripe_customer_id`/`plan`/`plan_status`/`current_period_end`, `app/lib/stripe.ts`, `app/api/webhooks/stripe/route.ts` handling `checkout.session.completed`/`customer.subscription.updated`/`customer.subscription.deleted`/`invoice.payment_failed`, `createCheckoutSession`/`createPortalSession` actions, `app/lib/plan.ts`'s `assertPlanAllows` gating helper applied to workspace-count limits and Phase 11's tax-export actions), plus JP-specific notes: enable JPY as primary Checkout currency; consider enabling Konbini (convenience-store payment) alongside cards as a fast-follow since it's a common JP payment preference — cards-only is fine for v1.
+
+## Phase 11 — Tax/export features (sharpened core differentiator) — **Not started**
+
+Replaces v1's generic "CSV/invoice export" phase — same technical shape, sharpened toward the actual JP pain point.
+
+- **Schema**: add `workspaces.tax_country text not null default 'JP'` (per-workspace, consistent with the existing per-workspace currency/tax_rate/tax_included model) — the seam for later countries, not built out now.
+- **Country-scoped tax module**: `app/lib/tax/index.ts` defines a small interface (`getAnnualSummary(workspaceId, year)`, `getExportFormats()`) implemented per-country; `app/lib/tax/jp.ts` is the only implementation. Keeps "Japan-first but not Japan-only forever" without spending effort on a second country now.
+- **JP tax logic** (`app/lib/tax/jp.ts`): categorize annual income per workspace aligned to 確定申告's 収支内訳書/青色申告決算書-style breakdown (gross income, per-workspace totals, monthly breakdown). **Research needed at implementation time** to confirm exact column/category conventions expected by e-Tax's CSV import and freee/MFクラウド確定申告's import formats — verify against current tool docs, don't assume from this plan.
+- **Outputs**: CSV formatted for accountant handoff or e-Tax/freee/MFクラウド import (`app/lib/export.ts`, served via `app/app/[workspaceId]/export/route.ts` route handler — needs custom `Content-Disposition`); a bilingual (EN/JA) annual PDF summary per workspace via `app/lib/invoice.ts` (e.g. `@react-pdf/renderer`).
+- **Tier gating**: this is the Pro-tier headline feature — free tier keeps existing CRUD/records/aggregates only, Pro (~¥500–1000/mo) unlocks tax export plus unlimited workspaces. Gate via `assertPlanAllows` from Phase 10.
+- **Explicitly out of scope**: multi-currency cross-workspace reporting (backlog), second-country tax modules (backlog), actual e-Tax filing/submission (stay a feeder into existing filing tools, not a filer).
+
+## Phase 12 — Marketing surface & conversion (bilingual) — **Not started**
+
+Same structural fix as v1 (remove `/` → `/app` redirect in `next.config.mjs`, add `app/[locale]/(marketing)/page.tsx` + `pricing/page.tsx`, fix `middleware.ts` matcher to exclude public routes), now built directly under Phase 8's locale routing rather than English-only-then-retranslated. Landing copy leads with the 確定申告/tax-export wedge, not generic time tracking, defaulting to Japanese for JP-detected visitors.
+
+## Phase 13 — Deployment/CI hardening — **Not started**
+
+Same as v1: `.github/workflows/ci.yml` (lint/test/build on push/PR), Stripe/Resend secrets into Vercel env dashboard, webhook handler unit test, `stripe listen` documented for local dev.
+
+## Phase 14 — Admin/ops tooling (lightweight) — **Not started**
+
+Same as v1: `users.role` column, `app/app/admin/page.tsx` gated to admins, deep-linking to the Stripe dashboard rather than rebuilding billing UI, `mailto:` support link.
+
+## Phase 15 — Multi-tenancy / team seats — **Not started, deferred**
+
+Same rationale as v1: would require `organizations`/`memberships` tables, moving `workspaces.userid` → `workspaces.org_id`, re-auditing every access check, and moving billing from per-user to per-org. Explicitly deferred past initial launch — revisit only if solo-freelancer users actually ask to share workspaces with a bookkeeper/partner.
+
+## Backlog (not scheduled)
+
+- Multi-currency summary reporting across workspaces (demoted — doesn't serve the JP beachhead).
+- Second-country tax modules under `app/lib/tax/` (architecture supports it per Phase 11, no implementation planned).
+- OAuth (Google) login.
+- `Intl.NumberFormat` currency-style formatting (currently manual symbol lookup via `mapCurrencyToMark`).
+
+### Verification (for phases 7-14)
+
+- Run existing Vitest suite (`npm test`) after each phase; Phase 7 (rename) and Phase 8 (i18n restructure) are highest-risk for silent breakage — run the full suite plus a manual browser walkthrough after each, not just at the end.
+- After Phase 7: verify old `/app/[threadId]/*` URLs are gone, `/app/[workspaceId]/*` works, the migration applies cleanly against a prod-schema snapshot, and the sidebar workspace switcher replaces both the old header switcher and the standalone "Workspaces" nav item with no functionality loss.
+- After Phase 8: verify `/en/...` and `/ja/...` both render, default locale detection works for a JP `Accept-Language` header, dates display correctly in both locales.
+- After Phase 11: manually verify a generated tax export against current e-Tax/freee/MFクラウド import documentation before marketing it as "import-ready."
+- Stripe: use `stripe listen`/`stripe trigger` in test mode (JPY test transactions) to exercise checkout/webhook flow before going live.
+- Confirm bilingual marketing pages (`/[locale]` and `/[locale]/pricing`) are reachable without auth after the `middleware.ts` matcher update.
