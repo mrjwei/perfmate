@@ -51,6 +51,7 @@
     "home": "Home",
     "records": "Records",
     "setting": "Setting",
+    "admin": "Admin",
     "signOut": "Sign Out",
     "noNotification": "No notification",
     "selectWorkspace": "Select a workspace",
@@ -164,5 +165,17 @@
       "feature3": "Tax export: PDF, freee & MFクラウド確定申告 CSV",
       "cta": "Upgrade to Pro"
     }
+  },
+  "Admin": {
+    "title": "Admin",
+    "name": "Name",
+    "email": "Email",
+    "plan": "Plan",
+    "workspaces": "Workspaces",
+    "actions": "Actions",
+    "freePlan": "Free",
+    "proPlan": "Pro",
+    "emailUser": "Email",
+    "viewInStripe": "View in Stripe"
   }
 }

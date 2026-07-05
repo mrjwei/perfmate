@@ -7,21 +7,23 @@ import {
   HomeModernIcon,
   DocumentChartBarIcon,
   Cog6ToothIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline"
 import {
   HomeModernIcon as HomeModernSolidIcon,
   DocumentChartBarIcon as DocumentChartBarSolidIcon,
-  Cog6ToothIcon as Cog6ToothSolidIcon
+  Cog6ToothIcon as Cog6ToothSolidIcon,
+  ShieldCheckIcon as ShieldCheckSolidIcon,
 } from "@heroicons/react/24/solid"
 import LinkItem from "@/app/ui/link-item/link-item"
 import WorkspaceSwitcher from "@/app/ui/sidebar/workspace-switcher"
 import { IWorkspace } from "@/app/lib/types"
 
-// Matches /app/<workspaceId>/... (but not /app/workspaces or /app/setting, which
-// aren't scoped to a workspace).
-const WORKSPACE_ID_PATTERN = /^\/app\/(?!workspaces|setting)([^/]+)/
+// Matches /app/<workspaceId>/... (but not /app/workspaces, /app/setting, or
+// /app/admin, which aren't scoped to a workspace).
+const WORKSPACE_ID_PATTERN = /^\/app\/(?!workspaces|setting|admin)([^/]+)/
 
-export default function Sidebar({ workspaces }: { workspaces: IWorkspace[] }) {
+export default function Sidebar({ workspaces, isAdmin }: { workspaces: IWorkspace[]; isAdmin: boolean }) {
   const t = useTranslations("Nav")
   const pathname = usePathname()
   // Fall back to the first active workspace so Home/Records stay reachable even
@@ -51,6 +53,16 @@ export default function Sidebar({ workspaces }: { workspaces: IWorkspace[] }) {
       outlineIcon: <Cog6ToothIcon className="w-5" />,
       solidIcon: <Cog6ToothSolidIcon className="w-5" />,
     },
+    ...(isAdmin
+      ? [
+          {
+            href: "/app/admin",
+            children: t("admin"),
+            outlineIcon: <ShieldCheckIcon className="w-5" />,
+            solidIcon: <ShieldCheckSolidIcon className="w-5" />,
+          },
+        ]
+      : []),
   ]
 
   return (

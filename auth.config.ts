@@ -15,11 +15,13 @@ export const authConfig = {
     async jwt({user, token, trigger}) {
       if ((trigger === "update" && user) || user) {
         token.id = user.id
+        token.role = user.role
       }
       return token
     },
     async session({session, token}) {
       session.user.id = token.id as string
+      session.user.role = token.role as string
       return session
     }
   },

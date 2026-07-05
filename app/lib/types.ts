@@ -82,6 +82,19 @@ export interface IUserPlan {
   stripeCustomerId: string | null
 }
 
+// Admin dashboard row (Phase 14) — a read-only summary, not tied to the
+// signup/settings form schema like IUser.
+export interface IAdminUserSummary {
+  id: string
+  name: string
+  email: string
+  role: string
+  plan: TPlan
+  planStatus: string | null
+  stripeCustomerId: string | null
+  workspaceCount: number
+}
+
 export type TNotificationType = 'empty break end time' | 'empty work end time'
 
 export interface INotification {

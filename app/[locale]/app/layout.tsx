@@ -7,6 +7,7 @@ import Sidebar from "@/app/ui/sidebar/sidebar"
 import GlobalHeader from "@/app/ui/global-header/global-header"
 import { fetchRecordsToNotify, fetchWorkspacesByUserId } from "@/app/lib/api"
 import {mapRecordsToNoticifications} from '@/app/lib/helpers'
+import { isAdminRole } from "@/app/lib/admin"
 
 export default async function RootLayout({
   children,
@@ -35,7 +36,7 @@ export default async function RootLayout({
           user={session!.user}
           notifications={recordsToNotify ? mapRecordsToNoticifications(recordsToNotify) : null}
         />
-        <Sidebar workspaces={workspaces} />
+        <Sidebar workspaces={workspaces} isAdmin={isAdminRole(session!.user.role)} />
         <div className="flex h-full justify-end">
           <main className="relative h-full w-[calc(100%-178px)]">
             <div className="mx-auto px-10 py-24 xl:max-w-5xl">{children}</div>

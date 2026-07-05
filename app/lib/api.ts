@@ -1,7 +1,7 @@
 import {unstable_noStore as noStore} from 'next/cache'
 import {sql} from '@/app/lib/db'
 import { getFormattedTimeString } from "@/app/lib/helpers"
-import { IBreak, IUserPlan, IWorkspace, TWeekday } from "@/app/lib/types"
+import { IAdminUserSummary, IBreak, IUserPlan, IWorkspace, TWeekday } from "@/app/lib/types"
 
 // Shapes of the raw rows @vercel/postgres returns, before mapping to the
 // app's I* types (columns are snake_case/Date-typed as Postgres returns them).
@@ -33,6 +33,7 @@ type TUserRow = {
 
 type TUserAuthRow = TUserRow & {
   password: string
+  role: string
 }
 
 type TWorkspaceRow = {
@@ -220,7 +221,7 @@ export const fetchUserAuthByEmail = async (email: string) => {
   noStore()
   try {
     const data = await sql<TUserAuthRow>`
-      SELECT id, name, email, password
+      SELECT id, name, email, password, role
       FROM users
       WHERE email = ${email}
       LIMIT 1;
@@ -272,6 +273,43 @@ export const fetchUserIdByStripeCustomerId = async (stripeCustomerId: string) =>
     return data.rows[0]?.id ?? null
   } catch {
     throw new Error('Failed to get user by Stripe customer id');
+  }
+}
+
+type TAdminUserRow = {
+  [column: string]: any
+  id: string
+  name: string
+  email: string
+  role: string
+  plan: string
+  plan_status: string | null
+  stripe_customer_id: string | null
+  workspace_count: string
+}
+
+export const fetchAllUsersForAdmin = async (): Promise<IAdminUserSummary[]> => {
+  noStore()
+  try {
+    const data = await sql<TAdminUserRow>`
+      SELECT
+        u.id, u.name, u.email, u.role, u.plan, u.plan_status, u.stripe_customer_id,
+        (SELECT COUNT(*) FROM workspaces w WHERE w.userid = u.id) AS workspace_count
+      FROM users u
+      ORDER BY u.email ASC;
+    `
+    return data.rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      role: row.role,
+      plan: row.plan === "pro" ? "pro" : "free",
+      planStatus: row.plan_status,
+      stripeCustomerId: row.stripe_customer_id,
+      workspaceCount: Number(row.workspace_count),
+    }))
+  } catch {
+    throw new Error('Failed to fetch users for admin dashboard');
   }
 }
 

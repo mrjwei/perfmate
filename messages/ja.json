@@ -51,6 +51,7 @@
     "home": "ホーム",
     "records": "記録",
     "setting": "設定",
+    "admin": "管理",
     "signOut": "ログアウト",
     "noNotification": "通知はありません",
     "selectWorkspace": "ワークスペースを選択",
@@ -164,5 +165,17 @@
       "feature3": "税務エクスポート: PDF、freee・MFクラウド確定申告用CSV",
       "cta": "Proにアップグレード"
     }
+  },
+  "Admin": {
+    "title": "管理",
+    "name": "名前",
+    "email": "メールアドレス",
+    "plan": "プラン",
+    "workspaces": "ワークスペース",
+    "actions": "操作",
+    "freePlan": "無料",
+    "proPlan": "Pro",
+    "emailUser": "メール",
+    "viewInStripe": "Stripeで確認"
   }
 }
