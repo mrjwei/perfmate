@@ -104,5 +104,65 @@
     "freeeCsv": "freee CSV",
     "mfCloudCsv": "MF Cloud CSV",
     "pdfSummary": "PDF summary"
+  },
+  "Marketing": {
+    "nav": {
+      "pricing": "Pricing",
+      "login": "Log In",
+      "signUp": "Sign Up"
+    },
+    "footer": "© {year} Perfmate",
+    "hero": {
+      "title": "Get paid, track hours, and breeze through tax season.",
+      "subtitle": "Perfmate tracks time and wages by client, then exports a ready-to-file income summary for freee, MFクラウド確定申告, or your accountant — built for freelancers in Japan.",
+      "cta": "Start free",
+      "secondaryCta": "See pricing"
+    },
+    "problem": {
+      "title": "Tax season shouldn't mean digging through spreadsheets",
+      "body": "Freelancers juggling multiple clients spend hours every filing season reconstructing a year of income by hand. Perfmate keeps an accurate record all year, so filing takes minutes, not days."
+    },
+    "features": {
+      "tracking": {
+        "title": "Track time per client",
+        "body": "Log hours per workspace — client, project, or role — each with its own hourly wage, currency, and schedule."
+      },
+      "wages": {
+        "title": "Automatic wage & tax math",
+        "body": "See tax-inclusive and tax-exclusive totals instantly, per workspace, all year round."
+      },
+      "export": {
+        "title": "One-click tax export",
+        "body": "Export your annual income summary as a PDF, or a CSV formatted for freee or MFクラウド確定申告."
+      }
+    },
+    "pricingTeaser": {
+      "title": "Simple pricing",
+      "body": "Start free. Upgrade when you need more.",
+      "point1": "Free: 1 workspace, unlimited time records",
+      "point2": "Pro: unlimited workspaces",
+      "point3": "Pro: tax export (PDF & CSV)",
+      "cta": "View full pricing"
+    }
+  },
+  "Pricing": {
+    "title": "Simple, transparent pricing",
+    "subtitle": "Start free. Upgrade for unlimited workspaces and tax export.",
+    "free": {
+      "title": "Free",
+      "price": "¥0/mo",
+      "feature1": "1 workspace",
+      "feature2": "Unlimited time records",
+      "excluded1": "Tax export",
+      "cta": "Start free"
+    },
+    "pro": {
+      "title": "Pro",
+      "price": "¥500/mo",
+      "feature1": "Everything in Free",
+      "feature2": "Unlimited workspaces",
+      "feature3": "Tax export: PDF, freee & MFクラウド確定申告 CSV",
+      "cta": "Upgrade to Pro"
+    }
   }
 }
