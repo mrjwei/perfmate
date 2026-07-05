@@ -87,7 +87,7 @@ export async function updateRecord(
         WHERE id=${id};
       `
     }
-  } catch (error) {
+  } catch {
     return {
       message: "Database error: failed to update record",
     }
@@ -102,7 +102,7 @@ export async function deleteRecord(workspaceId: string, id: string, month?: stri
       RETURNING date;
 		`
     date = data.rows[0].date
-  } catch (error) {
+  } catch {
     return {
       message: "Database error: failed to delete record",
     }
@@ -166,7 +166,7 @@ export async function updateBreak(
         WHERE id=${id};
       `
     }
-  } catch (error) {
+  } catch {
     return {
       message: "Database error: failed to create record",
     }
@@ -179,7 +179,7 @@ export async function deleteBreak(id: string) {
 	    DELETE FROM breaks WHERE id=${id};
 		`
     return { message: "Deleted break" }
-  } catch (error) {
+  } catch {
     return {
       message: "Database error: failed to delete break",
     }
@@ -203,7 +203,7 @@ export async function createBreak(
       VALUES (${recordId}, ${starttime});
     `
     }
-  } catch (error) {
+  } catch {
     return {
       message: "Database error: failed to create break",
     }
@@ -299,7 +299,7 @@ export async function editForm(
         })
       )
     }
-  } catch (error) {
+  } catch {
     return {
       message: "Database error: failed to update record",
       errors: {},
@@ -459,7 +459,7 @@ export async function createUser(data: Omit<IUser, "id">) {
       RETURNING id, email;
     `
     return data.rows[0]
-  } catch (error) {
+  } catch {
     return {
       message: "Database error: failed to create user",
     }
@@ -473,7 +473,7 @@ export async function updateUser(data: Pick<IUser, "id" | "name">) {
       SET name=${data.name}
       WHERE id=${data.id};
     `
-  } catch (error) {
+  } catch {
     return {
       message: "Database error: failed to update user",
     }
@@ -689,7 +689,7 @@ export async function createWorkspaceForm(prevState: unknown, formData: FormData
     `
     workspaceId = data.rows[0].id
     await replaceWorkspaceSchedule(workspaceId, schedule)
-  } catch (error) {
+  } catch {
     return { message: "Database error: failed to create workspace", errors: {} }
   }
   const locale = await getLocale()
@@ -727,7 +727,7 @@ export async function updateWorkspaceForm(
       WHERE id=${id};
     `
     await replaceWorkspaceSchedule(id, schedule)
-  } catch (error) {
+  } catch {
     return {
       message: "Database error: failed to update workspace",
       errors: {},
@@ -788,7 +788,7 @@ async function getOrCreateStripeCustomerId(userId: string, email: string): Promi
   return customer.id
 }
 
-export async function createCheckoutSession(prevState: unknown, formData: FormData) {
+export async function createCheckoutSession(_prevState: unknown, _formData: FormData) {
   const session = await auth()
   if (!session?.user?.id || !session.user.email) {
     return { message: "Not authenticated" }
@@ -813,7 +813,7 @@ export async function createCheckoutSession(prevState: unknown, formData: FormDa
   externalRedirect(checkoutSession.url)
 }
 
-export async function createPortalSession(prevState: unknown, formData: FormData) {
+export async function createPortalSession(_prevState: unknown, _formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) {
     return { message: "Not authenticated" }

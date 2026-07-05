@@ -20,7 +20,7 @@ export default function StartWorkingButton({
   starttimeStr: string
 }) {
   const startWorkingAction = startWorking.bind(null, userid, workspaceId, dateStr, starttimeStr)
-  const [state, formAction, isPending] = useActionState(startWorkingAction, null)
+  const [, formAction, isPending] = useActionState(startWorkingAction, null)
   return (
     <form action={formAction}>
       <Button

@@ -196,7 +196,7 @@ export const fetchLastRecord = async (workspaceId: string) => {
     const breaks = await fetchBreaksByRecordId(record.id)
 
     return mapRecordRow(record, breaks.map((b) => mapBreakRow(b, record.id)))
-  } catch (error) {
+  } catch {
     throw new Error('Failed to fetch last record.');
   }
 }
@@ -211,7 +211,7 @@ export const fetchUserByEmail = async (email: string) => {
       LIMIT 1;
     `
     return data.rows[0] ?? null
-  } catch (error) {
+  } catch {
     throw new Error('Failed to get user');
   }
 }
@@ -226,7 +226,7 @@ export const fetchUserAuthByEmail = async (email: string) => {
       LIMIT 1;
     `
     return data.rows[0] ?? null
-  } catch (error) {
+  } catch {
     throw new Error('Failed to get user for auth');
   }
 }
@@ -258,7 +258,7 @@ export const fetchUserPlanInfo = async (userId: string): Promise<IUserPlan | nul
       currentPeriodEnd: row.current_period_end ? String(row.current_period_end) : null,
       stripeCustomerId: row.stripe_customer_id,
     }
-  } catch (error) {
+  } catch {
     throw new Error('Failed to get user plan info');
   }
 }
@@ -270,7 +270,7 @@ export const fetchUserIdByStripeCustomerId = async (stripeCustomerId: string) =>
       SELECT id FROM users WHERE stripe_customer_id = ${stripeCustomerId} LIMIT 1;
     `
     return data.rows[0]?.id ?? null
-  } catch (error) {
+  } catch {
     throw new Error('Failed to get user by Stripe customer id');
   }
 }

@@ -1,13 +1,33 @@
-import globals from "globals";
-import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
-import pluginReact from "eslint-plugin-react";
+import { FlatCompat } from "@eslint/eslintrc"
 
+const compat = new FlatCompat({ baseDirectory: import.meta.dirname })
 
-export default [
-  {files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"]},
-  {languageOptions: { globals: globals.browser }},
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
-];
+const config = [
+  {
+    ignores: [
+      // Vendored/unused component library, not imported by the app.
+      "design-system/**",
+      // node-pg-migrate migrations run under plain Node/CommonJS, not the
+      // app's TS/React lint rules.
+      "migrations/**",
+      "scripts/**",
+      ".next/**",
+      "node_modules/**",
+    ],
+  },
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    rules: {
+      // Some server actions must keep an unused leading (prevState, formData)
+      // pair to match useActionState's required signature — allow opting out
+      // via an underscore prefix instead of deleting the params.
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      // Raw Postgres row types intentionally use an index signature (`[column:
+      // string]: any`) since the DB driver returns genuinely untyped rows —
+      // downgraded rather than forcing `unknown` casts through every mapper.
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
+  },
+]
+
+export default config

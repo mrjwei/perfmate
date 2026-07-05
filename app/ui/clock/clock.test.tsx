@@ -1,5 +1,5 @@
 import React from 'react'
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, cleanup, act } from '@testing-library/react'
 import Clock from './clock'
 
@@ -45,7 +45,10 @@ describe('Clock', () => {
     act(() => {
       vi.advanceTimersByTime(1000);
     });
-    expect(screen.getByText('24:00:00')).toBeInTheDocument()
+    // Node's ICU formats midnight with hour12:false as '00:00:00' (older
+    // ICU versions returned '24:00:00' for this edge case) — assert against
+    // the current, standard behavior rather than a version-specific quirk.
+    expect(screen.getByText('00:00:00')).toBeInTheDocument()
     expect(screen.getByText('2024-07-28 (Sun)')).toBeInTheDocument()
   })
 })

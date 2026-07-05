@@ -26,7 +26,7 @@ export default function EndWorkingButton({
   }
 
   const endWorkingAction = endWorking.bind(null, workspaceId, recordId, endtimeStr)
-  const [state, formAction, isPending] = useActionState(endWorkingAction, null)
+  const [, formAction, isPending] = useActionState(endWorkingAction, null)
   return (
     <form action={formAction}>
       <Button

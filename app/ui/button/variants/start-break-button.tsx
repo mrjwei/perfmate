@@ -26,7 +26,7 @@ export default function StartBreakButton({
   }
 
   const startBreakAction = startBreak.bind(null, workspaceId, recordId, starttimeStr)
-  const [state, formAction, isPending] = useActionState(startBreakAction, null)
+  const [, formAction, isPending] = useActionState(startBreakAction, null)
   return (
     <form action={formAction}>
       <Button

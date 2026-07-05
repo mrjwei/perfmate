@@ -388,7 +388,7 @@ export const mapRecordsToNoticifications = (records: IRecord[]) => {
       text: `${record.date}: work not ended`,
       isUrgent: true
     },
-    ...record.breaks.map((_) => ({
+    ...record.breaks.map(() => ({
       type: 'empty break end time' as TNotificationType,
       navigateToPath: `/app/records/${record.id}/edit?month=${dateStrToMonthStr(record.date)}`,
       text: `${record.date}: break not ended`,
