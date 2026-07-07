@@ -45,10 +45,12 @@ describe('Clock', () => {
     act(() => {
       vi.advanceTimersByTime(1000);
     });
-    // Node's ICU formats midnight with hour12:false as '00:00:00' (older
-    // ICU versions returned '24:00:00' for this edge case) — assert against
-    // the current, standard behavior rather than a version-specific quirk.
-    expect(screen.getByText('00:00:00')).toBeInTheDocument()
+    // Whether toLocaleTimeString(..., {hour12: false}) renders midnight as
+    // '00:00:00' or '24:00:00' depends on the ICU version bundled with the
+    // Node runtime, not on this app's code — e.g. Node 20 (this repo's CI)
+    // and Node 23 (observed in local dev) disagree. Accept either rather
+    // than asserting one is "correct."
+    expect(screen.getByText((text) => text === '00:00:00' || text === '24:00:00')).toBeInTheDocument()
     expect(screen.getByText('2024-07-28 (Sun)')).toBeInTheDocument()
   })
 })
