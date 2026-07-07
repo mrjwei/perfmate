@@ -1,6 +1,6 @@
 # perfmate review & refactor plan
 
-Phases 0-6 below are a completed technical refactor. Phases 7+ are a **commercial productisation roadmap** (subscription/SaaS conversion) — not yet started.
+Phases 0-6 below are a completed technical refactor. Phases 7-14 are a **commercial productisation roadmap** (subscription/SaaS conversion) — **done** (2026-07-01 through 2026-07-05). Phase 15 was skipped by explicit decision rather than completed (see its entry below). **This plan is now finalized** — no further phases are planned; only the backlog remains as unscheduled future work.
 
 Freelancer time/wage tracking app, Next.js 15 App Router + raw-SQL Vercel Postgres + NextAuth. This plan covers reviewing the architecture, performance, and structure, refactoring for clarity/type safety, and extending the data model to support multiple time-logging "threads" instead of a single implicit employer.
 
@@ -84,7 +84,7 @@ Generic time tracking has no moat — Toggl/Clockify/Harvest own that space. The
 6. **Phase 12 — Marketing/landing page** (bilingual, JP-first).
 7. **Phase 13 — CI/deployment hardening**.
 8. **Phase 14 — Admin tooling** (once there are real subscribers).
-9. **Phase 15 — Multi-tenancy/teams** — still explicitly deferred.
+9. **Phase 15 — Multi-tenancy/teams** — skipped (see its entry below).
 10. **Backlog** — multi-currency cross-workspace reporting, second-country tax support, OAuth login, `Intl.NumberFormat` currency formatting.
 
 ## Phase 7 — Rename "thread" → "workspace" (full-stack) — **Done**
@@ -201,9 +201,13 @@ Replaces v1's generic "CSV/invoice export" phase — same technical shape, sharp
 - **`messages/{en,ja}.json`**: added `Nav.admin` and a new `Admin.*` namespace (title, column headers, plan labels, action labels).
 - Verified via a full signup → Playwright browser flow: confirmed a regular user sees no "Admin" sidebar link and gets redirected away from `/app/admin` if they navigate there directly; promoted the same test user to `role='admin'` directly in the DB, logged out/back in (to pick up the new JWT claim), confirmed the Admin link appears, the table lists all users (including legitimate leftover test accounts from prior phases' verification), and — after also setting `plan='pro'`/`stripe_customer_id='cus_TEST123'` on the test row — confirmed the "View in Stripe" link renders with the correct test-mode URL. Checked both `/en` and `/ja` renders via screenshot. Cleaned up the test user/workspace afterward.
 
-## Phase 15 — Multi-tenancy / team seats — **Not started, deferred**
+## Phase 15 — Multi-tenancy / team seats — **Skipped** (2026-07-05)
 
-Same rationale as v1: would require `organizations`/`memberships` tables, moving `workspaces.userid` → `workspaces.org_id`, re-auditing every access check, and moving billing from per-user to per-org. Explicitly deferred past initial launch — revisit only if solo-freelancer users actually ask to share workspaces with a bookkeeper/partner.
+Would require `organizations`/`memberships` tables, moving `workspaces.userid` → `workspaces.org_id`, re-auditing every access check, and moving billing from per-user to per-org — a data-model change with a large blast radius across auth, billing, and every workspace-scoped query. Skipped rather than deferred-and-forgotten: this is a deliberate decision to stop the roadmap here, not an oversight. Revisit only if solo-freelancer users actually ask to share workspaces with a bookkeeper/partner — if so, re-read this section and Phase 7's workspace-rename notes above before starting, since multi-tenancy will touch nearly every access check added since.
+
+## Roadmap status: finalized (2026-07-05)
+
+Phases 0-14 are complete and merged into their respective `improve/phaseN` branches (not yet merged to `main` — see [[git_workflow]]). Phase 15 is skipped. No further phases of this roadmap are planned. Future work should come from the backlog below, a fresh ask, or a new roadmap written from scratch — not from continuing this numbered sequence.
 
 ## Backlog (not scheduled)
 
