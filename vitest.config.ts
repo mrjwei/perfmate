@@ -15,14 +15,18 @@ export default defineConfig({
       // it, so Vite's ESM resolver can't find it under Vitest without an
       // explicit alias to the concrete file.
       'next/navigation': path.resolve(dirname, 'node_modules/next/navigation.js'),
+      // next-auth's env.js imports the bare 'next/server' specifier the
+      // same way — same missing-exports-map issue, same fix.
+      'next/server': path.resolve(dirname, 'node_modules/next/server.js'),
     },
   },
   ssr: {
-    // Without this, Vite treats next-intl as an external SSR dependency and
-    // loads it via Node's native resolver (bypassing the alias above, which
-    // only applies to Vite-resolved imports), reintroducing the same
-    // "next/navigation" resolution failure under Vitest.
-    noExternal: ['next-intl'],
+    // Without this, Vite treats next-intl/next-auth as external SSR
+    // dependencies and loads them via Node's native resolver (bypassing the
+    // aliases above, which only apply to Vite-resolved imports),
+    // reintroducing the same "next/navigation"/"next/server" resolution
+    // failures under Vitest.
+    noExternal: ['next-intl', 'next-auth'],
   },
   test: {
     globals: true,
